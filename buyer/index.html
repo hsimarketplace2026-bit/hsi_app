@@ -385,7 +385,15 @@
     else badge.classList.add('hidden');
   }
 
-  async function initBuyerApp() { switchTab('orders'); updateCartBadge(); }
+  async function initBuyerApp() {
+    switchTab('orders');
+    updateCartBadge();
+    if (new URLSearchParams(window.location.search).get('cart') === 'open') {
+      // clear the param so refresh doesn't reopen
+      history.replaceState({}, '', window.location.pathname);
+      toggleCart();
+    }
+  }
 
   // ---------- CART / CHECKOUT ----------
   async function loadCart() {
