@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Seller Dashboard — HSI Marketplace</title>
+  <meta name="theme-color" content="#14532d" />
+  <link rel="manifest" href="../manifest.json" />
+  <link rel="apple-touch-icon" href="../icon-192.png" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="HSI Market" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    :root { --green-nav: #14532d; --green-accent: #16a34a; --green-hover: #15803d; }
+    .nav-bg { background-color: var(--green-nav); }
+    .btn-primary { background-color: var(--green-accent); }
+    .btn-primary:hover { background-color: var(--green-hover); }
+    #toast-container { position: fixed; bottom: 1.5rem; right: 1rem; z-index: 9999; display: flex; flex-direction: column; gap: 0.5rem; }
+    .toast { padding: 0.75rem 1.25rem; border-radius: 0.5rem; color: white; font-size: 0.875rem; max-width: 320px; animation: slideIn 0.3s ease; }
+    @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+    .tab-btn.active { background-color: #16a34a; color: white; }
+    .status-pending { background:#fef3c7;color:#92400e; }
+    .status-payment_uploaded { background:#dbeafe;color:#1e40af; }
+    .status-payment_verified { background:#e0e7ff;color:#3730a3; }
+    .status-processing { background:#ffedd5;color:#9a3412; }
+    .status-completed { background:#dcfce7;color:#166534; }
+    .status-cancelled { background:#fee2e2;color:#991b1b; }
+  </style>
+</head>
+<body class="bg-green-50 text-gray-800 font-sans">
+
+<div id="toast-container"></div>
+
+<script>
+  const SUPABASE_URL = 'https://emwhyzrrzifxuizkrqua.supabase.co';
+  const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVtd2h5enJyemlmeHVpemtycXVhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzkzMDU0MTUsImV4cCI6MjA5NDg4MTQxNX0.vBlw_gEGlT1Asac523-iIEXJI9l4bGRJxSoyEExuhUc';
+  const { createClient } = supabase;
+  const sb = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  let currentUser = null;
+
+  (async () => {
+    const { data: { session } } = await sb.auth.getSession();
+    if (!session) { window.location.href = '../'; return; }
+    const { data: profile } = await sb.from('profiles').select('*').eq('id', session.user.id).single();
+    if (!profile || profile.role !== 'seller') { window.location.href = '../'; return; }
+    currentUser = { ...session.user, ...profile };
+    document.getElementById('user-name').textContent = profile.farm_name || profile.full_name || session.user.email;
+    if (profile.status !== 'active') {
+      document.getElementById('pending-banner').classList.remove('hidden');
+      document.getElementById('main-content').classList.add('hidden');
+      return;
+    }
+    initSellerApp();
+  })();
+</script>
+
+<nav class="nav-bg text-white sticky top-0 z-40 shadow-lg">
+  <div class="max-w-5xl mx-auto px-4 py-3 flex items-center justify-between">
+    <a href="../" class="flex items-center gap-2 font-bold">
+      <img src="../applogo.png" alt="HSI" class="w-7 h-7 rounded" onerror="this.style.display='none'" />
+      <span>HSI Marketplace</span>
+    </a>
+    <div class="flex items-center gap-3">
+      <span id="user-name" class="text-green-200 text-sm hidden sm:inline"></span>
+      <button onclick="doLogout()" class="bg-green-800 hover:bg-green-700 text-sm px-3 py-1.5 rounded-full transition">Logout</button>
+    </div>
+  </div>
+</nav>
+
+<!-- PENDING BANNER -->
+<div id="pending-banner" class="hidden max-w-5xl mx-auto px-4 py-20 text-center">
+  <div class="text-5xl mb-4">⏳</div>
+  <h2 class="text-2xl font-bold text-green-900 mb-2">Account Pending Approval</h2>
+  <p class="text-gray-600 mb-6">Your seller account is awaiting admin review. You'll be notified once approved.</p>
+  <a href="../" class="btn-primary text-white px-6 py-2.5 rounded-full transition font-medium inline-block">Back to Home</a>
+</div>
+
+<div id="main-content" class="max-w-5xl mx-auto px-4 py-6">
+  <h1 class="text-2xl font-bold text-green-900 mb-6">Seller Dashboard</h1>
+
+  <div class="flex border border-green-200 rounded-xl overflow-hidden mb-6">
+    <button onclick="switchTab('products')" id="tab-products" class="tab-btn active flex-1 py-2.5 text-sm font-semibold transition">🌿 Products</button>
+    <button onclick="switchTab('orders')" id="tab-orders" class="tab-btn flex-1 py-2.5 text-sm font-semibold bg-white text-green-700 transition">📦 Orders</button>
+    <button onclick="switchTab('analytics')" id="tab-analytics" class="tab-btn flex-1 py-2.5 text-sm font-semibold bg-white text-green-700 transition">📊 Analytics</button>
+    <button onclick="switchTab('profile')" id="tab-profile" class="tab-btn flex-1 py-2.5 text-sm font-semibold bg-white text-green-700 transition">👤 Profile</button>
+  </div>
+
+  <!-- PRODUCTS TAB -->
+  <div id="panel-products">
+    <div class="flex justify-between items-center mb-4">
+      <h2 class="text-lg font-bold text-green-900">My Products</h2>
+      <button onclick="openProductModal()" class="btn-primary text-white text-sm px-5 py-2 rounded-full transition">+ Add Product</button>
+    </div>
+    <div id="products-list" class="grid sm:grid-cols-2 gap-4">
+      <p class="text-gray-400 text-sm col-span-full text-center py-8">Loading products…</p>
+    </div>
+  </div>
+
+  <!-- ORDERS TAB -->
+  <div id="panel-orders" class="hidden">
+    <div id="orders-list" class="space-y-4">
+      <p class="text-gray-400 text-sm text-center py-8">Loading orders…</p>
+    </div>
+  </div>
+
+  <!-- ANALYTICS TAB -->
+  <div id="panel-analytics" class="hidden">
+    <div id="analytics-content">
+      <p class="text-gray-400 text-sm text-center py-8">Loading analytics…</p>
+    </div>
+  </div>
+
+  <!-- PROFILE TAB -->
+  <div id="panel-profile" class="hidden">
+    <div class="bg-white rounded-xl p-6 shadow border border-green-100">
+      <h3 class="text-lg font-bold text-green-900 mb-4">Edit Profile</h3>
+      <form onsubmit="saveProfile(event)" class="space-y-4">
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Full Name</label>
+          <input type="text" id="profile-name" class="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-green-500" />
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Farm Name</label>
+          <input type="text" id="profile-farm-name" class="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-green-500" />
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Farm Location</label>
+          <input type="text" id="profile-farm-location" class="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-green-500" />
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Phone</label>
+          <input type="tel" id="profile-phone" class="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-green-500" />
+        </div>
+        <button type="submit" class="btn-primary text-white font-semibold px-6 py-2.5 rounded-lg transition">Save Changes</button>
+      </form>
+      <hr class="my-6 border-green-100" />
+      <button onclick="doLogout()" class="w-full bg-red-50 text-red-600 hover:bg-red-100 font-medium py-2.5 rounded-lg transition text-sm">Logout</button>
+    </div>
+  </div>
+</div>
+
+<!-- PRODUCT MODAL -->
+<div id="product-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4">
+  <div class="absolute inset-0 bg-black bg-opacity-50" onclick="closeProductModal()"></div>
+  <div class="relative bg-white rounded-2xl w-full max-w-lg max-h-screen overflow-y-auto p-6 shadow-2xl">
+    <button onclick="closeProductModal()" class="absolute top-3 right-4 text-gray-400 hover:text-gray-600 text-2xl">&times;</button>
+    <h3 id="product-modal-title" class="text-xl font-bold text-green-900 mb-4">Add Product</h3>
+    <form onsubmit="saveProduct(event)" class="space-y-4">
+      <input type="hidden" id="product-id" />
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1">Product Name *</label>
+        <input type="text" id="prod-name" required placeholder="e.g. Romaine Lettuce"
+          class="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-green-500" />
+      </div>
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1">Category *</label>
+        <select id="prod-category" required class="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-green-500">
+          <option value="Vegetables">Vegetables</option>
+          <option value="Fruits">Fruits</option>
+          <option value="Herbs">Herbs</option>
+          <option value="Other">Other</option>
+        </select>
+      </div>
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1">Description</label>
+        <textarea id="prod-desc" rows="2" placeholder="Describe your product…"
+          class="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-green-500"></textarea>
+      </div>
+      <div class="grid grid-cols-2 gap-3">
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Price (₱) *</label>
+          <input type="number" id="prod-price" required min="0" step="0.01" placeholder="0.00"
+            class="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-green-500" />
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Unit *</label>
+          <input type="text" id="prod-unit" required placeholder="kg / bundle / pc"
+            class="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-green-500" />
+        </div>
+      </div>
+      <div class="grid grid-cols-2 gap-3">
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Quantity *</label>
+          <input type="number" id="prod-quantity" required min="0" placeholder="0"
+            class="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-green-500" />
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Harvest Date</label>
+          <input type="date" id="prod-harvest"
+            class="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-green-500" />
+        </div>
+      </div>
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1">Product Image</label>
+        <input type="file" id="prod-image" accept="image/*"
+          class="w-full text-sm text-gray-600 file:mr-3 file:py-2 file:px-4 file:rounded-full file:border-0 file:bg-green-100 file:text-green-700 file:font-medium hover:file:bg-green-200" />
+        <div id="prod-current-image" class="mt-2 hidden">
+          <img id="prod-image-preview" src="" alt="Current" class="h-20 rounded-lg object-cover" />
+        </div>
+      </div>
+      <button type="submit" id="product-save-btn" class="w-full btn-primary text-white font-semibold py-3 rounded-xl transition">Save Product</button>
+    </form>
+  </div>
+</div>
+
+<script>
+  function showToast(msg, type = 'success') {
+    const c = document.getElementById('toast-container');
+    const t = document.createElement('div');
+    t.className = `toast ${type === 'error' ? 'bg-red-600' : type === 'warning' ? 'bg-amber-500' : 'bg-green-700'}`;
+    t.textContent = msg;
+    c.appendChild(t);
+    setTimeout(() => t.remove(), 3500);
+  }
+
+  function switchTab(tab) {
+    ['products','orders','analytics','profile'].forEach(t => {
+      document.getElementById(`panel-${t}`).classList.toggle('hidden', t !== tab);
+      const btn = document.getElementById(`tab-${t}`);
+      btn.classList.toggle('active', t === tab);
+      btn.classList.toggle('bg-white', t !== tab);
+      btn.classList.toggle('text-green-700', t !== tab);
+    });
+    if (tab === 'orders') loadOrders();
+    if (tab === 'analytics') loadAnalytics();
+    if (tab === 'profile') loadProfile();
+  }
+
+  async function initSellerApp() { loadProducts(); }
+
+  // ---- PRODUCTS ----
+  async function loadProducts() {
+    const { data: products } = await sb.from('products')
+      .select('*')
+      .eq('seller_id', currentUser.id)
+      .order('created_at', { ascending: false });
+    const el = document.getElementById('products-list');
+    if (!products || products.length === 0) {
+      el.innerHTML = '<p class="col-span-full text-gray-400 text-sm text-center py-8">No products yet. Add your first!</p>';
+      return;
+    }
+    el.innerHTML = products.map(p => `
+      <div class="bg-white rounded-xl overflow-hidden shadow border border-green-100">
+        <div class="h-32 bg-green-100 overflow-hidden">
+          ${p.image_url ? `<img src="${p.image_url}" alt="${p.name}" class="w-full h-full object-cover" />` : '<div class="w-full h-full flex items-center justify-center text-4xl">🌿</div>'}
+        </div>
+        <div class="p-4">
+          <div class="flex items-start justify-between mb-1">
+            <h4 class="font-semibold text-sm text-gray-800">${p.name}</h4>
+            <span class="text-xs px-2 py-0.5 rounded-full font-medium ${p.status === 'active' ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-500'}">${p.status}</span>
+          </div>
+          <p class="text-xs text-gray-500 mb-2">${p.category} · ${p.quantity} ${p.unit} available</p>
+          <p class="text-green-700 font-bold text-sm mb-3">₱${parseFloat(p.price).toFixed(2)} / ${p.unit}</p>
+          <div class="flex gap-2">
+            <button onclick="openProductModal('${p.id}')" class="flex-1 bg-green-50 text-green-700 hover:bg-green-100 text-xs py-1.5 rounded-lg transition font-medium">Edit</button>
+            <button onclick="toggleProductStatus('${p.id}', '${p.status}')" class="flex-1 bg-amber-50 text-amber-700 hover:bg-amber-100 text-xs py-1.5 rounded-lg transition font-medium">${p.status === 'active' ? 'Deactivate' : 'Activate'}</button>
+            <button onclick="deleteProduct('${p.id}')" class="flex-1 bg-red-50 text-red-600 hover:bg-red-100 text-xs py-1.5 rounded-lg transition font-medium">Delete</button>
+          </div>
+        </div>
+      </div>
+    `).join('');
+  }
+
+  async function toggleProductStatus(id, current) {
+    const newStatus = current === 'active' ? 'inactive' : 'active';
+    await sb.from('products').update({ status: newStatus }).eq('id', id);
+    loadProducts();
+  }
+
+  async function deleteProduct(id) {
+    if (!confirm('Delete this product?')) return;
+    await sb.from('products').delete().eq('id', id);
+    showToast('Product deleted');
+    loadProducts();
+  }
+
+  let editingProductId = null;
+  function openProductModal(productId = null) {
+    editingProductId = productId;
+    document.getElementById('product-id').value = productId || '';
+    document.getElementById('product-modal-title').textContent = productId ? 'Edit Product' : 'Add Product';
+    if (!productId) {
+      ['prod-name','prod-desc','prod-price','prod-unit','prod-quantity','prod-harvest'].forEach(id => document.getElementById(id).value = '');
+      document.getElementById('prod-category').value = 'Vegetables';
+      document.getElementById('prod-current-image').classList.add('hidden');
+    } else {
+      sb.from('products').select('*').eq('id', productId).single().then(({ data: p }) => {
+        if (!p) return;
+        document.getElementById('prod-name').value = p.name;
+        document.getElementById('prod-category').value = p.category;
+        document.getElementById('prod-desc').value = p.description || '';
+        document.getElementById('prod-price').value = p.price;
+        document.getElementById('prod-unit').value = p.unit;
+        document.getElementById('prod-quantity').value = p.quantity;
+        document.getElementById('prod-harvest').value = p.harvest_date || '';
+        if (p.image_url) {
+          document.getElementById('prod-image-preview').src = p.image_url;
+          document.getElementById('prod-current-image').classList.remove('hidden');
+        }
+      });
+    }
+    document.getElementById('product-modal').classList.remove('hidden');
+  }
+
+  function closeProductModal() {
+    document.getElementById('product-modal').classList.add('hidden');
+    editingProductId = null;
+  }
+
+  async function saveProduct(e) {
+    e.preventDefault();
+    const btn = document.getElementById('product-save-btn');
+    btn.disabled = true; btn.textContent = 'Saving…';
+
+    let imageUrl = null;
+    const file = document.getElementById('prod-image').files[0];
+    if (file) {
+      const path = `${currentUser.id}/${Date.now()}-${file.name}`;
+      const { error: upErr } = await sb.storage.from('product-images').upload(path, file, { upsert: true });
+      if (upErr) { showToast('Image upload failed', 'error'); btn.disabled = false; btn.textContent = 'Save Product'; return; }
+      const { data: { publicUrl } } = sb.storage.from('product-images').getPublicUrl(path);
+      imageUrl = publicUrl;
+    }
+
+    const payload = {
+      seller_id: currentUser.id,
+      name: document.getElementById('prod-name').value.trim(),
+      category: document.getElementById('prod-category').value,
+      description: document.getElementById('prod-desc').value.trim() || null,
+      price: parseFloat(document.getElementById('prod-price').value),
+      unit: document.getElementById('prod-unit').value.trim(),
+      quantity: parseInt(document.getElementById('prod-quantity').value),
+      harvest_date: document.getElementById('prod-harvest').value || null,
+    };
+    if (imageUrl) payload.image_url = imageUrl;
+
+    let error;
+    if (editingProductId) {
+      ({ error } = await sb.from('products').update(payload).eq('id', editingProductId));
+    } else {
+      ({ error } = await sb.from('products').insert(payload));
+    }
+
+    btn.disabled = false; btn.textContent = 'Save Product';
+    if (error) { showToast('Save failed: ' + error.message, 'error'); return; }
+    showToast(editingProductId ? 'Product updated!' : 'Product added!');
+    closeProductModal();
+    loadProducts();
+  }
+
+  // ---- ORDERS ----
+  async function loadOrders() {
+    const { data: orders } = await sb.from('orders')
+      .select('*, profiles!orders_buyer_id_fkey(full_name, phone), order_items(*, products(name, unit)), payments(*)')
+      .eq('seller_id', currentUser.id)
+      .order('created_at', { ascending: false });
+    const el = document.getElementById('orders-list');
+    if (!orders || orders.length === 0) {
+      el.innerHTML = '<p class="text-gray-400 text-sm text-center py-8">No orders yet.</p>';
+      return;
+    }
+    el.innerHTML = orders.map(o => {
+      const payment = o.payments?.[0];
+      const statusClass = `status-${o.status}`;
+      return `
+        <div class="bg-white rounded-xl p-5 shadow border border-green-100">
+          <div class="flex items-start justify-between mb-3">
+            <div>
+              <p class="font-semibold text-green-900">${o.profiles?.full_name || 'Buyer'}</p>
+              <p class="text-xs text-gray-400">${new Date(o.created_at).toLocaleString()}</p>
+            </div>
+            <span class="text-xs font-semibold px-2 py-1 rounded-full ${statusClass}">${o.status.replace(/_/g,' ').toUpperCase()}</span>
+          </div>
+          <div class="space-y-1 mb-3">
+            ${(o.order_items || []).map(i => `
+              <div class="flex justify-between text-sm text-gray-600">
+                <span>${i.products?.name} × ${i.quantity}</span>
+                <span>₱${(i.quantity * i.unit_price).toFixed(2)}</span>
+              </div>
+            `).join('')}
+          </div>
+          ${o.delivery_notes ? `<p class="text-xs text-gray-500 italic mb-2">Note: ${o.delivery_notes}</p>` : ''}
+          ${payment?.proof_url ? `
+            <div class="mb-3">
+              <p class="text-xs text-gray-500 mb-1">Payment Proof (${payment.method}):</p>
+              <a href="${payment.proof_url}" target="_blank">
+                <img src="${payment.proof_url}" alt="proof" class="h-24 rounded-lg object-cover border border-green-100" />
+              </a>
+            </div>` : ''}
+          <div class="flex items-center justify-between border-t border-green-50 pt-3 flex-wrap gap-2">
+            <span class="font-bold text-green-700">₱${parseFloat(o.total_amount).toFixed(2)}</span>
+            <div class="flex gap-2 flex-wrap">
+              ${o.status === 'payment_uploaded' && payment ? `
+                <button onclick="verifyPayment('${payment.id}','${o.id}')" class="btn-primary text-white text-xs px-3 py-1.5 rounded-full transition">Verify Payment</button>
+                <button onclick="rejectPayment('${payment.id}','${o.id}')" class="bg-red-50 text-red-600 text-xs px-3 py-1.5 rounded-full transition">Reject</button>` : ''}
+              ${o.status === 'payment_verified' ? `<button onclick="updateOrderStatus('${o.id}','processing')" class="btn-primary text-white text-xs px-3 py-1.5 rounded-full transition">Mark Processing</button>` : ''}
+              ${o.status === 'processing' ? `<button onclick="updateOrderStatus('${o.id}','completed')" class="bg-green-700 text-white text-xs px-3 py-1.5 rounded-full transition">Mark Completed</button>` : ''}
+            </div>
+          </div>
+        </div>
+      `;
+    }).join('');
+  }
+
+  async function verifyPayment(paymentId, orderId) {
+    await sb.from('payments').update({ status: 'verified' }).eq('id', paymentId);
+    await sb.from('orders').update({ status: 'payment_verified' }).eq('id', orderId);
+    showToast('Payment verified!');
+    loadOrders();
+  }
+
+  async function rejectPayment(paymentId, orderId) {
+    await sb.from('payments').update({ status: 'rejected' }).eq('id', paymentId);
+    await sb.from('orders').update({ status: 'pending' }).eq('id', orderId);
+    showToast('Payment rejected — order reset to pending', 'warning');
+    loadOrders();
+  }
+
+  async function updateOrderStatus(orderId, status) {
+    await sb.from('orders').update({ status }).eq('id', orderId);
+    showToast(`Order marked as ${status}`);
+    loadOrders();
+  }
+
+  // ---- ANALYTICS ----
+  async function loadAnalytics() {
+    const { data: orders } = await sb.from('orders')
+      .select('total_amount, status')
+      .eq('seller_id', currentUser.id);
+    const { data: products } = await sb.from('products')
+      .select('id, name')
+      .eq('seller_id', currentUser.id);
+    const { data: orderItems } = await sb.from('order_items')
+      .select('product_id, quantity, orders!inner(seller_id)')
+      .eq('orders.seller_id', currentUser.id);
+
+    const revenue = (orders || []).filter(o => o.status === 'completed').reduce((s, o) => s + parseFloat(o.total_amount), 0);
+    const totalOrders = (orders || []).length;
+    const pendingOrders = (orders || []).filter(o => ['pending','payment_uploaded'].includes(o.status)).length;
+
+    const productCounts = {};
+    (orderItems || []).forEach(i => {
+      productCounts[i.product_id] = (productCounts[i.product_id] || 0) + i.quantity;
+    });
+
+    document.getElementById('analytics-content').innerHTML = `
+      <div class="grid grid-cols-3 gap-4 mb-6">
+        <div class="bg-white rounded-xl p-5 shadow border border-green-100 text-center">
+          <p class="text-xs text-gray-500 mb-1">Total Revenue</p>
+          <p class="text-2xl font-bold text-green-700">₱${revenue.toFixed(2)}</p>
+        </div>
+        <div class="bg-white rounded-xl p-5 shadow border border-green-100 text-center">
+          <p class="text-xs text-gray-500 mb-1">Total Orders</p>
+          <p class="text-2xl font-bold text-green-700">${totalOrders}</p>
+        </div>
+        <div class="bg-white rounded-xl p-5 shadow border border-green-100 text-center">
+          <p class="text-xs text-gray-500 mb-1">Pending Orders</p>
+          <p class="text-2xl font-bold text-amber-600">${pendingOrders}</p>
+        </div>
+      </div>
+      <div class="bg-white rounded-xl p-5 shadow border border-green-100">
+        <h4 class="font-bold text-green-900 mb-3">Products by Order Volume</h4>
+        <div class="space-y-2">
+          ${(products || []).sort((a, b) => (productCounts[b.id] || 0) - (productCounts[a.id] || 0)).map(p => `
+            <div class="flex items-center justify-between py-2 border-b border-green-50">
+              <span class="text-sm text-gray-700">${p.name}</span>
+              <span class="text-sm font-semibold text-green-700">${productCounts[p.id] || 0} ordered</span>
+            </div>
+          `).join('')}
+        </div>
+      </div>
+    `;
+  }
+
+  // ---- PROFILE ----
+  async function loadProfile() {
+    const { data: p } = await sb.from('profiles').select('*').eq('id', currentUser.id).single();
+    if (!p) return;
+    document.getElementById('profile-name').value = p.full_name || '';
+    document.getElementById('profile-farm-name').value = p.farm_name || '';
+    document.getElementById('profile-farm-location').value = p.farm_location || '';
+    document.getElementById('profile-phone').value = p.phone || '';
+  }
+
+  async function saveProfile(e) {
+    e.preventDefault();
+    const { error } = await sb.from('profiles').update({
+      full_name: document.getElementById('profile-name').value.trim(),
+      farm_name: document.getElementById('profile-farm-name').value.trim(),
+      farm_location: document.getElementById('profile-farm-location').value.trim(),
+      phone: document.getElementById('profile-phone').value.trim()
+    }).eq('id', currentUser.id);
+    if (error) showToast('Save failed', 'error');
+    else showToast('Profile updated!');
+  }
+
+  async function doLogout() {
+    await sb.auth.signOut();
+    window.location.href = '../';
+  }
+
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('../sw.js').catch(() => {});
+  }
+</script>
+</body>
+</html>

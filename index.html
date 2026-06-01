@@ -1,0 +1,627 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>HSI Marketplace — Fresh Hydroponic Produce</title>
+  <meta name="description" content="HSI Hydroponic Produce Marketplace. Fresh produce direct from community farmers." />
+  <meta name="theme-color" content="#14532d" />
+  <link rel="manifest" href="manifest.json" />
+  <link rel="apple-touch-icon" href="icon-192.png" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="HSI Market" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="translations.js"></script>
+  <style>
+    :root { --green-nav: #14532d; --green-accent: #16a34a; --green-hover: #15803d; }
+    .nav-bg { background-color: var(--green-nav); }
+    .btn-primary { background-color: var(--green-accent); }
+    .btn-primary:hover { background-color: var(--green-hover); }
+    #auth-panel { transform: translateX(100%); transition: transform 0.3s ease; }
+    #auth-panel.open { transform: translateX(0); }
+    .hero-gradient { background: linear-gradient(135deg, #14532d 0%, #166534 40%, #15803d 100%); }
+    .card-hover { transition: transform 0.2s, box-shadow 0.2s; }
+    .card-hover:hover { transform: translateY(-3px); box-shadow: 0 10px 25px rgba(0,0,0,0.12); }
+    #toast-container { position: fixed; bottom: 1.5rem; right: 1rem; z-index: 9999; display: flex; flex-direction: column; gap: 0.5rem; }
+    .toast { padding: 0.75rem 1.25rem; border-radius: 0.5rem; color: white; font-size: 0.875rem; max-width: 320px; animation: slideIn 0.3s ease; }
+    @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+  </style>
+</head>
+<body class="bg-green-50 text-gray-800 font-sans">
+
+<!-- TOAST -->
+<div id="toast-container"></div>
+
+<!-- PWA INSTALL BANNER (shown unless already installed) -->
+<div id="pwa-install-banner" class="hidden fixed bottom-0 left-0 right-0 z-50 bg-green-900 text-white px-4 py-3 flex items-center justify-between shadow-2xl" style="padding-bottom:max(0.75rem,env(safe-area-inset-bottom))">
+  <div class="flex items-center gap-3">
+    <img src="applogo.png" alt="HSI" class="w-10 h-10 rounded-xl shadow" onerror="this.style.display='none'" />
+    <div>
+      <p class="font-semibold text-sm leading-tight">HSI Marketplace</p>
+      <p id="install-subtitle" class="text-green-300 text-xs">Install app for quick access</p>
+    </div>
+  </div>
+  <div class="flex items-center gap-2">
+    <button id="install-btn" onclick="handleInstall()" class="bg-green-500 hover:bg-green-400 text-white text-sm font-semibold px-4 py-2 rounded-full transition">Install</button>
+    <button onclick="document.getElementById('pwa-install-banner').classList.add('hidden')" class="text-green-400 hover:text-white text-2xl leading-none px-2">&times;</button>
+  </div>
+</div>
+
+<!-- INSTALL INSTRUCTIONS MODAL (iOS + Android fallback) -->
+<div id="install-modal" class="hidden fixed inset-0 z-[60] flex items-end justify-center">
+  <div class="absolute inset-0 bg-black bg-opacity-60" onclick="document.getElementById('install-modal').classList.add('hidden')"></div>
+  <div class="relative bg-white rounded-t-2xl w-full max-w-sm p-6 shadow-2xl">
+    <button onclick="document.getElementById('install-modal').classList.add('hidden')" class="absolute top-3 right-4 text-gray-400 text-2xl">&times;</button>
+    <div class="text-center mb-5">
+      <img src="applogo.png" alt="HSI" class="w-16 h-16 rounded-2xl mx-auto mb-3 shadow" onerror="this.style.display='none'" />
+      <h3 class="text-lg font-bold text-gray-900">Add to Home Screen</h3>
+      <p class="text-sm text-gray-500 mt-1">Install HSI Marketplace as an app</p>
+    </div>
+    <!-- iOS steps -->
+    <ol id="ios-steps" class="hidden space-y-3 text-sm text-gray-700">
+      <li class="flex items-start gap-3">
+        <span class="bg-green-100 text-green-800 font-bold rounded-full w-6 h-6 flex items-center justify-center shrink-0 mt-0.5">1</span>
+        <span>Tap the <strong>Share</strong> button (the box with an arrow) at the bottom of Safari</span>
+      </li>
+      <li class="flex items-start gap-3">
+        <span class="bg-green-100 text-green-800 font-bold rounded-full w-6 h-6 flex items-center justify-center shrink-0 mt-0.5">2</span>
+        <span>Scroll down and tap <strong>"Add to Home Screen"</strong></span>
+      </li>
+      <li class="flex items-start gap-3">
+        <span class="bg-green-100 text-green-800 font-bold rounded-full w-6 h-6 flex items-center justify-center shrink-0 mt-0.5">3</span>
+        <span>Tap <strong>"Add"</strong> in the top right corner</span>
+      </li>
+    </ol>
+    <!-- Android steps -->
+    <ol id="android-steps" class="hidden space-y-3 text-sm text-gray-700">
+      <li class="flex items-start gap-3">
+        <span class="bg-green-100 text-green-800 font-bold rounded-full w-6 h-6 flex items-center justify-center shrink-0 mt-0.5">1</span>
+        <span>Tap the <strong>three-dot menu</strong> ⋮ at the top right of Chrome</span>
+      </li>
+      <li class="flex items-start gap-3">
+        <span class="bg-green-100 text-green-800 font-bold rounded-full w-6 h-6 flex items-center justify-center shrink-0 mt-0.5">2</span>
+        <span>Tap <strong>"Add to Home screen"</strong> or <strong>"Install app"</strong></span>
+      </li>
+      <li class="flex items-start gap-3">
+        <span class="bg-green-100 text-green-800 font-bold rounded-full w-6 h-6 flex items-center justify-center shrink-0 mt-0.5">3</span>
+        <span>Tap <strong>"Add"</strong> to confirm</span>
+      </li>
+    </ol>
+    <div class="mt-5 bg-green-50 rounded-xl p-3 text-xs text-green-800 text-center">
+      The HSI Marketplace icon will appear on your home screen
+    </div>
+  </div>
+</div>
+
+<!-- NAV -->
+<nav class="nav-bg text-white sticky top-0 z-40 shadow-lg">
+  <div class="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
+    <a href="./" class="flex items-center gap-2 font-bold text-lg tracking-wide">
+      <img src="applogo.png" alt="HSI" class="w-8 h-8 rounded" onerror="this.style.display='none'" />
+      <span>HSI Marketplace</span>
+    </a>
+    <div class="flex items-center gap-3">
+      <a href="marketplace/" class="text-green-200 hover:text-white text-sm transition" data-i18n="nav.browse">Browse</a>
+      <button id="lang-toggle" onclick="toggleLang()" class="text-green-200 hover:text-white border border-green-700 hover:border-green-400 text-xs px-2.5 py-1 rounded-full font-semibold transition">BM</button>
+      <button id="nav-auth-btn" onclick="openAuth()" class="btn-primary text-white text-sm px-4 py-1.5 rounded-full font-medium transition" data-i18n="nav.login_register">Login / Register</button>
+      <button id="nav-dashboard-btn" onclick="goToDashboard()" class="hidden btn-primary text-white text-sm px-4 py-1.5 rounded-full font-medium transition" data-i18n="nav.dashboard">My Dashboard</button>
+      <button id="nav-logout-btn" onclick="doLogout()" class="hidden bg-green-800 hover:bg-green-700 text-white text-sm px-3 py-1.5 rounded-full transition" data-i18n="nav.logout">Logout</button>
+    </div>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero-gradient text-white">
+  <div class="max-w-6xl mx-auto px-4 py-20 text-center">
+    <div class="inline-block bg-green-800 bg-opacity-50 text-green-200 text-xs font-semibold px-3 py-1 rounded-full mb-4 uppercase tracking-widest" data-i18n="hero.tag">HSI Program</div>
+    <h1 class="text-4xl md:text-6xl font-extrabold mb-4 leading-tight" data-i18n="hero.title">Fresh Hydroponic Produce<br class="hidden md:block" /> From Your Community</h1>
+    <p class="text-green-100 text-lg md:text-xl mb-8 max-w-2xl mx-auto" data-i18n="hero.subtitle">Connect directly with certified HSI farmers. Get the freshest greens, fruits, and herbs — grown clean, delivered fresh.</p>
+    <div class="flex flex-col sm:flex-row gap-3 justify-center">
+      <a href="marketplace/" class="btn-primary text-white font-semibold px-8 py-3 rounded-full text-lg shadow-lg transition" data-i18n="hero.browse_btn">Browse Marketplace</a>
+      <button onclick="openAuth('register')" class="bg-white text-green-800 font-semibold px-8 py-3 rounded-full text-lg shadow-lg hover:bg-green-50 transition" data-i18n="hero.join_btn">Join as Seller / Buyer</button>
+    </div>
+  </div>
+</section>
+
+<!-- FEATURES -->
+<section class="py-16 bg-white">
+  <div class="max-w-6xl mx-auto px-4">
+    <h2 class="text-3xl font-bold text-center text-green-900 mb-10" data-i18n="features.title">Why HSI Marketplace?</h2>
+    <div class="grid md:grid-cols-3 gap-8">
+      <div class="card-hover bg-green-50 rounded-2xl p-8 text-center border border-green-100">
+        <div class="text-5xl mb-4">🌿</div>
+        <h3 class="text-xl font-bold text-green-900 mb-2" data-i18n="features.quality_title">Hydroponic Quality</h3>
+        <p class="text-gray-600" data-i18n="features.quality_body">Pesticide-free produce grown in controlled environments. Certified HSI program standards for every product.</p>
+      </div>
+      <div class="card-hover bg-green-50 rounded-2xl p-8 text-center border border-green-100">
+        <div class="text-5xl mb-4">🚜</div>
+        <h3 class="text-xl font-bold text-green-900 mb-2" data-i18n="features.direct_title">Direct from Farmers</h3>
+        <p class="text-gray-600" data-i18n="features.direct_body">No middlemen. Buy straight from the community farmers who grew your food, supporting local livelihoods.</p>
+      </div>
+      <div class="card-hover bg-green-50 rounded-2xl p-8 text-center border border-green-100">
+        <div class="text-5xl mb-4">🤝</div>
+        <h3 class="text-xl font-bold text-green-900 mb-2" data-i18n="features.community_title">Community Supported</h3>
+        <p class="text-gray-600" data-i18n="features.community_body">Every purchase empowers an HSI program farmer. Build a sustainable local food system together.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- VISION & MISSION -->
+<section class="py-16 bg-green-50">
+  <div class="max-w-6xl mx-auto px-4">
+    <div class="grid md:grid-cols-2 gap-8">
+      <div class="bg-green-800 text-white rounded-2xl p-8 card-hover">
+        <h3 class="text-2xl font-bold mb-3" data-i18n="vision.title">Our Vision</h3>
+        <p class="text-green-100 leading-relaxed" data-i18n="vision.body">A thriving community where hydroponic farmers have direct market access, fair income, and buyers enjoy fresh, nutrient-rich produce grown responsibly.</p>
+      </div>
+      <div class="bg-green-600 text-white rounded-2xl p-8 card-hover">
+        <h3 class="text-2xl font-bold mb-3" data-i18n="mission.title">Our Mission</h3>
+        <p class="text-green-100 leading-relaxed" data-i18n="mission.body">To connect HSI-certified hydroponic farmers with buyers through a transparent, community-first marketplace that upholds quality, trust, and sustainability.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- FEATURED PRODUCTS -->
+<section class="py-16 bg-white">
+  <div class="max-w-6xl mx-auto px-4">
+    <div class="flex items-center justify-between mb-8">
+      <h2 class="text-3xl font-bold text-green-900" data-i18n="section.fresh_week">Fresh This Week</h2>
+      <a href="marketplace/" class="text-green-600 hover:text-green-800 font-medium text-sm" data-i18n="section.view_all">View all →</a>
+    </div>
+    <div id="featured-products" class="flex gap-4 overflow-x-auto pb-4 snap-x">
+      <div class="text-gray-400 text-sm py-6" data-i18n="section.loading_products">Loading fresh products…</div>
+    </div>
+  </div>
+</section>
+
+<!-- ANNOUNCEMENTS -->
+<section id="announcements-section" class="py-16 bg-green-50 hidden">
+  <div class="max-w-6xl mx-auto px-4">
+    <h2 class="text-3xl font-bold text-green-900 mb-8" data-i18n="section.announcements">Announcements</h2>
+    <div id="announcements-list" class="grid md:grid-cols-3 gap-6"></div>
+  </div>
+</section>
+
+<!-- FOOTER -->
+<footer class="nav-bg text-green-200 py-10 mt-0">
+  <div class="max-w-6xl mx-auto px-4 text-center">
+    <p class="font-bold text-white text-lg mb-1">HSI Marketplace</p>
+    <p class="text-sm" data-i18n="footer.tagline">Hydroponic Social Initiative — Fresh produce, community grown</p>
+    <p class="text-xs text-green-400 mt-4" data-i18n="footer.copyright">&copy; 2025 HSI Program. All rights reserved.</p>
+  </div>
+</footer>
+
+<!-- AUTH OVERLAY -->
+<div id="auth-overlay" onclick="closeAuth()" class="hidden fixed inset-0 bg-black bg-opacity-40 z-40"></div>
+
+<!-- AUTH PANEL -->
+<div id="auth-panel" class="fixed top-0 right-0 h-full w-full max-w-md bg-white z-50 shadow-2xl overflow-y-auto">
+  <div class="p-6">
+    <div class="flex items-center justify-between mb-6">
+      <h2 class="text-2xl font-bold text-green-900" data-i18n="auth.welcome">Welcome</h2>
+      <div class="flex items-center gap-3">
+        <a href="setup/" title="Admin Setup" class="text-gray-400 hover:text-green-700 transition" aria-label="Admin Setup">
+          <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round"
+              d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
+          </svg>
+        </a>
+        <button onclick="closeAuth()" class="text-gray-400 hover:text-gray-600 text-2xl leading-none">&times;</button>
+      </div>
+    </div>
+
+    <!-- Tabs -->
+    <div class="flex rounded-xl overflow-hidden border border-green-200 mb-6">
+      <button id="tab-login" onclick="switchTab('login')" class="flex-1 py-2.5 text-sm font-semibold bg-green-600 text-white transition" data-i18n="auth.login_tab">Login</button>
+      <button id="tab-register" onclick="switchTab('register')" class="flex-1 py-2.5 text-sm font-semibold bg-white text-green-700 transition" data-i18n="auth.register_tab">Register</button>
+    </div>
+
+    <!-- LOGIN FORM -->
+    <form id="login-form" onsubmit="return false;">
+      <div class="space-y-4">
+        <div id="login-error" class="hidden bg-red-50 border border-red-300 text-red-700 text-sm rounded-lg px-4 py-3"></div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Email</label>
+          <input type="email" id="login-email" required placeholder="you@example.com"
+            class="w-full border border-gray-300 rounded-lg px-4 py-2.5 focus:outline-none focus:border-green-500 text-sm" />
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Password</label>
+          <input type="password" id="login-password" placeholder="••••••••"
+            onkeydown="if(event.key==='Enter') doLogin()"
+            class="w-full border border-gray-300 rounded-lg px-4 py-2.5 focus:outline-none focus:border-green-500 text-sm" />
+        </div>
+        <button type="button" id="login-btn" onclick="doLogin()" class="w-full btn-primary text-white font-semibold py-3 rounded-lg transition text-sm">Login</button>
+        <div class="relative flex items-center gap-2 my-1">
+          <div class="flex-1 h-px bg-gray-200"></div>
+          <span class="text-xs text-gray-400">or</span>
+          <div class="flex-1 h-px bg-gray-200"></div>
+        </div>
+        <button type="button" onclick="loginAsAdmin()"
+          class="w-full flex items-center justify-center gap-2 border-2 border-green-700 text-green-700 hover:bg-green-50 font-semibold py-2.5 rounded-lg transition text-sm">
+          <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+              d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
+          </svg>
+          Login as Admin
+        </button>
+      </div>
+    </form>
+
+    <!-- REGISTER FORM -->
+    <form id="register-form" class="hidden" onsubmit="doRegister(event)">
+      <div class="space-y-4">
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Full Name</label>
+          <input type="text" id="reg-name" required placeholder="Juan dela Cruz"
+            class="w-full border border-gray-300 rounded-lg px-4 py-2.5 focus:outline-none focus:border-green-500 text-sm" />
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Email</label>
+          <input type="email" id="reg-email" required placeholder="you@example.com"
+            class="w-full border border-gray-300 rounded-lg px-4 py-2.5 focus:outline-none focus:border-green-500 text-sm" />
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Password</label>
+          <input type="password" id="reg-password" required placeholder="Min. 6 characters" minlength="6"
+            class="w-full border border-gray-300 rounded-lg px-4 py-2.5 focus:outline-none focus:border-green-500 text-sm" />
+        </div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Phone</label>
+          <input type="tel" id="reg-phone" placeholder="+63 912 345 6789"
+            class="w-full border border-gray-300 rounded-lg px-4 py-2.5 focus:outline-none focus:border-green-500 text-sm" />
+        </div>
+        <!-- Role -->
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-2">I am a…</label>
+          <div class="flex gap-4">
+            <label class="flex items-center gap-2 cursor-pointer">
+              <input type="radio" name="role" value="buyer" checked onchange="toggleSellerFields()" class="accent-green-600" />
+              <span class="text-sm">Buyer</span>
+            </label>
+            <label class="flex items-center gap-2 cursor-pointer">
+              <input type="radio" name="role" value="seller" onchange="toggleSellerFields()" class="accent-green-600" />
+              <span class="text-sm">Seller / Farmer</span>
+            </label>
+          </div>
+        </div>
+        <!-- Seller fields -->
+        <div id="seller-fields" class="hidden space-y-3 border-l-4 border-green-400 pl-4">
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Farm Name</label>
+            <input type="text" id="reg-farm-name" placeholder="Green Acres Farm"
+              class="w-full border border-gray-300 rounded-lg px-4 py-2.5 focus:outline-none focus:border-green-500 text-sm" />
+          </div>
+          <div>
+            <label class="block text-sm font-medium text-gray-700 mb-1">Farm Location</label>
+            <input type="text" id="reg-farm-location" placeholder="Barangay, City, Province"
+              class="w-full border border-gray-300 rounded-lg px-4 py-2.5 focus:outline-none focus:border-green-500 text-sm" />
+          </div>
+          <p class="text-xs text-amber-600 bg-amber-50 rounded p-2">Seller accounts require admin approval before you can list products.</p>
+        </div>
+        <button type="submit" id="reg-btn" class="w-full btn-primary text-white font-semibold py-3 rounded-lg transition text-sm">Create Account</button>
+        <div id="reg-error" class="hidden bg-red-50 border border-red-300 text-red-700 text-sm rounded-lg px-4 py-3"></div>
+      </div>
+    </form>
+
+    <!-- EMAIL CONFIRMATION NOTICE (shown after signup) -->
+    <div id="confirm-notice" class="hidden text-center py-4">
+      <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+        <svg class="w-8 h-8 text-green-700" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+            d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
+        </svg>
+      </div>
+      <h3 class="text-lg font-bold text-gray-900 mb-2">Check your email</h3>
+      <p class="text-gray-600 text-sm mb-1">We sent a confirmation link to:</p>
+      <p id="confirm-email-display" class="font-semibold text-green-700 text-sm mb-4"></p>
+      <p class="text-gray-500 text-xs">Click the link in the email to activate your account, then come back here to log in.</p>
+      <button onclick="switchTab('login')" class="mt-5 w-full border border-green-600 text-green-700 font-semibold py-2.5 rounded-lg text-sm hover:bg-green-50 transition">
+        Back to Login
+      </button>
+    </div>
+  </div>
+</div>
+
+<script>
+  const SUPABASE_URL = 'https://emwhyzrrzifxuizkrqua.supabase.co';
+  const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVtd2h5enJyemlmeHVpemtycXVhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzkzMDU0MTUsImV4cCI6MjA5NDg4MTQxNX0.vBlw_gEGlT1Asac523-iIEXJI9l4bGRJxSoyEExuhUc';
+  const { createClient } = supabase;
+  const sb = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+  // TOAST
+  function showToast(msg, type = 'success', duration = 3500) {
+    const c = document.getElementById('toast-container');
+    const t = document.createElement('div');
+    t.className = `toast ${type === 'error' ? 'bg-red-600' : type === 'warning' ? 'bg-amber-500' : type === 'info' ? 'bg-blue-600' : 'bg-green-700'}`;
+    t.textContent = msg;
+    c.appendChild(t);
+    setTimeout(() => t.remove(), duration);
+  }
+
+  // AUTH PANEL
+  function openAuth(tab = 'login') {
+    document.getElementById('auth-panel').classList.add('open');
+    document.getElementById('auth-overlay').classList.remove('hidden');
+    switchTab(tab);
+  }
+  function closeAuth() {
+    document.getElementById('auth-panel').classList.remove('open');
+    document.getElementById('auth-overlay').classList.add('hidden');
+  }
+  function switchTab(tab) {
+    const isLogin = tab === 'login';
+    document.getElementById('login-form').classList.toggle('hidden', !isLogin);
+    document.getElementById('register-form').classList.toggle('hidden', isLogin);
+    document.getElementById('confirm-notice').classList.add('hidden');
+    document.getElementById('tab-login').className = `flex-1 py-2.5 text-sm font-semibold transition ${isLogin ? 'bg-green-600 text-white' : 'bg-white text-green-700'}`;
+    document.getElementById('tab-register').className = `flex-1 py-2.5 text-sm font-semibold transition ${!isLogin ? 'bg-green-600 text-white' : 'bg-white text-green-700'}`;
+  }
+  function toggleSellerFields() {
+    const isSeller = document.querySelector('input[name="role"]:checked').value === 'seller';
+    document.getElementById('seller-fields').classList.toggle('hidden', !isSeller);
+  }
+
+  // ROUTING
+  function routeByRole(profile) {
+    if (!profile) return;
+    if (profile.role === 'admin') { window.location.href = 'admin/'; return; }
+    if (profile.role === 'seller') {
+      if (profile.status === 'active') { window.location.href = 'seller/'; return; }
+      showToast('Your seller account is pending admin approval.', 'warning');
+      return;
+    }
+    window.location.href = 'buyer/';
+  }
+
+  function goToDashboard() {
+    sb.auth.getSession().then(async ({ data: { session } }) => {
+      if (!session) return openAuth();
+      const { data: profile } = await sb.from('profiles').select('role,status').eq('id', session.user.id).single();
+      routeByRole(profile);
+    });
+  }
+
+  async function doLogin() {
+    const btn = document.getElementById('login-btn');
+    const errBox = document.getElementById('login-error');
+    errBox.classList.add('hidden');
+    btn.disabled = true;
+    btn.textContent = 'Logging in…';
+    const { data, error } = await sb.auth.signInWithPassword({
+      email: document.getElementById('login-email').value.trim(),
+      password: document.getElementById('login-password').value
+    });
+    if (error) {
+      let msg = error.message;
+      if (msg.toLowerCase().includes('not confirmed')) {
+        msg = 'Please check your email and click the confirmation link before logging in.';
+      } else if (msg.toLowerCase().includes('invalid login')) {
+        msg = 'Incorrect email or password.';
+      }
+      errBox.textContent = msg;
+      errBox.classList.remove('hidden');
+      btn.disabled = false;
+      btn.textContent = 'Login';
+      return;
+    }
+    btn.textContent = 'Redirecting…';
+    const { data: profile, error: profErr } = await sb.from('profiles').select('role,status').eq('id', data.user.id).single();
+    if (profErr || !profile) {
+      errBox.innerHTML = profErr
+        ? 'Profile load failed: ' + profErr.message + '<br><span class="text-xs">If this mentions "recursion", run supabase/fix_rls_recursion.sql in your Supabase SQL Editor.</span>'
+        : 'Profile not found. Please sign up first.';
+      errBox.classList.remove('hidden');
+      btn.disabled = false;
+      btn.textContent = 'Login';
+      return;
+    }
+    routeByRole(profile);
+  }
+
+  async function doRegister(e) {
+    e.preventDefault();
+    const btn = document.getElementById('reg-btn');
+    const errBox = document.getElementById('reg-error');
+    errBox.classList.add('hidden');
+    btn.disabled = true;
+    btn.textContent = 'Creating account…';
+    const email = document.getElementById('reg-email').value.trim();
+    const role = document.querySelector('input[name="role"]:checked').value;
+    try {
+      const { data, error } = await sb.auth.signUp({
+        email,
+        password: document.getElementById('reg-password').value,
+        options: {
+          data: {
+            full_name: document.getElementById('reg-name').value.trim(),
+            role,
+            phone: document.getElementById('reg-phone').value.trim(),
+            farm_name: document.getElementById('reg-farm-name').value.trim() || null,
+            farm_location: document.getElementById('reg-farm-location').value.trim() || null
+          },
+          emailRedirectTo: window.location.origin + window.location.pathname
+        }
+      });
+      if (error) {
+        errBox.textContent = error.message;
+        errBox.classList.remove('hidden');
+        btn.disabled = false;
+        btn.textContent = 'Create Account';
+        return;
+      }
+      // If session was created immediately (email confirmation off), route straight to dashboard
+      if (data.session && data.user) {
+        const { data: profile } = await sb.from('profiles').select('role,status').eq('id', data.user.id).single();
+        if (profile) { routeByRole(profile); return; }
+      }
+      // Otherwise show "check your email" notice
+      document.getElementById('register-form').classList.add('hidden');
+      document.getElementById('confirm-email-display').textContent = email;
+      document.getElementById('confirm-notice').classList.remove('hidden');
+    } catch (err) {
+      errBox.textContent = (err && err.message) || 'Registration failed. Please try again.';
+      errBox.classList.remove('hidden');
+      btn.disabled = false;
+      btn.textContent = 'Create Account';
+    }
+  }
+
+  function loginAsAdmin() {
+    document.getElementById('login-email').value = 'fushun92@gmail.com';
+    document.getElementById('login-error').classList.add('hidden');
+    document.getElementById('login-password').value = '';
+    document.getElementById('login-password').focus();
+  }
+
+  async function doLogout() {
+    await sb.auth.signOut();
+    window.location.reload();
+  }
+
+  // NAV STATE
+  async function initNav() {
+    const { data: { session } } = await sb.auth.getSession();
+    if (session) {
+      document.getElementById('nav-auth-btn').classList.add('hidden');
+      document.getElementById('nav-dashboard-btn').classList.remove('hidden');
+      document.getElementById('nav-logout-btn').classList.remove('hidden');
+    }
+  }
+
+  // POST-EMAIL-CONFIRMATION REDIRECT
+  // When user clicks the confirmation link in their email, Supabase
+  // returns them here with auth tokens in the URL hash. The JS SDK
+  // auto-parses the hash; we just listen for SIGNED_IN and route them.
+  sb.auth.onAuthStateChange(async (event, session) => {
+    if (event !== 'SIGNED_IN' || !session) return;
+    const hash = window.location.hash || '';
+    const isConfirmation = hash.includes('type=signup')
+      || hash.includes('access_token')
+      || hash.includes('type=recovery');
+    if (!isConfirmation) return;
+    // Clean hash so we don't loop
+    history.replaceState(null, '', window.location.pathname + window.location.search);
+    const { data: profile } = await sb.from('profiles').select('role,status').eq('id', session.user.id).single();
+    if (profile) routeByRole(profile);
+  });
+
+  // FEATURED PRODUCTS
+  async function loadFeaturedProducts() {
+    const { data: products } = await sb.from('products')
+      .select('*, profiles(full_name, farm_name)')
+      .eq('status', 'active')
+      .order('created_at', { ascending: false })
+      .limit(6);
+    const container = document.getElementById('featured-products');
+    if (!products || products.length === 0) {
+      container.innerHTML = '<p class="text-gray-400 text-sm py-6">No products yet. Check back soon!</p>';
+      return;
+    }
+    container.innerHTML = products.map(p => `
+      <a href="marketplace/" class="snap-start shrink-0 w-52 bg-white rounded-xl overflow-hidden shadow card-hover border border-green-100">
+        <div class="h-36 bg-green-100 overflow-hidden">
+          ${p.image_url ? `<img src="${p.image_url}" alt="${p.name}" class="w-full h-full object-cover" />` : '<div class="w-full h-full flex items-center justify-center text-4xl">🌿</div>'}
+        </div>
+        <div class="p-3">
+          <p class="font-semibold text-sm text-gray-800 truncate">${p.name}</p>
+          <p class="text-xs text-gray-500 truncate">${p.profiles?.farm_name || p.profiles?.full_name || 'HSI Farmer'}</p>
+          <p class="text-green-700 font-bold text-sm mt-1">RM ${parseFloat(p.price).toFixed(2)} / ${p.unit}</p>
+        </div>
+      </a>
+    `).join('');
+  }
+
+  // ANNOUNCEMENTS
+  async function loadAnnouncements() {
+    const { data: items } = await sb.from('announcements')
+      .select('*')
+      .eq('is_active', true)
+      .eq('is_featured', true)
+      .order('created_at', { ascending: false })
+      .limit(3);
+    if (!items || items.length === 0) return;
+    document.getElementById('announcements-section').classList.remove('hidden');
+    document.getElementById('announcements-list').innerHTML = items.map(a => `
+      <div class="bg-white rounded-xl overflow-hidden shadow card-hover border border-green-100">
+        ${a.image_url ? `<img src="${a.image_url}" alt="${a.title}" class="w-full h-36 object-cover" />` : ''}
+        <div class="p-5">
+          <h4 class="font-bold text-green-900 mb-1">${a.title}</h4>
+          <p class="text-gray-600 text-sm">${a.body || ''}</p>
+        </div>
+      </div>
+    `).join('');
+  }
+
+  initNav();
+  loadFeaturedProducts();
+  loadAnnouncements();
+
+  // PWA install logic
+  let deferredPrompt = null;
+  const isStandalone = window.matchMedia('(display-mode: standalone)').matches || navigator.standalone === true;
+  const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent) && !window.MSStream;
+  const isAndroid = /android/i.test(navigator.userAgent);
+  const isMobile = isIOS || isAndroid;
+
+  function showInstallBanner() {
+    if (isStandalone) return;
+    const banner = document.getElementById('pwa-install-banner');
+    if (!banner) return;
+    if (isIOS) {
+      document.getElementById('install-subtitle').textContent = 'Tap Share → Add to Home Screen';
+      document.getElementById('install-btn').textContent = 'How to Install';
+    } else {
+      document.getElementById('install-subtitle').textContent = 'Install app for quick access';
+      document.getElementById('install-btn').textContent = deferredPrompt ? 'Install' : 'How to Install';
+    }
+    banner.classList.remove('hidden');
+  }
+
+  window.handleInstall = async function() {
+    // If Chrome gave us the native prompt, use it
+    if (deferredPrompt) {
+      deferredPrompt.prompt();
+      const { outcome } = await deferredPrompt.userChoice;
+      deferredPrompt = null;
+      if (outcome === 'accepted') {
+        document.getElementById('pwa-install-banner').classList.add('hidden');
+      }
+      return;
+    }
+    // Otherwise show step-by-step instructions for the platform
+    const modal = document.getElementById('install-modal');
+    document.getElementById('ios-steps').classList.toggle('hidden', !isIOS);
+    document.getElementById('android-steps').classList.toggle('hidden', isIOS);
+    modal.classList.remove('hidden');
+  };
+
+  window.addEventListener('beforeinstallprompt', e => {
+    e.preventDefault();
+    deferredPrompt = e;
+    // Update button to say "Install" now that native prompt is ready
+    const btn = document.getElementById('install-btn');
+    if (btn) btn.textContent = 'Install';
+    showInstallBanner();
+  });
+
+  window.addEventListener('appinstalled', () => {
+    document.getElementById('pwa-install-banner').classList.add('hidden');
+    deferredPrompt = null;
+  });
+
+  // Show banner immediately on any mobile browser (not just when beforeinstallprompt fires)
+  if (isMobile) showInstallBanner();
+
+  // PWA service worker
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('sw.js').catch(() => {});
+  }
+</script>
+</body>
+</html>

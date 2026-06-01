@@ -1,0 +1,39 @@
+{
+  "name": "HSI Marketplace",
+  "short_name": "HSI Market",
+  "description": "HSI Hydroponic Produce Marketplace — Fresh produce direct from community farmers",
+  "start_url": "/hsi--marketplace/",
+  "scope": "/hsi--marketplace/",
+  "display": "standalone",
+  "background_color": "#14532d",
+  "theme_color": "#14532d",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/hsi--marketplace/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/hsi--marketplace/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "maskable"
+    },
+    {
+      "src": "/hsi--marketplace/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any"
+    },
+    {
+      "src": "/hsi--marketplace/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "maskable"
+    }
+  ],
+  "categories": ["shopping", "food"],
+  "lang": "en"
+}

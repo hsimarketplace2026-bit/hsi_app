@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Browse — HSI Marketplace</title>
+  <meta name="theme-color" content="#14532d" />
+  <link rel="manifest" href="../manifest.json" />
+  <link rel="apple-touch-icon" href="../icon-192.png" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="HSI Market" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    :root { --green-nav: #14532d; --green-accent: #16a34a; --green-hover: #15803d; }
+    .nav-bg { background-color: var(--green-nav); }
+    .btn-primary { background-color: var(--green-accent); }
+    .btn-primary:hover { background-color: var(--green-hover); }
+    .card-hover { transition: transform 0.2s, box-shadow 0.2s; }
+    .card-hover:hover { transform: translateY(-3px); box-shadow: 0 10px 25px rgba(0,0,0,0.12); }
+    #toast-container { position: fixed; bottom: 1.5rem; right: 1rem; z-index: 9999; display: flex; flex-direction: column; gap: 0.5rem; }
+    .toast { padding: 0.75rem 1.25rem; border-radius: 0.5rem; color: white; font-size: 0.875rem; max-width: 320px; animation: slideIn 0.3s ease; }
+    @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+    .category-pill.active { background-color: #16a34a; color: white; }
+    .modal-overlay { transition: opacity 0.2s; }
+  </style>
+</head>
+<body class="bg-green-50 text-gray-800 font-sans">
+
+<div id="toast-container"></div>
+
+<!-- NAV -->
+<nav class="nav-bg text-white sticky top-0 z-40 shadow-lg">
+  <div class="max-w-6xl mx-auto px-4 py-3 flex items-center gap-3 flex-wrap">
+    <a href="../" class="font-bold text-lg mr-2 flex items-center gap-2">
+      <img src="../applogo.png" alt="HSI" class="w-7 h-7 rounded" onerror="this.style.display='none'" />
+      <span class="hidden sm:inline">HSI Market</span>
+    </a>
+    <input id="search-input" type="search" placeholder="Search produce…" oninput="filterProducts()"
+      class="flex-1 min-w-0 bg-green-800 placeholder-green-300 text-white rounded-full px-4 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-green-400" />
+    <button onclick="toggleCart()" class="relative btn-primary p-2 rounded-full">
+      <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-1.5 6h13M10 19a1 1 0 100 2 1 1 0 000-2zm7 0a1 1 0 100 2 1 1 0 000-2z"/></svg>
+      <span id="cart-badge" class="hidden absolute -top-1 -right-1 bg-red-500 text-white text-xs font-bold w-5 h-5 rounded-full flex items-center justify-center">0</span>
+    </button>
+    <button id="nav-auth-btn" onclick="window.location.href='../'" class="bg-green-800 hover:bg-green-700 text-sm px-3 py-1.5 rounded-full transition">Login</button>
+    <button id="nav-dashboard-btn" onclick="goToDashboard()" class="hidden btn-primary text-sm px-3 py-1.5 rounded-full transition">Dashboard</button>
+  </div>
+  <!-- CATEGORY PILLS -->
+  <div class="max-w-6xl mx-auto px-4 pb-3 flex gap-2 overflow-x-auto">
+    <button onclick="setCategory('All')" class="category-pill active shrink-0 px-4 py-1 rounded-full text-sm bg-green-800 text-white font-medium transition">All</button>
+    <button onclick="setCategory('Vegetables')" class="category-pill shrink-0 px-4 py-1 rounded-full text-sm bg-green-800 text-white font-medium transition">Vegetables</button>
+    <button onclick="setCategory('Fruits')" class="category-pill shrink-0 px-4 py-1 rounded-full text-sm bg-green-800 text-white font-medium transition">Fruits</button>
+    <button onclick="setCategory('Herbs')" class="category-pill shrink-0 px-4 py-1 rounded-full text-sm bg-green-800 text-white font-medium transition">Herbs</button>
+    <button onclick="setCategory('Other')" class="category-pill shrink-0 px-4 py-1 rounded-full text-sm bg-green-800 text-white font-medium transition">Other</button>
+  </div>
+</nav>
+
+<!-- PRODUCT GRID -->
+<main class="max-w-6xl mx-auto px-4 py-8">
+  <div id="product-grid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-4">
+    <div class="col-span-full text-center text-gray-400 py-16">Loading products…</div>
+  </div>
+</main>
+
+<!-- PRODUCT DETAIL MODAL -->
+<div id="product-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4">
+  <div class="modal-overlay absolute inset-0 bg-black bg-opacity-50" onclick="closeModal()"></div>
+  <div class="relative bg-white rounded-2xl w-full max-w-lg max-h-screen overflow-y-auto shadow-2xl">
+    <button onclick="closeModal()" class="absolute top-3 right-3 text-gray-400 hover:text-gray-600 text-2xl z-10">&times;</button>
+    <div id="modal-image-wrap" class="h-56 bg-green-100 rounded-t-2xl overflow-hidden">
+      <img id="modal-image" src="" alt="" class="w-full h-full object-cover" />
+    </div>
+    <div class="p-6">
+      <h2 id="modal-name" class="text-2xl font-bold text-green-900 mb-1"></h2>
+      <p id="modal-farm" class="text-sm text-gray-500 mb-3"></p>
+      <p id="modal-desc" class="text-gray-600 text-sm mb-4"></p>
+      <div class="flex items-center justify-between mb-4">
+        <span id="modal-price" class="text-green-700 font-bold text-xl"></span>
+        <span id="modal-harvest" class="text-xs text-gray-400"></span>
+      </div>
+      <div class="flex items-center gap-3 mb-5">
+        <label class="text-sm font-medium text-gray-700">Qty:</label>
+        <div class="flex items-center border border-green-300 rounded-lg overflow-hidden">
+          <button onclick="changeQty(-1)" class="px-3 py-1.5 bg-green-50 hover:bg-green-100 font-bold text-lg">−</button>
+          <input id="modal-qty" type="number" value="1" min="1" class="w-16 text-center py-1.5 text-sm focus:outline-none" />
+          <button onclick="changeQty(1)" class="px-3 py-1.5 bg-green-50 hover:bg-green-100 font-bold text-lg">+</button>
+        </div>
+        <span id="modal-available" class="text-xs text-gray-400"></span>
+      </div>
+      <button onclick="addToCart()" class="w-full btn-primary text-white font-semibold py-3 rounded-xl transition">Add to Cart</button>
+    </div>
+  </div>
+</div>
+
+<!-- CART SIDEBAR -->
+<div id="cart-overlay" class="hidden fixed inset-0 bg-black bg-opacity-30 z-40" onclick="toggleCart()"></div>
+<div id="cart-sidebar" class="fixed top-0 right-0 h-full w-full max-w-sm bg-white z-50 shadow-2xl transform translate-x-full transition-transform overflow-y-auto">
+  <div class="p-5">
+    <div class="flex items-center justify-between mb-5">
+      <h3 class="text-xl font-bold text-green-900">Your Cart</h3>
+      <button onclick="toggleCart()" class="text-gray-400 hover:text-gray-600 text-2xl">&times;</button>
+    </div>
+    <div id="cart-items-list">
+      <p class="text-gray-400 text-sm text-center py-10">Your cart is empty.</p>
+    </div>
+    <div id="cart-footer" class="hidden border-t border-green-100 pt-4 mt-4">
+      <div class="flex justify-between font-bold text-green-900 mb-4">
+        <span>Total</span>
+        <span id="cart-total">RM 0.00</span>
+      </div>
+      <a href="../buyer/" class="block w-full btn-primary text-white font-semibold py-3 rounded-xl text-center transition">Go to Checkout</a>
+    </div>
+  </div>
+</div>
+
+<script>
+  const SUPABASE_URL = 'https://emwhyzrrzifxuizkrqua.supabase.co';
+  const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVtd2h5enJyemlmeHVpemtycXVhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzkzMDU0MTUsImV4cCI6MjA5NDg4MTQxNX0.vBlw_gEGlT1Asac523-iIEXJI9l4bGRJxSoyEExuhUc';
+  const { createClient } = supabase;
+  const sb = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+  let allProducts = [];
+  let currentCategory = 'All';
+  let currentProduct = null;
+  let cartOpen = false;
+
+  function showToast(msg, type = 'success') {
+    const c = document.getElementById('toast-container');
+    const t = document.createElement('div');
+    t.className = `toast ${type === 'error' ? 'bg-red-600' : type === 'warning' ? 'bg-amber-500' : 'bg-green-700'}`;
+    t.textContent = msg;
+    c.appendChild(t);
+    setTimeout(() => t.remove(), 3500);
+  }
+
+  async function loadProducts() {
+    const { data, error } = await sb.from('products')
+      .select('*, profiles(full_name, farm_name)')
+      .eq('status', 'active')
+      .gt('quantity', 0)
+      .order('created_at', { ascending: false });
+    if (error) { showToast('Error loading products', 'error'); return; }
+    allProducts = data || [];
+    renderProducts();
+  }
+
+  function filterProducts() {
+    renderProducts();
+  }
+
+  function setCategory(cat) {
+    currentCategory = cat;
+    document.querySelectorAll('.category-pill').forEach(p => {
+      p.classList.toggle('active', p.textContent.trim() === cat);
+      p.classList.toggle('bg-green-600', p.textContent.trim() === cat);
+      p.classList.toggle('bg-green-800', p.textContent.trim() !== cat);
+    });
+    renderProducts();
+  }
+
+  function renderProducts() {
+    const search = document.getElementById('search-input').value.toLowerCase();
+    const filtered = allProducts.filter(p => {
+      const matchCat = currentCategory === 'All' || p.category === currentCategory;
+      const matchSearch = !search || p.name.toLowerCase().includes(search) || (p.description || '').toLowerCase().includes(search);
+      return matchCat && matchSearch;
+    });
+    const grid = document.getElementById('product-grid');
+    if (filtered.length === 0) {
+      grid.innerHTML = '<div class="col-span-full text-center text-gray-400 py-16">No products found.</div>';
+      return;
+    }
+    grid.innerHTML = filtered.map(p => `
+      <div class="card-hover bg-white rounded-xl overflow-hidden shadow border border-green-100 cursor-pointer" onclick="openModal('${p.id}')">
+        <div class="h-36 bg-green-100 overflow-hidden">
+          ${p.image_url ? `<img src="${p.image_url}" alt="${p.name}" class="w-full h-full object-cover" />` : '<div class="w-full h-full flex items-center justify-center text-4xl">🌿</div>'}
+        </div>
+        <div class="p-3">
+          <p class="font-semibold text-sm text-gray-800 truncate">${p.name}</p>
+          <p class="text-xs text-gray-500 truncate">${p.profiles?.farm_name || p.profiles?.full_name || 'HSI Farmer'}</p>
+          <div class="flex items-center justify-between mt-2">
+            <span class="text-green-700 font-bold text-sm">RM ${parseFloat(p.price).toFixed(2)}/${p.unit}</span>
+            <span class="text-xs text-gray-400">${p.quantity} avail.</span>
+          </div>
+          <button onclick="event.stopPropagation(); quickAdd('${p.id}')" class="mt-2 w-full btn-primary text-white text-xs py-1.5 rounded-lg transition">+ Add to Cart</button>
+        </div>
+      </div>
+    `).join('');
+  }
+
+  function openModal(id) {
+    currentProduct = allProducts.find(p => p.id === id);
+    if (!currentProduct) return;
+    document.getElementById('modal-name').textContent = currentProduct.name;
+    document.getElementById('modal-farm').textContent = currentProduct.profiles?.farm_name || currentProduct.profiles?.full_name || 'HSI Farmer';
+    document.getElementById('modal-desc').textContent = currentProduct.description || 'No description available.';
+    document.getElementById('modal-price').textContent = `RM ${parseFloat(currentProduct.price).toFixed(2)} / ${currentProduct.unit}`;
+    document.getElementById('modal-harvest').textContent = currentProduct.harvest_date ? `Harvested: ${currentProduct.harvest_date}` : '';
+    document.getElementById('modal-available').textContent = `${currentProduct.quantity} available`;
+    document.getElementById('modal-qty').value = 1;
+    document.getElementById('modal-qty').max = currentProduct.quantity;
+    const img = document.getElementById('modal-image');
+    if (currentProduct.image_url) { img.src = currentProduct.image_url; img.classList.remove('hidden'); }
+    else { img.classList.add('hidden'); }
+    document.getElementById('product-modal').classList.remove('hidden');
+  }
+
+  function closeModal() {
+    document.getElementById('product-modal').classList.add('hidden');
+    currentProduct = null;
+  }
+
+  function changeQty(delta) {
+    const input = document.getElementById('modal-qty');
+    const val = Math.max(1, Math.min(currentProduct?.quantity || 99, parseInt(input.value) + delta));
+    input.value = val;
+  }
+
+  async function addToCart() {
+    if (!currentProduct) return;
+    await doAddToCart(currentProduct.id, parseInt(document.getElementById('modal-qty').value));
+    closeModal();
+  }
+
+  async function quickAdd(id) {
+    await doAddToCart(id, 1);
+  }
+
+  async function doAddToCart(productId, qty) {
+    const { data: { session } } = await sb.auth.getSession();
+    if (!session) { showToast('Please login to add items to your cart', 'warning'); return; }
+    const { error } = await sb.from('cart_items').upsert(
+      { buyer_id: session.user.id, product_id: productId, quantity: qty },
+      { onConflict: 'buyer_id,product_id', ignoreDuplicates: false }
+    );
+    if (error) { showToast('Failed to add to cart', 'error'); return; }
+    showToast('Added to cart!');
+    loadCart();
+  }
+
+  async function loadCart() {
+    const { data: { session } } = await sb.auth.getSession();
+    if (!session) return;
+    const { data: items } = await sb.from('cart_items')
+      .select('*, products(name, price, unit)')
+      .eq('buyer_id', session.user.id);
+    const list = document.getElementById('cart-items-list');
+    const footer = document.getElementById('cart-footer');
+    const badge = document.getElementById('cart-badge');
+    if (!items || items.length === 0) {
+      list.innerHTML = '<p class="text-gray-400 text-sm text-center py-10">Your cart is empty.</p>';
+      footer.classList.add('hidden');
+      badge.classList.add('hidden');
+      return;
+    }
+    const total = items.reduce((s, i) => s + (i.quantity * parseFloat(i.products?.price || 0)), 0);
+    list.innerHTML = items.map(i => `
+      <div class="flex items-center gap-3 py-3 border-b border-green-50">
+        <div class="flex-1 min-w-0">
+          <p class="text-sm font-medium truncate">${i.products?.name}</p>
+          <p class="text-xs text-gray-500">RM ${parseFloat(i.products?.price).toFixed(2)} / ${i.products?.unit}</p>
+        </div>
+        <span class="text-sm font-semibold">×${i.quantity}</span>
+        <span class="text-green-700 text-sm font-bold">RM ${(i.quantity * parseFloat(i.products?.price || 0)).toFixed(2)}</span>
+      </div>
+    `).join('');
+    document.getElementById('cart-total').textContent = `RM ${total.toFixed(2)}`;
+    footer.classList.remove('hidden');
+    badge.textContent = items.length;
+    badge.classList.remove('hidden');
+  }
+
+  function toggleCart() {
+    cartOpen = !cartOpen;
+    const sidebar = document.getElementById('cart-sidebar');
+    const overlay = document.getElementById('cart-overlay');
+    sidebar.classList.toggle('translate-x-full', !cartOpen);
+    overlay.classList.toggle('hidden', !cartOpen);
+    if (cartOpen) loadCart();
+  }
+
+  async function goToDashboard() {
+    const { data: { session } } = await sb.auth.getSession();
+    if (!session) return (window.location.href = '../');
+    const { data: p } = await sb.from('profiles').select('role,status').eq('id', session.user.id).single();
+    if (!p) return;
+    if (p.role === 'admin') window.location.href = '../admin/';
+    else if (p.role === 'seller' && p.status === 'active') window.location.href = '../seller/';
+    else window.location.href = '../buyer/';
+  }
+
+  async function initNav() {
+    const { data: { session } } = await sb.auth.getSession();
+    if (session) {
+      document.getElementById('nav-auth-btn').classList.add('hidden');
+      document.getElementById('nav-dashboard-btn').classList.remove('hidden');
+      loadCart();
+    }
+  }
+
+  initNav();
+  loadProducts();
+
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('../sw.js').catch(() => {});
+  }
+</script>
+</body>
+</html>

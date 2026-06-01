@@ -1,0 +1,423 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin Panel — HSI Marketplace</title>
+  <meta name="theme-color" content="#14532d" />
+  <link rel="manifest" href="../manifest.json" />
+  <link rel="apple-touch-icon" href="../icon-192.png" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
+  <meta name="apple-mobile-web-app-title" content="HSI Market" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <style>
+    :root { --green-nav: #14532d; --green-accent: #16a34a; --green-hover: #15803d; }
+    .nav-bg { background-color: var(--green-nav); }
+    .btn-primary { background-color: var(--green-accent); }
+    .btn-primary:hover { background-color: var(--green-hover); }
+    #toast-container { position: fixed; bottom: 1.5rem; right: 1rem; z-index: 9999; display: flex; flex-direction: column; gap: 0.5rem; }
+    .toast { padding: 0.75rem 1.25rem; border-radius: 0.5rem; color: white; font-size: 0.875rem; max-width: 320px; animation: slideIn 0.3s ease; }
+    @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+    .tab-btn.active { background-color: #16a34a; color: white; }
+    .status-pending { background:#fef3c7;color:#92400e; }
+    .status-payment_uploaded { background:#dbeafe;color:#1e40af; }
+    .status-payment_verified { background:#e0e7ff;color:#3730a3; }
+    .status-processing { background:#ffedd5;color:#9a3412; }
+    .status-completed { background:#dcfce7;color:#166534; }
+    .status-cancelled { background:#fee2e2;color:#991b1b; }
+    .filter-btn.active { background-color: #16a34a; color: white; }
+  </style>
+</head>
+<body class="bg-green-50 text-gray-800 font-sans">
+
+<div id="toast-container"></div>
+
+<script>
+  const SUPABASE_URL = 'https://emwhyzrrzifxuizkrqua.supabase.co';
+  const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImVtd2h5enJyemlmeHVpemtycXVhIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzkzMDU0MTUsImV4cCI6MjA5NDg4MTQxNX0.vBlw_gEGlT1Asac523-iIEXJI9l4bGRJxSoyEExuhUc';
+  const { createClient } = supabase;
+  const sb = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  let currentUser = null;
+
+  (async () => {
+    const { data: { session } } = await sb.auth.getSession();
+    if (!session) { window.location.href = '../'; return; }
+    const { data: profile } = await sb.from('profiles').select('*').eq('id', session.user.id).single();
+    if (!profile || profile.role !== 'admin') { window.location.href = '../'; return; }
+    currentUser = { ...session.user, ...profile };
+    document.getElementById('admin-name').textContent = profile.full_name || session.user.email;
+    loadSellers();
+  })();
+</script>
+
+<nav class="nav-bg text-white sticky top-0 z-40 shadow-lg">
+  <div class="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
+    <a href="../" class="flex items-center gap-2 font-bold">
+      <img src="../applogo.png" alt="HSI" class="w-7 h-7 rounded" onerror="this.style.display='none'" />
+      <span>HSI Admin</span>
+    </a>
+    <div class="flex items-center gap-3">
+      <span id="admin-name" class="text-green-200 text-sm hidden sm:inline"></span>
+      <button onclick="doLogout()" class="bg-green-800 hover:bg-green-700 text-sm px-3 py-1.5 rounded-full transition">Logout</button>
+    </div>
+  </div>
+</nav>
+
+<div class="max-w-6xl mx-auto px-4 py-6">
+  <h1 class="text-2xl font-bold text-green-900 mb-6">Admin Panel</h1>
+
+  <div class="flex border border-green-200 rounded-xl overflow-x-auto mb-6">
+    <button onclick="switchTab('sellers')" id="tab-sellers" class="tab-btn active flex-1 py-2.5 text-sm font-semibold transition whitespace-nowrap px-2">👥 Sellers</button>
+    <button onclick="switchTab('orders')" id="tab-orders" class="tab-btn flex-1 py-2.5 text-sm font-semibold bg-white text-green-700 transition whitespace-nowrap px-2">📦 Orders</button>
+    <button onclick="switchTab('payments')" id="tab-payments" class="tab-btn flex-1 py-2.5 text-sm font-semibold bg-white text-green-700 transition whitespace-nowrap px-2">💰 Payments</button>
+    <button onclick="switchTab('announcements')" id="tab-announcements" class="tab-btn flex-1 py-2.5 text-sm font-semibold bg-white text-green-700 transition whitespace-nowrap px-2">📢 Announcements</button>
+  </div>
+
+  <!-- SELLERS TAB -->
+  <div id="panel-sellers">
+    <div class="flex gap-2 mb-4 flex-wrap">
+      <button onclick="setSellersFilter('pending')" id="sf-pending" class="filter-btn active text-sm px-4 py-1.5 rounded-full border border-green-200 transition">Pending</button>
+      <button onclick="setSellersFilter('active')" id="sf-active" class="filter-btn text-sm px-4 py-1.5 rounded-full border border-green-200 bg-white text-green-700 transition">Active</button>
+      <button onclick="setSellersFilter('suspended')" id="sf-suspended" class="filter-btn text-sm px-4 py-1.5 rounded-full border border-green-200 bg-white text-green-700 transition">Suspended</button>
+    </div>
+    <div id="sellers-list" class="space-y-3">
+      <p class="text-gray-400 text-sm text-center py-8">Loading sellers…</p>
+    </div>
+  </div>
+
+  <!-- ORDERS TAB -->
+  <div id="panel-orders" class="hidden">
+    <div class="flex gap-2 mb-4 flex-wrap">
+      <button onclick="setOrdersFilter('all')" id="of-all" class="filter-btn active text-sm px-4 py-1.5 rounded-full border border-green-200 transition">All</button>
+      <button onclick="setOrdersFilter('pending')" id="of-pending" class="filter-btn text-sm px-4 py-1.5 rounded-full border border-green-200 bg-white text-green-700 transition">Pending</button>
+      <button onclick="setOrdersFilter('completed')" id="of-completed" class="filter-btn text-sm px-4 py-1.5 rounded-full border border-green-200 bg-white text-green-700 transition">Completed</button>
+    </div>
+    <div id="orders-list" class="space-y-3">
+      <p class="text-gray-400 text-sm text-center py-8">Loading orders…</p>
+    </div>
+  </div>
+
+  <!-- PAYMENTS TAB -->
+  <div id="panel-payments" class="hidden">
+    <div id="payments-list" class="space-y-4">
+      <p class="text-gray-400 text-sm text-center py-8">Loading payments…</p>
+    </div>
+  </div>
+
+  <!-- ANNOUNCEMENTS TAB -->
+  <div id="panel-announcements" class="hidden">
+    <div class="flex justify-between items-center mb-4">
+      <h2 class="text-lg font-bold text-green-900">Announcements</h2>
+      <button onclick="openAnnouncementModal()" class="btn-primary text-white text-sm px-5 py-2 rounded-full transition">+ New</button>
+    </div>
+    <div id="announcements-list" class="space-y-3">
+      <p class="text-gray-400 text-sm text-center py-8">Loading announcements…</p>
+    </div>
+  </div>
+</div>
+
+<!-- ANNOUNCEMENT MODAL -->
+<div id="announcement-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4">
+  <div class="absolute inset-0 bg-black bg-opacity-50" onclick="closeAnnouncementModal()"></div>
+  <div class="relative bg-white rounded-2xl w-full max-w-lg p-6 shadow-2xl">
+    <button onclick="closeAnnouncementModal()" class="absolute top-3 right-4 text-gray-400 hover:text-gray-600 text-2xl">&times;</button>
+    <h3 id="ann-modal-title" class="text-xl font-bold text-green-900 mb-4">New Announcement</h3>
+    <form onsubmit="saveAnnouncement(event)" class="space-y-4">
+      <input type="hidden" id="ann-id" />
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1">Title *</label>
+        <input type="text" id="ann-title" required class="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-green-500" />
+      </div>
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1">Body</label>
+        <textarea id="ann-body" rows="3" class="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-green-500"></textarea>
+      </div>
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1">Image URL (optional)</label>
+        <input type="url" id="ann-image-url" placeholder="https://…" class="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-green-500" />
+      </div>
+      <div class="flex gap-6">
+        <label class="flex items-center gap-2 cursor-pointer text-sm">
+          <input type="checkbox" id="ann-featured" class="accent-green-600 w-4 h-4" />
+          <span>Featured</span>
+        </label>
+        <label class="flex items-center gap-2 cursor-pointer text-sm">
+          <input type="checkbox" id="ann-active" checked class="accent-green-600 w-4 h-4" />
+          <span>Active</span>
+        </label>
+      </div>
+      <button type="submit" class="w-full btn-primary text-white font-semibold py-3 rounded-xl transition">Save Announcement</button>
+    </form>
+  </div>
+</div>
+
+<script>
+  function showToast(msg, type = 'success') {
+    const c = document.getElementById('toast-container');
+    const t = document.createElement('div');
+    t.className = `toast ${type === 'error' ? 'bg-red-600' : type === 'warning' ? 'bg-amber-500' : 'bg-green-700'}`;
+    t.textContent = msg;
+    c.appendChild(t);
+    setTimeout(() => t.remove(), 3500);
+  }
+
+  function switchTab(tab) {
+    ['sellers','orders','payments','announcements'].forEach(t => {
+      document.getElementById(`panel-${t}`).classList.toggle('hidden', t !== tab);
+      const btn = document.getElementById(`tab-${t}`);
+      btn.classList.toggle('active', t === tab);
+      btn.classList.toggle('bg-white', t !== tab);
+      btn.classList.toggle('text-green-700', t !== tab);
+    });
+    if (tab === 'orders') loadAllOrders();
+    if (tab === 'payments') loadAllPayments();
+    if (tab === 'announcements') loadAnnouncements();
+  }
+
+  // ---- SELLERS ----
+  let sellersFilter = 'pending';
+  function setSellersFilter(f) {
+    sellersFilter = f;
+    ['pending','active','suspended'].forEach(s => {
+      const btn = document.getElementById(`sf-${s}`);
+      btn.classList.toggle('active', s === f);
+      btn.classList.toggle('bg-white', s !== f);
+      btn.classList.toggle('text-green-700', s !== f);
+    });
+    loadSellers();
+  }
+
+  async function loadSellers() {
+    const { data: sellers } = await sb.from('profiles')
+      .select('*')
+      .eq('role', 'seller')
+      .eq('status', sellersFilter)
+      .order('created_at', { ascending: false });
+    const el = document.getElementById('sellers-list');
+    if (!sellers || sellers.length === 0) {
+      el.innerHTML = `<p class="text-gray-400 text-sm text-center py-8">No ${sellersFilter} sellers.</p>`;
+      return;
+    }
+    el.innerHTML = sellers.map(s => `
+      <div class="bg-white rounded-xl p-4 shadow border border-green-100 flex items-center gap-4 flex-wrap">
+        <div class="flex-1 min-w-0">
+          <p class="font-semibold text-sm">${s.full_name || 'Unnamed'}</p>
+          <p class="text-xs text-gray-500">${s.email} · ${s.phone || 'No phone'}</p>
+          <p class="text-xs text-gray-500">${s.farm_name || 'No farm name'} — ${s.farm_location || 'No location'}</p>
+        </div>
+        <div class="flex gap-2 flex-wrap">
+          ${s.status === 'pending' ? `
+            <button onclick="updateSellerStatus('${s.id}','active')" class="btn-primary text-white text-xs px-3 py-1.5 rounded-full transition">Approve</button>
+            <button onclick="updateSellerStatus('${s.id}','suspended')" class="bg-red-50 text-red-600 text-xs px-3 py-1.5 rounded-full transition">Reject</button>` : ''}
+          ${s.status === 'active' ? `<button onclick="updateSellerStatus('${s.id}','suspended')" class="bg-red-50 text-red-600 text-xs px-3 py-1.5 rounded-full transition">Suspend</button>` : ''}
+          ${s.status === 'suspended' ? `<button onclick="updateSellerStatus('${s.id}','active')" class="btn-primary text-white text-xs px-3 py-1.5 rounded-full transition">Reinstate</button>` : ''}
+        </div>
+      </div>
+    `).join('');
+  }
+
+  async function updateSellerStatus(id, status) {
+    const { error } = await sb.from('profiles').update({ status }).eq('id', id);
+    if (error) { showToast('Update failed', 'error'); return; }
+    showToast(`Seller ${status}`);
+    loadSellers();
+  }
+
+  // ---- ORDERS ----
+  let ordersFilter = 'all';
+  function setOrdersFilter(f) {
+    ordersFilter = f;
+    ['all','pending','completed'].forEach(s => {
+      const btn = document.getElementById(`of-${s}`);
+      btn.classList.toggle('active', s === f);
+      btn.classList.toggle('bg-white', s !== f);
+      btn.classList.toggle('text-green-700', s !== f);
+    });
+    loadAllOrders();
+  }
+
+  async function loadAllOrders() {
+    let query = sb.from('orders')
+      .select('*, profiles!orders_buyer_id_fkey(full_name, email), profiles!orders_seller_id_fkey(full_name, farm_name)')
+      .order('created_at', { ascending: false });
+    if (ordersFilter !== 'all') query = query.eq('status', ordersFilter);
+    const { data: orders } = await query;
+    const el = document.getElementById('orders-list');
+    if (!orders || orders.length === 0) {
+      el.innerHTML = '<p class="text-gray-400 text-sm text-center py-8">No orders.</p>';
+      return;
+    }
+    el.innerHTML = orders.map(o => {
+      const statusClass = `status-${o.status}`;
+      return `
+        <div class="bg-white rounded-xl p-4 shadow border border-green-100 flex items-center gap-3 flex-wrap">
+          <div class="flex-1 min-w-0">
+            <p class="font-semibold text-sm">${o['profiles!orders_buyer_id_fkey']?.full_name || 'Buyer'} → ${o['profiles!orders_seller_id_fkey']?.farm_name || o['profiles!orders_seller_id_fkey']?.full_name || 'Seller'}</p>
+            <p class="text-xs text-gray-400">${new Date(o.created_at).toLocaleString()}</p>
+            <p class="text-green-700 font-bold text-sm">₱${parseFloat(o.total_amount).toFixed(2)}</p>
+          </div>
+          <span class="text-xs font-semibold px-2 py-1 rounded-full ${statusClass}">${o.status.replace(/_/g,' ').toUpperCase()}</span>
+          ${!['completed','cancelled'].includes(o.status) ? `
+            <button onclick="cancelOrder('${o.id}')" class="bg-red-50 text-red-600 text-xs px-3 py-1.5 rounded-full transition">Cancel</button>` : ''}
+        </div>
+      `;
+    }).join('');
+  }
+
+  async function cancelOrder(id) {
+    if (!confirm('Cancel this order?')) return;
+    await sb.from('orders').update({ status: 'cancelled' }).eq('id', id);
+    showToast('Order cancelled', 'warning');
+    loadAllOrders();
+  }
+
+  // ---- PAYMENTS ----
+  async function loadAllPayments() {
+    const { data: payments } = await sb.from('payments')
+      .select('*, orders(total_amount, status), profiles!payments_buyer_id_fkey(full_name, email)')
+      .order('created_at', { ascending: false });
+    const el = document.getElementById('payments-list');
+    if (!payments || payments.length === 0) {
+      el.innerHTML = '<p class="text-gray-400 text-sm text-center py-8">No payments.</p>';
+      return;
+    }
+    // Pending first
+    const sorted = [...payments].sort((a, b) => (a.status === 'pending' ? -1 : 1));
+    el.innerHTML = sorted.map(p => `
+      <div class="bg-white rounded-xl p-4 shadow border border-green-100">
+        <div class="flex items-start justify-between mb-3 flex-wrap gap-2">
+          <div>
+            <p class="font-semibold text-sm">${p.profiles?.full_name || 'Buyer'} — ${p.method}</p>
+            <p class="text-xs text-gray-400">${new Date(p.created_at).toLocaleString()}</p>
+            <p class="text-xs text-gray-500">Order: ₱${parseFloat(p.orders?.total_amount || 0).toFixed(2)}</p>
+          </div>
+          <span class="text-xs font-semibold px-2 py-1 rounded-full ${p.status === 'verified' ? 'bg-green-100 text-green-700' : p.status === 'rejected' ? 'bg-red-100 text-red-700' : 'bg-yellow-100 text-yellow-700'}">${p.status.toUpperCase()}</span>
+        </div>
+        ${p.proof_url ? `
+          <a href="${p.proof_url}" target="_blank" class="block mb-3">
+            <img src="${p.proof_url}" alt="proof" class="h-28 rounded-lg object-cover border border-green-100" />
+          </a>` : '<p class="text-xs text-gray-400 mb-3">No proof uploaded</p>'}
+        ${p.admin_notes ? `<p class="text-xs text-gray-500 mb-2 italic">Note: ${p.admin_notes}</p>` : ''}
+        ${p.status === 'pending' ? `
+          <div class="flex gap-2">
+            <button onclick="verifyPayment('${p.id}','${p.order_id}')" class="btn-primary text-white text-xs px-4 py-1.5 rounded-full transition">Verify</button>
+            <button onclick="rejectPayment('${p.id}','${p.order_id}')" class="bg-red-50 text-red-600 text-xs px-4 py-1.5 rounded-full transition">Reject</button>
+          </div>` : ''}
+      </div>
+    `).join('');
+  }
+
+  async function verifyPayment(paymentId, orderId) {
+    await sb.from('payments').update({ status: 'verified' }).eq('id', paymentId);
+    await sb.from('orders').update({ status: 'payment_verified' }).eq('id', orderId);
+    showToast('Payment verified!');
+    loadAllPayments();
+  }
+
+  async function rejectPayment(paymentId, orderId) {
+    const notes = prompt('Rejection reason (optional):');
+    await sb.from('payments').update({ status: 'rejected', admin_notes: notes || null }).eq('id', paymentId);
+    await sb.from('orders').update({ status: 'pending' }).eq('id', orderId);
+    showToast('Payment rejected', 'warning');
+    loadAllPayments();
+  }
+
+  // ---- ANNOUNCEMENTS ----
+  async function loadAnnouncements() {
+    const { data: items } = await sb.from('announcements').select('*').order('created_at', { ascending: false });
+    const el = document.getElementById('announcements-list');
+    if (!items || items.length === 0) {
+      el.innerHTML = '<p class="text-gray-400 text-sm text-center py-8">No announcements yet.</p>';
+      return;
+    }
+    el.innerHTML = items.map(a => `
+      <div class="bg-white rounded-xl p-4 shadow border border-green-100 flex items-start gap-4">
+        <div class="flex-1 min-w-0">
+          <div class="flex items-center gap-2 mb-1 flex-wrap">
+            <h4 class="font-semibold text-sm text-green-900">${a.title}</h4>
+            ${a.is_featured ? '<span class="text-xs bg-amber-100 text-amber-700 px-2 py-0.5 rounded-full">Featured</span>' : ''}
+            ${a.is_active ? '<span class="text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded-full">Active</span>' : '<span class="text-xs bg-gray-100 text-gray-500 px-2 py-0.5 rounded-full">Inactive</span>'}
+          </div>
+          <p class="text-xs text-gray-500 mb-1">${a.body || ''}</p>
+          <p class="text-xs text-gray-400">${new Date(a.created_at).toLocaleDateString()}</p>
+        </div>
+        <div class="flex gap-2 flex-shrink-0">
+          <button onclick="openAnnouncementModal('${a.id}')" class="bg-green-50 text-green-700 text-xs px-3 py-1.5 rounded-full transition">Edit</button>
+          <button onclick="deleteAnnouncement('${a.id}')" class="bg-red-50 text-red-600 text-xs px-3 py-1.5 rounded-full transition">Delete</button>
+        </div>
+      </div>
+    `).join('');
+  }
+
+  let editingAnnouncementId = null;
+  function openAnnouncementModal(id = null) {
+    editingAnnouncementId = id;
+    document.getElementById('ann-modal-title').textContent = id ? 'Edit Announcement' : 'New Announcement';
+    if (!id) {
+      document.getElementById('ann-id').value = '';
+      document.getElementById('ann-title').value = '';
+      document.getElementById('ann-body').value = '';
+      document.getElementById('ann-image-url').value = '';
+      document.getElementById('ann-featured').checked = false;
+      document.getElementById('ann-active').checked = true;
+    } else {
+      sb.from('announcements').select('*').eq('id', id).single().then(({ data: a }) => {
+        if (!a) return;
+        document.getElementById('ann-id').value = a.id;
+        document.getElementById('ann-title').value = a.title;
+        document.getElementById('ann-body').value = a.body || '';
+        document.getElementById('ann-image-url').value = a.image_url || '';
+        document.getElementById('ann-featured').checked = a.is_featured;
+        document.getElementById('ann-active').checked = a.is_active;
+      });
+    }
+    document.getElementById('announcement-modal').classList.remove('hidden');
+  }
+
+  function closeAnnouncementModal() {
+    document.getElementById('announcement-modal').classList.add('hidden');
+    editingAnnouncementId = null;
+  }
+
+  async function saveAnnouncement(e) {
+    e.preventDefault();
+    const payload = {
+      title: document.getElementById('ann-title').value.trim(),
+      body: document.getElementById('ann-body').value.trim() || null,
+      image_url: document.getElementById('ann-image-url').value.trim() || null,
+      is_featured: document.getElementById('ann-featured').checked,
+      is_active: document.getElementById('ann-active').checked
+    };
+    let error;
+    if (editingAnnouncementId) {
+      ({ error } = await sb.from('announcements').update(payload).eq('id', editingAnnouncementId));
+    } else {
+      ({ error } = await sb.from('announcements').insert(payload));
+    }
+    if (error) { showToast('Save failed: ' + error.message, 'error'); return; }
+    showToast(editingAnnouncementId ? 'Announcement updated!' : 'Announcement created!');
+    closeAnnouncementModal();
+    loadAnnouncements();
+  }
+
+  async function deleteAnnouncement(id) {
+    if (!confirm('Delete this announcement?')) return;
+    await sb.from('announcements').delete().eq('id', id);
+    showToast('Announcement deleted', 'warning');
+    loadAnnouncements();
+  }
+
+  async function doLogout() {
+    await sb.auth.signOut();
+    window.location.href = '../';
+  }
+
+  if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('../sw.js').catch(() => {});
+  }
+</script>
+</body>
+</html>
