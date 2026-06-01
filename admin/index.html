@@ -27,6 +27,8 @@
     .side-btn.active { background:#16a34a; color:#fff; box-shadow:0 1px 4px rgba(22,163,74,.35); }
     .side-locked { opacity:.45; }
     .side-locked:hover { opacity:.9; }
+    /* Subscribe-only modules: viewable but not interactive */
+    .panel-locked > *:not(#preview-banner) { opacity:.6; pointer-events:none; }
     .side-section-label { font-size:.65rem; text-transform:uppercase; letter-spacing:.06em; color:#9ca3af; padding:.7rem .85rem .3rem; }
     .status-pending { background:#fef3c7;color:#92400e; }
     .status-payment_uploaded { background:#dbeafe;color:#1e40af; }
@@ -84,16 +86,16 @@
         <button onclick="switchTab('orders')"    id="tab-orders"    class="side-btn active"><span>📦</span><span>Orders</span></button>
         <button onclick="switchTab('customers')" id="tab-customers" class="side-btn"><span>🧑</span><span>Customers</span></button>
         <button onclick="switchTab('sellers')"   id="tab-sellers"   class="side-btn"><span>🌾</span><span>Sellers &amp; Products</span></button>
-        <button onclick="switchTab('reports')"   id="tab-reports"   class="side-btn"><span>📊</span><span>Reports</span></button>
         <button onclick="switchTab('settings')"  id="tab-settings"  class="side-btn"><span>⚙️</span><span>Settings</span></button>
         <button onclick="switchTab('staff')"     id="tab-staff"     class="side-btn hidden"><span>🛡️</span><span>User Access</span></button>
 
-        <div class="side-section-label">More modules · coming soon 🔒</div>
-        <button onclick="switchTab('points')"        id="tab-points"        class="side-btn side-locked"><span>💎</span><span>Points &amp; Membership</span><span class="ml-auto text-[10px] bg-gray-100 text-gray-500 px-1.5 py-0.5 rounded-full">unlock</span></button>
-        <button onclick="switchTab('payments')"      id="tab-payments"      class="side-btn side-locked"><span>💰</span><span>Payments</span><span class="ml-auto text-[10px] bg-gray-100 text-gray-500 px-1.5 py-0.5 rounded-full">unlock</span></button>
-        <button onclick="switchTab('coupons')"       id="tab-coupons"       class="side-btn side-locked"><span>🎟️</span><span>Coupons</span><span class="ml-auto text-[10px] bg-gray-100 text-gray-500 px-1.5 py-0.5 rounded-full">unlock</span></button>
-        <button onclick="switchTab('promotions')"    id="tab-promotions"    class="side-btn side-locked"><span>🏷️</span><span>Promotions</span><span class="ml-auto text-[10px] bg-gray-100 text-gray-500 px-1.5 py-0.5 rounded-full">unlock</span></button>
-        <button onclick="switchTab('announcements')" id="tab-announcements" class="side-btn side-locked"><span>📢</span><span>Announcements</span><span class="ml-auto text-[10px] bg-gray-100 text-gray-500 px-1.5 py-0.5 rounded-full">unlock</span></button>
+        <div class="side-section-label">More modules to subscribe:</div>
+        <button onclick="switchTab('reports')"       id="tab-reports"       class="side-btn side-locked"><span>📊</span><span>Reports</span></button>
+        <button onclick="switchTab('points')"        id="tab-points"        class="side-btn side-locked"><span>💎</span><span>Points &amp; Membership</span></button>
+        <button onclick="switchTab('payments')"      id="tab-payments"      class="side-btn side-locked"><span>💰</span><span>Payments</span></button>
+        <button onclick="switchTab('coupons')"       id="tab-coupons"       class="side-btn side-locked"><span>🎟️</span><span>Coupons</span></button>
+        <button onclick="switchTab('promotions')"    id="tab-promotions"    class="side-btn side-locked"><span>🏷️</span><span>Promotions</span></button>
+        <button onclick="switchTab('announcements')" id="tab-announcements" class="side-btn side-locked"><span>📢</span><span>Announcements</span></button>
       </nav>
     </aside>
 
@@ -388,6 +390,20 @@
   </div>
 </div>
 
+<!-- CUSTOMER DETAIL MODAL -->
+<div id="customer-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4">
+  <div class="absolute inset-0 bg-black bg-opacity-50" onclick="closeCustomerModal()"></div>
+  <div class="relative bg-white rounded-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto p-6 shadow-2xl">
+    <button onclick="closeCustomerModal()" class="absolute top-3 right-4 text-gray-400 hover:text-gray-600 text-2xl">&times;</button>
+    <h3 id="cm-name" class="text-xl font-bold text-green-900"></h3>
+    <p id="cm-contact" class="text-sm text-gray-500"></p>
+    <p id="cm-joined" class="text-xs text-gray-400 mb-4"></p>
+    <div id="cm-stats"></div>
+    <h4 class="font-semibold text-green-900 mb-2 text-sm">Order History</h4>
+    <div id="cm-orders" class="space-y-2"></div>
+  </div>
+</div>
+
 <!-- ADD CUSTOMER MODAL -->
 <div id="addcust-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4">
   <div class="absolute inset-0 bg-black bg-opacity-50" onclick="closeAdd('addcust')"></div>
@@ -601,6 +617,34 @@
     if (tab === 'announcements') loadAnnouncements();
     if (tab === 'settings') loadSettings();
     if (tab === 'staff') loadStaff();
+    applyPreviewLock(tab);
+  }
+
+  // Subscribe-only modules — show the page for preview but disable all
+  // interaction (no saving/changing). Reuses the side-locked tab list.
+  const LOCKED_TABS = ['reports','points','payments','coupons','promotions','announcements'];
+  function previewBanner() {
+    let b = document.getElementById('preview-banner');
+    if (!b) {
+      b = document.createElement('div');
+      b.id = 'preview-banner';
+      b.className = 'mb-4 flex items-center gap-3 bg-amber-50 border border-amber-200 text-amber-800 rounded-xl px-4 py-3';
+      b.innerHTML = '<span class="text-lg">🔒</span><div>'
+        + '<p class="font-semibold text-sm">Preview only — this module requires a subscription.</p>'
+        + '<p class="text-xs text-amber-700">You can view it here, but saving and changes are disabled. Contact your sales representative to unlock.</p></div>';
+    }
+    return b;
+  }
+  function applyPreviewLock(tab) {
+    TABS.forEach(t => document.getElementById(`panel-${t}`)?.classList.remove('panel-locked'));
+    const banner = previewBanner();
+    if (LOCKED_TABS.includes(tab)) {
+      const panel = document.getElementById(`panel-${tab}`);
+      panel.classList.add('panel-locked');
+      panel.insertBefore(banner, panel.firstChild);
+    } else if (banner.parentNode) {
+      banner.parentNode.removeChild(banner);
+    }
   }
   function toggleSidebar(){ document.getElementById('sidebar').classList.toggle('hidden'); }
 
@@ -1227,42 +1271,59 @@
   let allCustomers = [];
   async function loadCustomers() {
     const { data: buyers } = await sb.from('shared_profiles').select('*').eq('role','buyer').order('created_at',{ascending:false});
-    const { data: balances } = await sb.from('mkt_customer_points_balance').select('*');
-    const balMap = {}; (balances||[]).forEach(b => balMap[b.user_id] = b);
-    allCustomers = (buyers||[]).map(b => ({ ...b, pts: balMap[b.id] || { balance:0, lifetime_earned:0 } }));
+    allCustomers = buyers || [];
     renderCustomers();
-  }
-  function tierName(lifetime) {
-    const tiers = (window.MEMBER_TIERS||[]).slice().sort((a,b)=>(b.min_points||0)-(a.min_points||0));
-    for (const t of tiers) if (lifetime >= (t.min_points||0)) return t.name;
-    return tiers.length ? tiers[tiers.length-1].name : '—';
   }
   function renderCustomers() {
     const s = (document.getElementById('cust-search').value||'').toLowerCase();
-    const list = allCustomers.filter(c => !s || (c.full_name||'').toLowerCase().includes(s) || (c.email||'').toLowerCase().includes(s));
+    const list = allCustomers.filter(c => !s || (c.full_name||'').toLowerCase().includes(s) || (c.email||'').toLowerCase().includes(s) || (c.phone||'').toLowerCase().includes(s));
     const el = document.getElementById('customers-list');
     if (!list.length) { el.innerHTML = '<p class="text-gray-400 text-sm text-center py-8">No customers.</p>'; return; }
     el.innerHTML = list.map(c => `
-      <div class="bg-white rounded-xl p-4 shadow border border-green-100 flex items-center gap-4 flex-wrap">
+      <button onclick="openCustomerModal('${c.id}')" class="w-full text-left bg-white rounded-xl p-4 shadow border border-green-100 hover:border-green-300 transition flex items-center gap-3">
+        <div class="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center text-lg shrink-0">👤</div>
         <div class="flex-1 min-w-0">
           <p class="font-semibold text-sm">${c.full_name || 'Unnamed'}</p>
-          <p class="text-xs text-gray-500">${c.email} · ${c.phone || 'No phone'}</p>
+          <p class="text-xs text-gray-500">${c.email || ''}${c.phone ? ' · '+c.phone : ''}</p>
+          <p class="text-xs text-gray-400">Joined ${c.created_at ? new Date(c.created_at).toLocaleDateString() : ''}</p>
         </div>
-        <div class="text-right">
-          <p class="text-sm font-bold text-green-700">${c.pts.balance} pts</p>
-          <p class="text-xs text-gray-400">${tierName(c.pts.lifetime_earned)} · ${c.pts.lifetime_earned} lifetime</p>
+        <span class="text-green-600 text-sm shrink-0">View →</span>
+      </button>`).join('');
+  }
+  async function openCustomerModal(userId) {
+    const c = allCustomers.find(x => x.id === userId) || {};
+    document.getElementById('cm-name').textContent = c.full_name || 'Unnamed';
+    document.getElementById('cm-contact').textContent = [c.email, c.phone].filter(Boolean).join(' · ');
+    document.getElementById('cm-joined').textContent = c.created_at ? 'Customer since ' + new Date(c.created_at).toLocaleDateString() : '';
+    document.getElementById('cm-stats').innerHTML = '';
+    document.getElementById('cm-orders').innerHTML = '<p class="text-gray-400 text-sm text-center py-6">Loading orders…</p>';
+    document.getElementById('customer-modal').classList.remove('hidden');
+    const { data: orders } = await sb.from('mkt_orders')
+      .select('*, seller:shared_profiles!seller_id(full_name,farm_name), order_items:mkt_order_items(product_name,quantity,unit_price)')
+      .eq('buyer_id', userId).order('created_at',{ascending:false});
+    const list = orders || [];
+    const spent = list.filter(o=>o.status!=='cancelled').reduce((s,o)=>s+parseFloat(o.total_amount||0),0);
+    const completed = list.filter(o=>o.status==='completed').length;
+    document.getElementById('cm-stats').innerHTML = `
+      <div class="grid grid-cols-3 gap-2 text-center mb-4">
+        <div class="bg-green-50 rounded-lg p-3"><p class="text-lg font-bold text-green-700">${list.length}</p><p class="text-xs text-gray-500">Orders</p></div>
+        <div class="bg-green-50 rounded-lg p-3"><p class="text-lg font-bold text-green-700">${completed}</p><p class="text-xs text-gray-500">Completed</p></div>
+        <div class="bg-green-50 rounded-lg p-3"><p class="text-base font-bold text-green-700">${rm(spent)}</p><p class="text-xs text-gray-500">Total spent</p></div>
+      </div>`;
+    document.getElementById('cm-orders').innerHTML = list.length ? list.map(o => `
+      <div class="border border-green-100 rounded-lg p-3">
+        <div class="flex items-center justify-between mb-1 gap-2">
+          <p class="text-sm font-semibold">${o.order_number || o.id.slice(0,8)} <span class="text-xs text-gray-400 font-normal">· ${new Date(o.created_at).toLocaleDateString()}</span></p>
+          <span class="text-[10px] font-semibold px-2 py-0.5 rounded-full status-${o.status}">${o.status.replace(/_/g,' ').toUpperCase()}</span>
         </div>
-        <button onclick="adjustPoints('${c.id}')" class="bg-green-50 text-green-700 text-xs px-3 py-1.5 rounded-full transition">Adjust pts</button>
-      </div>`).join('');
+        <p class="text-xs text-gray-500 mb-1">${o.seller?.farm_name || o.seller?.full_name || 'Seller'}</p>
+        <div class="text-xs text-gray-600 space-y-0.5">
+          ${(o.order_items||[]).map(i=>`<div class="flex justify-between"><span>${i.product_name||'Item'} × ${i.quantity}</span><span>${rm(i.quantity*i.unit_price)}</span></div>`).join('')}
+        </div>
+        <div class="flex justify-between border-t border-green-50 mt-1 pt-1 text-sm font-bold text-green-700"><span>Total</span><span>${rm(o.total_amount)}</span></div>
+      </div>`).join('') : '<p class="text-gray-400 text-sm text-center py-6">No orders yet.</p>';
   }
-  async function adjustPoints(userId) {
-    const v = prompt('Adjust points by (use negative to deduct):');
-    if (v === null) return;
-    const change = parseInt(v); if (isNaN(change) || change === 0) return;
-    const { error } = await sb.from('mkt_points_ledger').insert({ user_id: userId, change, type:'Adjusted', note:'Admin adjustment', created_by: currentUser.email });
-    if (error) { showToast('Failed: '+error.message, 'error'); return; }
-    showToast('Points adjusted'); loadCustomers();
-  }
+  function closeCustomerModal(){ document.getElementById('customer-modal').classList.add('hidden'); }
 
   // ---------- COUPONS ----------
   async function loadCoupons() {
