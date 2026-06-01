@@ -192,7 +192,7 @@
 
   async function loadProducts() {
     const { data, error } = await sb.from('mkt_products')
-      .select('*, profiles:shared_profiles(full_name, farm_name, photo_url, farm_location, age, ethnicity, farming_since, farm_size, certifications, story)')
+      .select('*, profiles:shared_profiles!seller_id(full_name, farm_name, photo_url, farm_location, age, ethnicity, farming_since, farm_size, certifications, story)')
       .eq('status', 'active')
       .gt('quantity', 0)
       .order('created_at', { ascending: false });
