@@ -54,7 +54,8 @@
     const { data: profile } = await sb.from('shared_profiles').select('*').eq('id', session.user.id).single();
     if (!profile || profile.role !== 'buyer') { window.location.href = '../'; return; }
     currentUser = { ...session.user, ...profile };
-    document.getElementById('user-name').textContent = profile.full_name || session.user.email;
+    const greetName = (profile.full_name || session.user.email || '').trim().split(' ')[0];
+    document.getElementById('user-name').textContent = greetName ? `Hi, ${greetName}` : 'Hi';
     await loadAppConfig();
     initBuyerApp();
   })();
@@ -72,13 +73,15 @@
 <!-- NAV -->
 <nav class="nav-bg text-white sticky top-0 z-40 shadow-lg">
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex items-center justify-between">
-    <a href="../" class="flex items-center gap-2 font-bold">
-      <img src="../applogo.png" alt="HSI" class="w-7 h-7 rounded" onerror="this.style.display='none'" />
-      <span>HSI Marketplace</span>
-    </a>
+    <div class="flex items-center gap-3">
+      <a href="../" class="flex items-center gap-2 font-bold">
+        <img src="../applogo.png" alt="HSI" class="w-7 h-7 rounded" onerror="this.style.display='none'" />
+        <span>HSI Marketplace</span>
+      </a>
+      <a href="../marketplace/" class="btn-primary text-white text-xs font-semibold px-3 py-1.5 rounded-full transition">SHOP</a>
+    </div>
     <div class="flex items-center gap-2 sm:gap-3">
-      <a href="../marketplace/" class="btn-primary text-white text-xs font-semibold px-3 py-1.5 rounded-full hidden sm:inline transition">SHOP</a>
-      <span id="user-name" class="text-green-200 text-sm hidden md:inline"></span>
+      <span id="user-name" class="text-green-200 text-sm hidden sm:inline"></span>
       <button onclick="toggleCart()" class="relative btn-primary p-2 rounded-full" aria-label="Cart" title="Cart">
         <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-1.5 6h13M10 19a1 1 0 100 2 1 1 0 000-2zm7 0a1 1 0 100 2 1 1 0 000-2z"/></svg>
         <span id="cart-badge" class="hidden absolute -top-1 -right-1 bg-red-500 text-white text-xs font-bold w-5 h-5 rounded-full flex items-center justify-center">0</span>
