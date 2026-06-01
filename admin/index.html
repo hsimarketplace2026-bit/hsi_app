@@ -454,8 +454,9 @@
   <div class="absolute inset-0 bg-black bg-opacity-50" onclick="closeAdd('addprod')"></div>
   <div class="relative bg-white rounded-2xl w-full max-w-md p-6 shadow-2xl max-h-screen overflow-y-auto">
     <button onclick="closeAdd('addprod')" class="absolute top-3 right-4 text-gray-400 hover:text-gray-600 text-2xl">&times;</button>
-    <h3 class="text-xl font-bold text-green-900 mb-4">Add Product</h3>
+    <h3 id="addprod-title" class="text-xl font-bold text-green-900 mb-4">Add Product</h3>
     <form onsubmit="saveNewProduct(event)" class="space-y-3 text-sm">
+      <input type="hidden" id="np-id" />
       <div><label class="block text-gray-600 text-xs mb-1">Seller</label><select id="np-seller" class="w-full border border-gray-300 rounded-lg px-3 py-2"></select></div>
       <input id="np-name" required placeholder="Product name" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:border-green-500" />
       <div class="grid grid-cols-2 gap-2">
@@ -468,7 +469,8 @@
       </div>
       <input id="np-harvest" type="date" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-gray-600" />
       <textarea id="np-desc" rows="2" placeholder="Description (optional)" class="w-full border border-gray-300 rounded-lg px-3 py-2"></textarea>
-      <button type="submit" class="w-full btn-primary text-white font-semibold py-2.5 rounded-xl transition">Create Product</button>
+      <select id="np-status" class="w-full border border-gray-300 rounded-lg px-3 py-2"><option value="active">Active (visible)</option><option value="inactive">Inactive (hidden)</option></select>
+      <button id="np-submit-btn" type="submit" class="w-full btn-primary text-white font-semibold py-2.5 rounded-xl transition">Create Product</button>
       <p id="np-msg" class="text-xs"></p>
     </form>
   </div>
@@ -506,6 +508,58 @@
       <textarea id="no-notes" rows="2" placeholder="Delivery / notes (optional)" class="w-full border border-gray-300 rounded-lg px-3 py-2"></textarea>
       <button type="submit" id="no-btn" class="w-full btn-primary text-white font-semibold py-2.5 rounded-xl transition">Create Order</button>
       <p id="no-msg" class="text-xs"></p>
+    </form>
+  </div>
+</div>
+
+<!-- EDIT SELLER MODAL -->
+<div id="editseller-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4">
+  <div class="absolute inset-0 bg-black bg-opacity-50" onclick="closeAdd('editseller')"></div>
+  <div class="relative bg-white rounded-2xl w-full max-w-lg p-6 shadow-2xl max-h-screen overflow-y-auto">
+    <button onclick="closeAdd('editseller')" class="absolute top-3 right-4 text-gray-400 hover:text-gray-600 text-2xl">&times;</button>
+    <h3 class="text-xl font-bold text-green-900 mb-4">Edit Seller Details</h3>
+    <form onsubmit="saveSellerDetails(event)" class="space-y-3 text-sm">
+      <input type="hidden" id="es-id" />
+      <div class="grid grid-cols-2 gap-2">
+        <div><label class="block text-gray-600 text-xs mb-1">Full name</label><input id="es-name" class="w-full border border-gray-300 rounded-lg px-3 py-2" /></div>
+        <div><label class="block text-gray-600 text-xs mb-1">Email</label><input id="es-email" type="email" class="w-full border border-gray-300 rounded-lg px-3 py-2" /></div>
+        <div><label class="block text-gray-600 text-xs mb-1">Phone</label><input id="es-phone" class="w-full border border-gray-300 rounded-lg px-3 py-2" /></div>
+        <div><label class="block text-gray-600 text-xs mb-1">Status</label><select id="es-status" class="w-full border border-gray-300 rounded-lg px-3 py-2"><option value="active">active</option><option value="pending">pending</option><option value="suspended">suspended</option></select></div>
+        <div><label class="block text-gray-600 text-xs mb-1">Farm name</label><input id="es-farm" class="w-full border border-gray-300 rounded-lg px-3 py-2" /></div>
+        <div><label class="block text-gray-600 text-xs mb-1">Farm location</label><input id="es-loc" class="w-full border border-gray-300 rounded-lg px-3 py-2" /></div>
+        <div><label class="block text-gray-600 text-xs mb-1">Farm size</label><input id="es-size" class="w-full border border-gray-300 rounded-lg px-3 py-2" /></div>
+        <div><label class="block text-gray-600 text-xs mb-1">Farming since</label><input id="es-since" type="number" class="w-full border border-gray-300 rounded-lg px-3 py-2" /></div>
+        <div><label class="block text-gray-600 text-xs mb-1">Age</label><input id="es-age" type="number" class="w-full border border-gray-300 rounded-lg px-3 py-2" /></div>
+        <div><label class="block text-gray-600 text-xs mb-1">Ethnicity</label><input id="es-ethnicity" class="w-full border border-gray-300 rounded-lg px-3 py-2" /></div>
+      </div>
+      <div><label class="block text-gray-600 text-xs mb-1">Certifications</label><input id="es-cert" class="w-full border border-gray-300 rounded-lg px-3 py-2" /></div>
+      <div><label class="block text-gray-600 text-xs mb-1">Story</label><textarea id="es-story" rows="3" class="w-full border border-gray-300 rounded-lg px-3 py-2"></textarea></div>
+      <button type="submit" class="w-full btn-primary text-white font-semibold py-2.5 rounded-xl transition">Save Details</button>
+      <p id="es-msg" class="text-xs"></p>
+    </form>
+  </div>
+</div>
+
+<!-- EDIT PAYMENT MODAL -->
+<div id="editpay-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4">
+  <div class="absolute inset-0 bg-black bg-opacity-50" onclick="closeAdd('editpay')"></div>
+  <div class="relative bg-white rounded-2xl w-full max-w-md p-6 shadow-2xl max-h-screen overflow-y-auto">
+    <button onclick="closeAdd('editpay')" class="absolute top-3 right-4 text-gray-400 hover:text-gray-600 text-2xl">&times;</button>
+    <h3 class="text-xl font-bold text-green-900 mb-4">Edit Payment Details</h3>
+    <form onsubmit="savePay(event)" class="space-y-3 text-sm">
+      <input type="hidden" id="ep-id" />
+      <div><label class="block text-gray-600 text-xs mb-1">Bank name</label><input id="ep-bank-name" class="w-full border border-gray-300 rounded-lg px-3 py-2" /></div>
+      <div><label class="block text-gray-600 text-xs mb-1">Account holder name</label><input id="ep-bank-acc-name" class="w-full border border-gray-300 rounded-lg px-3 py-2" /></div>
+      <div><label class="block text-gray-600 text-xs mb-1">Account number</label><input id="ep-bank-acc-no" class="w-full border border-gray-300 rounded-lg px-3 py-2" /></div>
+      <div><label class="block text-gray-600 text-xs mb-1">WhatsApp (with country code)</label><input id="ep-whatsapp" class="w-full border border-gray-300 rounded-lg px-3 py-2" /></div>
+      <div>
+        <label class="block text-gray-600 text-xs mb-1">DuitNow / Bank QR</label>
+        <input type="file" accept="image/*" id="ep-qr-file" onchange="uploadSellerQr(event)" class="w-full text-xs file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:bg-green-100 file:text-green-700 file:font-semibold" />
+        <input type="hidden" id="ep-qr-url" />
+        <div id="ep-qr-preview" class="mt-2"></div>
+      </div>
+      <button type="submit" class="w-full btn-primary text-white font-semibold py-2.5 rounded-xl transition">Save Payment</button>
+      <p id="ep-msg" class="text-xs"></p>
     </form>
   </div>
 </div>
@@ -728,6 +782,10 @@
       ['Joined', s.created_at ? new Date(s.created_at).toLocaleDateString() : '']
     ].filter(r => r[1] !== null && r[1] !== undefined && r[1] !== '');
     return `
+      <div class="flex justify-end gap-2 mb-3">
+        <button onclick="openEditSeller('${s.id}')" class="bg-green-50 text-green-700 text-xs font-semibold px-3 py-1.5 rounded-full">✏️ Edit Details</button>
+        <button onclick="deleteSeller('${s.id}')" class="bg-red-50 text-red-600 text-xs font-semibold px-3 py-1.5 rounded-full">🗑️ Delete Seller</button>
+      </div>
       <div class="flex items-start gap-4 mb-3 flex-wrap">
         <div class="w-20 h-20 rounded-xl bg-green-100 overflow-hidden shrink-0 flex items-center justify-center">
           ${s.photo_url ? `<img src="${s.photo_url}" class="w-full h-full object-cover" />` : '<span class="text-3xl">🧑‍🌾</span>'}
@@ -739,9 +797,10 @@
       ${s.story ? `<div class="bg-white border border-green-100 rounded-lg p-3 text-sm text-gray-600 italic">“${s.story}”</div>` : ''}`;
   }
   function renderSellerPayment(s) {
+    const editBtn = `<div class="flex justify-end mb-3"><button onclick="openEditPay('${s.id}')" class="bg-green-50 text-green-700 text-xs font-semibold px-3 py-1.5 rounded-full">✏️ Edit Payment</button></div>`;
     if (!s.bank_name && !s.bank_account_no && !s.bank_account_name && !s.bank_qr_url && !s.whatsapp)
-      return '<p class="text-xs text-amber-600">This seller has not set up payment details yet.</p>';
-    return `
+      return editBtn + '<p class="text-xs text-amber-600">This seller has not set up payment details yet.</p>';
+    return editBtn + `
       <div class="flex items-start gap-4 flex-wrap">
         ${s.bank_qr_url ? `<a href="${s.bank_qr_url}" target="_blank" class="shrink-0"><img src="${s.bank_qr_url}" class="w-32 h-32 object-contain rounded-lg border border-green-200 bg-white" /><span class="block text-center text-xs text-green-600 mt-1">QR · tap to enlarge</span></a>` : ''}
         <div class="flex-1 min-w-[220px] text-sm">
@@ -772,19 +831,31 @@
         <div class="mt-2 space-y-0.5">
           ${(o.order_items || []).map(i => `<div class="flex justify-between text-xs text-gray-600"><span>${i.product_name || i.products?.name} × ${i.quantity} ${i.products?.unit || ''}</span><span>${rm(i.quantity * i.unit_price)}</span></div>`).join('')}
         </div>
-        <div class="flex items-center justify-between border-t border-green-50 mt-2 pt-2">
+        <div class="flex items-center justify-between border-t border-green-50 mt-2 pt-2 gap-2 flex-wrap">
           <span class="font-bold text-green-700 text-sm">${rm(o.total_amount)}</span>
-          ${!['completed','cancelled'].includes(o.status) ? `<button onclick="cancelSellerOrder('${o.id}','${id}')" class="bg-red-50 text-red-600 text-xs px-3 py-1 rounded-full transition">Cancel</button>` : ''}
+          <div class="flex items-center gap-2">
+            <select onchange="setOrderStatus('${o.id}','${id}',this.value)" class="text-xs border border-gray-300 rounded-lg px-2 py-1 bg-white">
+              ${['pending','payment_uploaded','payment_verified','processing','completed','cancelled'].map(st=>`<option value="${st}" ${o.status===st?'selected':''}>${st.replace(/_/g,' ')}</option>`).join('')}
+            </select>
+            <button onclick="deleteSellerOrder('${o.id}','${id}')" title="Delete" class="bg-red-50 text-red-600 text-xs px-2 py-1 rounded-full transition">🗑️</button>
+          </div>
         </div>
       </div>`).join('');
   }
-  function cancelSellerOrder(orderId, sellerId) {
-    if (!confirm('Cancel this order?')) return;
-    sb.from('mkt_orders').update({ status: 'cancelled' }).eq('id', orderId).then(() => {
-      showToast('Order cancelled', 'warning');
-      const box = document.getElementById(`sp-${sellerId}-orders`); if (box) box.dataset.loaded = '';
-      loadSellerOrders(sellerId);
-    });
+  function reloadSellerOrders(sellerId) {
+    const box = document.getElementById(`sp-${sellerId}-orders`); if (box) box.dataset.loaded = '';
+    loadSellerOrders(sellerId);
+  }
+  async function setOrderStatus(orderId, sellerId, status) {
+    const { error } = await sb.from('mkt_orders').update({ status }).eq('id', orderId);
+    if (error) { showToast('Update failed: '+error.message, 'error'); return; }
+    showToast('Order status updated'); reloadSellerOrders(sellerId);
+  }
+  async function deleteSellerOrder(orderId, sellerId) {
+    if (!confirm('Delete this order permanently? This cannot be undone.')) return;
+    const { error } = await sb.from('mkt_orders').delete().eq('id', orderId);
+    if (error) { showToast('Delete failed: '+error.message, 'error'); return; }
+    showToast('Order deleted', 'warning'); reloadSellerOrders(sellerId);
   }
   function renderSellerProducts(list) {
     if (!list.length) return '<p class="text-xs text-gray-400 italic">No products listed yet.</p>';
@@ -801,6 +872,8 @@
                 <p class="text-xs font-semibold truncate">${p.name}</p>
                 <p class="text-[11px] text-gray-500">${rm(p.price)}/${p.unit} · ${p.quantity} ${p.unit}${p.status==='inactive' ? ' · <span class="text-red-500 font-semibold">inactive</span>' : ''}</p>
               </div>
+              <button onclick="openEditProduct('${p.id}')" title="Edit" class="text-green-600 hover:bg-green-50 rounded p-1 shrink-0">✏️</button>
+              <button onclick="deleteProduct('${p.id}')" title="Delete" class="text-red-500 hover:bg-red-50 rounded p-1 shrink-0">🗑️</button>
             </div>`).join('')}
         </div>
       </div>`).join('');
@@ -809,6 +882,96 @@
     const { error } = await sb.from('shared_profiles').update({ status }).eq('id', id);
     if (error) { showToast('Update failed', 'error'); return; }
     showToast(`Seller ${status}`); loadSellers();
+  }
+  async function openEditSeller(id) {
+    const { data: s } = await sb.from('shared_profiles').select('*').eq('id', id).single();
+    if (!s) { showToast('Seller not found', 'error'); return; }
+    const set = (k,v) => document.getElementById(k).value = (v ?? '');
+    set('es-id', s.id); set('es-name', s.full_name); set('es-email', s.email); set('es-phone', s.phone);
+    document.getElementById('es-status').value = s.status || 'active';
+    set('es-farm', s.farm_name); set('es-loc', s.farm_location); set('es-size', s.farm_size);
+    set('es-since', s.farming_since); set('es-age', s.age); set('es-ethnicity', s.ethnicity);
+    set('es-cert', s.certifications); set('es-story', s.story);
+    document.getElementById('es-msg').textContent = '';
+    openAdd('editseller');
+  }
+  async function saveSellerDetails(e) {
+    e.preventDefault();
+    const msg = document.getElementById('es-msg');
+    const num = id => { const v = document.getElementById(id).value.trim(); return v === '' ? null : (parseInt(v) || null); };
+    const payload = {
+      full_name: document.getElementById('es-name').value.trim() || null,
+      email: document.getElementById('es-email').value.trim() || null,
+      phone: document.getElementById('es-phone').value.trim() || null,
+      status: document.getElementById('es-status').value,
+      farm_name: document.getElementById('es-farm').value.trim() || null,
+      farm_location: document.getElementById('es-loc').value.trim() || null,
+      farm_size: document.getElementById('es-size').value.trim() || null,
+      farming_since: num('es-since'), age: num('es-age'),
+      ethnicity: document.getElementById('es-ethnicity').value.trim() || null,
+      certifications: document.getElementById('es-cert').value.trim() || null,
+      story: document.getElementById('es-story').value.trim() || null
+    };
+    const { error } = await sb.from('shared_profiles').update(payload).eq('id', document.getElementById('es-id').value);
+    if (error) { msg.className='text-xs text-red-600'; msg.textContent='Failed: '+error.message; return; }
+    showToast('Seller details updated'); closeAdd('editseller'); loadSellers();
+  }
+  async function deleteSeller(id) {
+    if (!confirm('Delete this seller and ALL their products? Sellers with existing orders cannot be deleted (suspend them instead). This cannot be undone.')) return;
+    const { error } = await sb.from('shared_profiles').delete().eq('id', id);
+    if (error) {
+      const fk = /foreign key|violates/i.test(error.message);
+      showToast(fk ? 'Cannot delete: this seller has order history. Suspend them instead.' : 'Delete failed: '+error.message, 'error');
+      return;
+    }
+    showToast('Seller deleted', 'warning'); loadSellers();
+  }
+  // ---- Edit payment (per seller) ----
+  function renderEpQr(url) {
+    document.getElementById('ep-qr-preview').innerHTML = url
+      ? `<img src="${url}" class="h-24 rounded-lg border border-green-100 object-contain bg-white" />`
+      : '<p class="text-xs text-gray-400">No QR uploaded.</p>';
+  }
+  async function openEditPay(id) {
+    const { data: s } = await sb.from('shared_profiles').select('*').eq('id', id).single();
+    if (!s) { showToast('Seller not found', 'error'); return; }
+    document.getElementById('ep-id').value = s.id;
+    document.getElementById('ep-bank-name').value = s.bank_name || '';
+    document.getElementById('ep-bank-acc-name').value = s.bank_account_name || '';
+    document.getElementById('ep-bank-acc-no').value = s.bank_account_no || '';
+    document.getElementById('ep-whatsapp').value = s.whatsapp || '';
+    document.getElementById('ep-qr-url').value = s.bank_qr_url || '';
+    document.getElementById('ep-qr-file').value = '';
+    renderEpQr(s.bank_qr_url || '');
+    document.getElementById('ep-msg').textContent = '';
+    openAdd('editpay');
+  }
+  async function uploadSellerQr(e) {
+    const file = e.target.files[0]; if (!file) return;
+    const sellerId = document.getElementById('ep-id').value;
+    const ext = (file.name.split('.').pop() || 'png').toLowerCase();
+    const path = `${sellerId}/qr-${Date.now()}.${ext}`;
+    showToast('Uploading QR…');
+    const { error: upErr } = await sb.storage.from('farmer-photos').upload(path, file, { upsert: true });
+    if (upErr) { showToast('Upload failed: '+upErr.message, 'error'); return; }
+    const { data: { publicUrl } } = sb.storage.from('farmer-photos').getPublicUrl(path);
+    document.getElementById('ep-qr-url').value = publicUrl;
+    renderEpQr(publicUrl);
+    showToast('QR uploaded — remember to Save');
+  }
+  async function savePay(e) {
+    e.preventDefault();
+    const msg = document.getElementById('ep-msg');
+    const payload = {
+      bank_name: document.getElementById('ep-bank-name').value.trim() || null,
+      bank_account_name: document.getElementById('ep-bank-acc-name').value.trim() || null,
+      bank_account_no: document.getElementById('ep-bank-acc-no').value.trim() || null,
+      whatsapp: document.getElementById('ep-whatsapp').value.replace(/[^0-9]/g,'') || null,
+      bank_qr_url: document.getElementById('ep-qr-url').value.trim() || null
+    };
+    const { error } = await sb.from('shared_profiles').update(payload).eq('id', document.getElementById('ep-id').value);
+    if (error) { msg.className='text-xs text-red-600'; msg.textContent='Failed: '+error.message; return; }
+    showToast('Payment details updated'); closeAdd('editpay'); loadSellers();
   }
 
   // ---------- REPORTS ----------
@@ -1390,26 +1553,61 @@
       sel.disabled = false;
       sel.innerHTML = (sellers && sellers.length) ? sellers.map(s=>`<option value="${s.id}">${s.farm_name||s.full_name||s.id}</option>`).join('') : '<option value="">No active sellers — add one first</option>';
     }
-    ['np-name','np-price','np-qty','np-harvest','np-desc'].forEach(id=>document.getElementById(id).value='');
+    ['np-id','np-name','np-price','np-qty','np-harvest','np-desc'].forEach(id=>document.getElementById(id).value='');
     document.getElementById('np-unit').value='kg'; document.getElementById('np-msg').textContent='';
+    document.getElementById('np-category').value='Vegetables';
+    document.getElementById('np-status').value='active';
+    document.getElementById('addprod-title').textContent='Add Product';
+    document.getElementById('np-submit-btn').textContent='Create Product';
     openAdd('addprod');
+  }
+  async function openEditProduct(id) {
+    const { data: p } = await sb.from('mkt_products').select('*, seller:shared_profiles!seller_id(full_name,farm_name)').eq('id', id).single();
+    if (!p) { showToast('Product not found','error'); return; }
+    const sel = document.getElementById('np-seller');
+    sel.innerHTML = `<option value="${p.seller_id}">${p.seller?.farm_name || p.seller?.full_name || p.seller_id}</option>`;
+    sel.value = p.seller_id; sel.disabled = true;
+    document.getElementById('np-id').value = p.id;
+    document.getElementById('np-name').value = p.name || '';
+    document.getElementById('np-category').value = p.category || 'Vegetables';
+    document.getElementById('np-unit').value = p.unit || 'kg';
+    document.getElementById('np-price').value = p.price ?? '';
+    document.getElementById('np-qty').value = p.quantity ?? '';
+    document.getElementById('np-harvest').value = p.harvest_date || '';
+    document.getElementById('np-desc').value = p.description || '';
+    document.getElementById('np-status').value = p.status || 'active';
+    document.getElementById('np-msg').textContent = '';
+    document.getElementById('addprod-title').textContent = 'Edit Product';
+    document.getElementById('np-submit-btn').textContent = 'Save Product';
+    openAdd('addprod');
+  }
+  async function deleteProduct(id) {
+    if (!confirm('Delete this product? This cannot be undone.')) return;
+    const { error } = await sb.from('mkt_products').delete().eq('id', id);
+    if (error) { showToast('Delete failed: '+error.message, 'error'); return; }
+    showToast('Product deleted', 'warning'); loadSellers();
   }
   async function saveNewProduct(e) {
     e.preventDefault();
     const msg=document.getElementById('np-msg');
+    const id=document.getElementById('np-id').value;
     const seller_id=document.getElementById('np-seller').value;
     if (!seller_id) { msg.className='text-xs text-red-600'; msg.textContent='Select a seller.'; return; }
-    const { error } = await sb.from('mkt_products').insert({
-      seller_id, name: document.getElementById('np-name').value.trim(),
+    const fields = {
+      name: document.getElementById('np-name').value.trim(),
       category: document.getElementById('np-category').value,
       description: document.getElementById('np-desc').value.trim() || null,
       price: parseFloat(document.getElementById('np-price').value)||0,
       unit: document.getElementById('np-unit').value.trim()||'kg',
       quantity: parseInt(document.getElementById('np-qty').value)||0,
-      harvest_date: document.getElementById('np-harvest').value || null
-    });
+      harvest_date: document.getElementById('np-harvest').value || null,
+      status: document.getElementById('np-status').value
+    };
+    let error;
+    if (id) ({ error } = await sb.from('mkt_products').update(fields).eq('id', id));
+    else ({ error } = await sb.from('mkt_products').insert({ seller_id, ...fields }));
     if (error) { msg.className='text-xs text-red-600'; msg.textContent='Failed: '+error.message; return; }
-    showToast('Product added'); closeAdd('addprod'); loadSellers();
+    showToast(id?'Product updated':'Product added'); closeAdd('addprod'); loadSellers();
   }
 
   // ---- Add Order ----
