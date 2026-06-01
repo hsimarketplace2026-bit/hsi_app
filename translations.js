@@ -26,11 +26,40 @@
       'features.community_title': 'Community Supported',
       'features.community_body': 'Every purchase empowers an HSI program farmer. Build a sustainable local food system together.',
 
+      // Benefits of hydroponic farming
+      'benefits.title': 'Benefits of Hydroponic Farming',
+      'benefits.subtitle': 'A smarter, cleaner way to grow food — better for you, for the farmer, and for the planet.',
+      'benefits.water_title': 'Saves Water',
+      'benefits.water_body': 'Uses up to 90% less water than soil farming through closed-loop recirculation.',
+      'benefits.pesticide_title': 'No Pesticides',
+      'benefits.pesticide_body': 'Grown in clean, controlled conditions, so produce is naturally pesticide-free.',
+      'benefits.yearround_title': 'Year-Round Harvest',
+      'benefits.yearround_body': 'Climate-controlled growing means fresh produce in every season, rain or shine.',
+      'benefits.growth_title': 'Faster Growth',
+      'benefits.growth_body': 'Nutrients delivered straight to the roots let plants grow up to twice as fast.',
+      'benefits.space_title': 'Space-Efficient',
+      'benefits.space_body': 'Vertical, soil-free systems grow more food in less space, even in urban areas.',
+      'benefits.nutrient_title': 'Nutrient-Rich & Fresh',
+      'benefits.nutrient_body': 'Optimised nutrition and same-day freshness mean healthier, better-tasting produce.',
+
       // Vision / Mission
       'vision.title': 'Our Vision',
       'vision.body': 'A thriving community where hydroponic farmers have direct market access, fair income, and buyers enjoy fresh, nutrient-rich produce grown responsibly.',
       'mission.title': 'Our Mission',
       'mission.body': 'To connect HSI-certified hydroponic farmers with buyers through a transparent, community-first marketplace that upholds quality, trust, and sustainability.',
+
+      // Community participation
+      'community.tag': 'Get Involved',
+      'community.title': 'Be Part of the HSI Community',
+      'community.body': "Whether you grow, buy, or simply believe in fresh local food, there's a place for you in the HSI Program.",
+      'community.farmer_title': 'Grow & Sell',
+      'community.farmer_body': 'Register as a community farmer to list your hydroponic produce and reach buyers directly.',
+      'community.buyer_title': 'Shop Fresh',
+      'community.buyer_body': 'Create a buyer account to order fresh produce, track your orders, and earn HSI loyalty points.',
+      'community.support_title': 'Support Local',
+      'community.support_body': 'Every purchase strengthens local farmers and helps build a sustainable community food system.',
+      'community.join_btn': 'Join the Community',
+      'community.browse_btn': 'Browse Produce',
 
       // Sections
       'section.fresh_week': 'Fresh This Week',
@@ -104,11 +133,40 @@
       'features.community_title': 'Disokong Komuniti',
       'features.community_body': 'Setiap pembelian memperkasakan petani program HSI. Bina sistem makanan tempatan yang mampan bersama-sama.',
 
+      // Benefits of hydroponic farming
+      'benefits.title': 'Kelebihan Pertanian Hidroponik',
+      'benefits.subtitle': 'Cara menanam makanan yang lebih bijak dan bersih — lebih baik untuk anda, petani, dan bumi.',
+      'benefits.water_title': 'Menjimatkan Air',
+      'benefits.water_body': 'Menggunakan air sehingga 90% lebih sedikit berbanding pertanian tanah melalui sistem kitar semula tertutup.',
+      'benefits.pesticide_title': 'Tanpa Pestisid',
+      'benefits.pesticide_body': 'Ditanam dalam keadaan bersih dan terkawal, jadi hasil tani secara semula jadi bebas pestisid.',
+      'benefits.yearround_title': 'Tuaian Sepanjang Tahun',
+      'benefits.yearround_body': 'Penanaman terkawal iklim bermakna hasil tani segar dalam setiap musim, hujan atau panas.',
+      'benefits.growth_title': 'Pertumbuhan Lebih Pantas',
+      'benefits.growth_body': 'Nutrien dihantar terus ke akar membolehkan tumbuhan membesar sehingga dua kali lebih pantas.',
+      'benefits.space_title': 'Jimat Ruang',
+      'benefits.space_body': 'Sistem menegak tanpa tanah menghasilkan lebih banyak makanan dalam ruang lebih kecil, walaupun di bandar.',
+      'benefits.nutrient_title': 'Kaya Nutrien & Segar',
+      'benefits.nutrient_body': 'Nutrisi optimum dan kesegaran hari yang sama bermakna hasil tani lebih sihat dan sedap.',
+
       // Vision / Mission
       'vision.title': 'Visi Kami',
       'vision.body': 'Komuniti yang membangun di mana petani hidroponik mempunyai akses pasaran langsung, pendapatan adil, dan pembeli menikmati hasil tani yang segar dan kaya nutrien.',
       'mission.title': 'Misi Kami',
       'mission.body': 'Menghubungkan petani hidroponik bertauliah HSI dengan pembeli melalui pasaran yang telus, mengutamakan komuniti dan menjamin kualiti, kepercayaan dan kemampanan.',
+
+      // Community participation
+      'community.tag': 'Sertai Kami',
+      'community.title': 'Sertai Komuniti HSI',
+      'community.body': 'Sama ada anda menanam, membeli, atau sekadar mempercayai makanan tempatan yang segar, ada tempat untuk anda dalam Program HSI.',
+      'community.farmer_title': 'Tanam & Jual',
+      'community.farmer_body': 'Daftar sebagai petani komuniti untuk menyenaraikan hasil tani hidroponik anda dan menjangkau pembeli secara langsung.',
+      'community.buyer_title': 'Beli Segar',
+      'community.buyer_body': 'Cipta akaun pembeli untuk memesan hasil tani segar, menjejak pesanan anda, dan memperoleh mata ganjaran HSI.',
+      'community.support_title': 'Sokong Tempatan',
+      'community.support_body': 'Setiap pembelian mengukuhkan petani tempatan dan membantu membina sistem makanan komuniti yang mampan.',
+      'community.join_btn': 'Sertai Komuniti',
+      'community.browse_btn': 'Lihat Hasil Tani',
 
       // Sections
       'section.fresh_week': 'Segar Minggu Ini',
