@@ -588,6 +588,27 @@ begin
 end; $$;
 grant execute on function public.mkt_award_order_points(uuid) to anon, authenticated;
 
+-- Complete an order and decrement product inventory by the ordered quantities.
+-- Idempotent (no double-decrement) and restricted to the order's seller.
+create or replace function public.mkt_complete_order(p_order_id uuid)
+returns void language plpgsql security definer set search_path = public as $$
+declare v_seller uuid; v_status text;
+begin
+  select seller_id, status into v_seller, v_status from public.mkt_orders where id = p_order_id;
+  if v_seller is null then raise exception 'Order not found'; end if;
+  if v_seller <> auth.uid() then raise exception 'Not authorized'; end if;
+  if v_status = 'completed' then return; end if;
+  update public.mkt_products p
+    set quantity = greatest(0, p.quantity - oi.qty)
+  from (select product_id, sum(quantity) as qty
+          from public.mkt_order_items
+         where order_id = p_order_id and product_id is not null
+         group by product_id) oi
+  where p.id = oi.product_id;
+  update public.mkt_orders set status = 'completed' where id = p_order_id;
+end $$;
+grant execute on function public.mkt_complete_order(uuid) to authenticated;
+
 create or replace function public.mkt_release_abandoned_orders()
 returns integer language plpgsql security definer set search_path = public as $$
 declare cfg jsonb; v_hours int := 48; v_enabled boolean := true; v_count int := 0; r record;

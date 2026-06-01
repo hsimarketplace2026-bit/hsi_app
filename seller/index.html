@@ -724,9 +724,11 @@
   async function doDeliveryCompleted() {
     const orderId = document.getElementById('delivery-confirm-order-id').value;
     closeDeliveryConfirm();
-    await sb.from('mkt_orders').update({ status: 'completed' }).eq('id', orderId);
-    showToast('Delivery completed! Order moved to Sales Records.');
+    const { error } = await sb.rpc('mkt_complete_order', { p_order_id: orderId });
+    if (error) { showToast('Failed to complete: ' + error.message, 'error'); return; }
+    showToast('Delivery completed! Inventory updated.');
     loadOrders();
+    loadProducts();
   }
 
   // ---- ANALYTICS ----
