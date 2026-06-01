@@ -200,22 +200,10 @@
   <div id="panel-settings" class="hidden space-y-6">
     <div class="bg-white rounded-xl p-6 shadow border border-green-100">
       <h3 class="text-lg font-bold text-green-900 mb-4">Payment Methods</h3>
-      <div class="space-y-3 text-sm">
-        <label class="flex items-center gap-2"><input type="checkbox" id="set-offline-enabled" class="accent-green-600" /> Offline (bank transfer + proof upload)</label>
-        <label class="flex items-center gap-2"><input type="checkbox" id="set-online-enabled" class="accent-green-600" /> Online (Billplz — FPX / card)</label>
-        <div class="bg-amber-50 text-amber-800 text-xs rounded-lg p-3">
-          Online payments use Billplz. Deploy the edge functions in <code>supabase/functions/</code> and set your
-          Billplz secrets (<code>BILLPLZ_API_KEY</code>, <code>BILLPLZ_COLLECTION_ID</code>, <code>BILLPLZ_X_SIGNATURE_KEY</code>)
-          for <strong>your own Billplz account</strong>. See README.
-        </div>
-        <div class="grid sm:grid-cols-2 gap-3">
-          <div><label class="block text-gray-600 mb-1">Bank name</label><input id="set-bank-name" class="w-full border border-gray-300 rounded-lg px-3 py-2" /></div>
-          <div><label class="block text-gray-600 mb-1">Account holder</label><input id="set-bank-holder" class="w-full border border-gray-300 rounded-lg px-3 py-2" /></div>
-          <div><label class="block text-gray-600 mb-1">Account number</label><input id="set-bank-account" class="w-full border border-gray-300 rounded-lg px-3 py-2" /></div>
-          <div><label class="block text-gray-600 mb-1">DuitNow QR URL</label><input id="set-duitnow" class="w-full border border-gray-300 rounded-lg px-3 py-2" /></div>
-        </div>
+      <div class="bg-green-50 text-green-800 text-sm rounded-lg p-4">
+        <p class="font-semibold mb-1">💳 Direct seller payments</p>
+        <p class="text-xs text-gray-600">Buyers pay each seller directly. Sellers set up their own bank/DuitNow QR code and WhatsApp number in their <strong>Seller Dashboard → Profile → Payment Details</strong>. Buyers scan the QR and send their payment slip via WhatsApp.</p>
       </div>
-      <button onclick="savePaymentConfig()" class="mt-4 btn-primary text-white font-semibold px-5 py-2 rounded-lg text-sm transition">Save Payment</button>
     </div>
     <div class="bg-white rounded-xl p-6 shadow border border-green-100">
       <h3 class="text-lg font-bold text-green-900 mb-4">Email Notifications</h3>
@@ -981,13 +969,6 @@
     document.getElementById('set-redeem-rm').value = pts.redeem_rm;
     updatePtsSummary();
     const tiers = await getSetting('member_tiers', []); window.MEMBER_TIERS = tiers; renderTierRows(tiers);
-    const pay = await getSetting('payment_config', { online_enabled:false, offline_enabled:true });
-    document.getElementById('set-offline-enabled').checked = pay.offline_enabled !== false;
-    document.getElementById('set-online-enabled').checked = !!pay.online_enabled;
-    document.getElementById('set-bank-name').value = pay.bank_name||'';
-    document.getElementById('set-bank-holder').value = pay.account_holder||'';
-    document.getElementById('set-bank-account').value = pay.bank_account||'';
-    document.getElementById('set-duitnow').value = pay.duitnow_qr_url||'';
     const notif = await getSetting('notification_config', { from_name:'HSI Marketplace', from_email:'', admin_emails:[] });
     document.getElementById('set-from-name').value = notif.from_name||'';
     document.getElementById('set-from-email').value = notif.from_email||'';
@@ -1025,17 +1006,6 @@
   function addTierRow(){ const t=collectTiers(); t.push({name:'',min_points:0}); window.MEMBER_TIERS=t; renderTierRows(t); }
   function removeTierRow(i){ const t=collectTiers(); t.splice(i,1); window.MEMBER_TIERS=t; renderTierRows(t); }
   async function saveTiers(){ const t=collectTiers(); window.MEMBER_TIERS=t; const err=await setSetting('member_tiers', t); showToast(err?'Save failed':'Tiers saved', err?'error':'success'); }
-  async function savePaymentConfig() {
-    const err = await setSetting('payment_config', {
-      offline_enabled: document.getElementById('set-offline-enabled').checked,
-      online_enabled: document.getElementById('set-online-enabled').checked,
-      bank_name: document.getElementById('set-bank-name').value.trim(),
-      account_holder: document.getElementById('set-bank-holder').value.trim(),
-      bank_account: document.getElementById('set-bank-account').value.trim(),
-      duitnow_qr_url: document.getElementById('set-duitnow').value.trim()
-    });
-    showToast(err?'Save failed':'Payment settings saved', err?'error':'success');
-  }
   async function saveNotifConfig() {
     const err = await setSetting('notification_config', {
       from_name: document.getElementById('set-from-name').value.trim(),
