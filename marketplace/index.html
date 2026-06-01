@@ -184,7 +184,7 @@
             <span class="text-green-700 font-bold text-sm">RM ${parseFloat(p.price).toFixed(2)}/${p.unit}</span>
             <span class="text-xs text-gray-400">${p.quantity} avail.</span>
           </div>
-          <button onclick="event.stopPropagation(); quickAdd('${p.id}')" class="mt-2 w-full btn-primary text-white text-xs py-1.5 rounded-lg transition">+ Add to Cart</button>
+          <button onclick="event.stopPropagation(); openModal('${p.id}')" class="mt-2 w-full btn-primary text-white text-xs py-1.5 rounded-lg transition">+ Add to Cart</button>
         </div>
       </div>
     `).join('');
