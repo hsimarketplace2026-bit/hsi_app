@@ -210,7 +210,7 @@ create index if not exists idx_billing_info_user on public.billing_info(user_id)
 
 -- 7a. Human-readable order number generator (alphanumeric, collision-safe)
 create or replace function public.next_order_number()
-returns text language plpgsql as $$
+returns text language plpgsql security definer set search_path = public as $$
 declare
   alphabet text := 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';  -- no I,O,0,1
   candidate text;

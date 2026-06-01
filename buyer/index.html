@@ -28,6 +28,7 @@
     .status-processing { background:#ffedd5;color:#9a3412; }
     .status-completed { background:#dcfce7;color:#166534; }
     .status-cancelled { background:#fee2e2;color:#991b1b; }
+    .star { cursor:pointer; font-size:1.75rem; line-height:1; }
   </style>
 </head>
 <body class="bg-green-50 text-gray-800 font-sans">
@@ -41,6 +42,12 @@
   const { createClient } = supabase;
   const sb = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
   let currentUser = null;
+  let APP = { points: { earn_rm:10, earn_pts:1, redeem_pts:100, redeem_rm:1, enabled:true }, tiers: [], payment: { online_enabled:false, offline_enabled:true } };
+  let CART = [];        // [{id, name, price, unit, quantity(stock), seller_id, category, qty, promo}]
+  let POINTS = { balance:0, lifetime_earned:0 };
+  let appliedCoupon = null; // {code, discount}
+  let redeemPoints = 0;
+
   (async () => {
     const { data: { session } } = await sb.auth.getSession();
     if (!session) { window.location.href = '../'; return; }
@@ -48,8 +55,18 @@
     if (!profile || profile.role !== 'buyer') { window.location.href = '../'; return; }
     currentUser = { ...session.user, ...profile };
     document.getElementById('user-name').textContent = profile.full_name || session.user.email;
+    await loadAppConfig();
     initBuyerApp();
   })();
+
+  async function loadAppConfig() {
+    const { data } = await sb.from('app_settings').select('key,value').in('key', ['points_config','member_tiers','payment_config']);
+    (data || []).forEach(r => {
+      if (r.key === 'points_config') APP.points = { ...APP.points, ...r.value };
+      if (r.key === 'member_tiers') APP.tiers = r.value || [];
+      if (r.key === 'payment_config') APP.payment = { ...APP.payment, ...r.value };
+    });
+  }
 </script>
 
 <!-- NAV -->
@@ -60,6 +77,7 @@
       <span>HSI Marketplace</span>
     </a>
     <div class="flex items-center gap-3">
+      <a href="../marketplace/" class="text-green-200 hover:text-white text-sm">Browse</a>
       <span id="user-name" class="text-green-200 text-sm hidden sm:inline"></span>
       <button onclick="doLogout()" class="bg-green-800 hover:bg-green-700 text-sm px-3 py-1.5 rounded-full transition">Logout</button>
     </div>
@@ -73,6 +91,7 @@
   <div class="flex border border-green-200 rounded-xl overflow-hidden mb-6">
     <button onclick="switchTab('cart')" id="tab-cart" class="tab-btn active flex-1 py-2.5 text-sm font-semibold transition">🛒 Cart</button>
     <button onclick="switchTab('orders')" id="tab-orders" class="tab-btn flex-1 py-2.5 text-sm font-semibold bg-white text-green-700 transition">📦 Orders</button>
+    <button onclick="switchTab('rewards')" id="tab-rewards" class="tab-btn flex-1 py-2.5 text-sm font-semibold bg-white text-green-700 transition">⭐ Rewards</button>
     <button onclick="switchTab('profile')" id="tab-profile" class="tab-btn flex-1 py-2.5 text-sm font-semibold bg-white text-green-700 transition">👤 Profile</button>
   </div>
 
@@ -81,19 +100,43 @@
     <div id="cart-list" class="space-y-3 mb-4">
       <p class="text-gray-400 text-sm text-center py-8">Loading cart…</p>
     </div>
-    <div id="cart-summary" class="hidden bg-white rounded-xl p-5 shadow border border-green-100">
+    <div id="cart-summary" class="hidden bg-white rounded-xl p-5 shadow border border-green-100 space-y-4">
+      <!-- Coupon -->
       <div>
-        <label class="block text-sm font-medium text-gray-700 mb-1">Delivery Notes (optional)</label>
-        <textarea id="delivery-notes" rows="2" placeholder="Any special instructions…"
-          class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-green-500"></textarea>
-      </div>
-      <div class="flex items-center justify-between mt-4">
-        <div>
-          <p class="text-sm text-gray-500">Total</p>
-          <p id="cart-total" class="text-2xl font-bold text-green-700">₱0.00</p>
+        <label class="block text-sm font-medium text-gray-700 mb-1">Coupon code</label>
+        <div class="flex gap-2">
+          <input id="coupon-input" type="text" placeholder="e.g. HSIWELCOME" class="flex-1 border border-gray-300 rounded-lg px-3 py-2 text-sm uppercase focus:outline-none focus:border-green-500" />
+          <button onclick="applyCoupon()" class="bg-green-100 text-green-700 hover:bg-green-200 text-sm font-semibold px-4 rounded-lg transition">Apply</button>
         </div>
-        <button onclick="placeOrder()" class="btn-primary text-white font-semibold px-8 py-3 rounded-xl transition">Place Order</button>
+        <p id="coupon-msg" class="text-xs mt-1"></p>
       </div>
+      <!-- Points redemption -->
+      <div id="points-redeem-block" class="hidden">
+        <label class="block text-sm font-medium text-gray-700 mb-1">Redeem HSI Points (<span id="pts-available">0</span> available)</label>
+        <div class="flex items-center gap-3">
+          <input id="points-slider" type="range" min="0" max="0" step="1" value="0" oninput="onPointsSlide()" class="flex-1 accent-green-600" />
+          <span id="points-redeem-label" class="text-sm font-semibold text-green-700 w-28 text-right">0 pts</span>
+        </div>
+      </div>
+      <!-- Delivery notes -->
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1">Delivery / pickup notes (optional)</label>
+        <textarea id="delivery-notes" rows="2" placeholder="Any special instructions…" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-green-500"></textarea>
+      </div>
+      <!-- Payment method -->
+      <div id="payment-method-block">
+        <label class="block text-sm font-medium text-gray-700 mb-1">Payment method</label>
+        <div class="grid grid-cols-2 gap-2" id="pay-method-options"></div>
+      </div>
+      <!-- Totals -->
+      <div class="border-t border-green-100 pt-3 text-sm space-y-1">
+        <div class="flex justify-between text-gray-600"><span>Subtotal</span><span id="sum-subtotal">RM 0.00</span></div>
+        <div id="sum-promo-row" class="flex justify-between text-green-600 hidden"><span>Promotions</span><span id="sum-promo">- RM 0.00</span></div>
+        <div id="sum-coupon-row" class="flex justify-between text-green-600 hidden"><span>Coupon</span><span id="sum-coupon">- RM 0.00</span></div>
+        <div id="sum-points-row" class="flex justify-between text-green-600 hidden"><span>Points</span><span id="sum-points">- RM 0.00</span></div>
+        <div class="flex justify-between font-bold text-green-900 text-lg pt-1"><span>Total</span><span id="sum-total">RM 0.00</span></div>
+      </div>
+      <button onclick="placeOrder()" id="place-order-btn" class="w-full btn-primary text-white font-semibold py-3 rounded-xl transition">Place Order</button>
     </div>
   </div>
 
@@ -104,8 +147,37 @@
     </div>
   </div>
 
+  <!-- REWARDS TAB -->
+  <div id="panel-rewards" class="hidden space-y-5">
+    <div id="tier-card" class="rounded-2xl p-6 text-white shadow" style="background:linear-gradient(135deg,#14532d,#16a34a)">
+      <p class="text-green-100 text-sm">HSI Loyalty</p>
+      <div class="flex items-end justify-between mt-1">
+        <div>
+          <p class="text-3xl font-extrabold" id="rw-balance">0</p>
+          <p class="text-green-200 text-xs">points available</p>
+        </div>
+        <div class="text-right">
+          <p class="text-xs text-green-200">Tier</p>
+          <p class="text-xl font-bold" id="rw-tier">Sprout</p>
+        </div>
+      </div>
+      <div class="mt-4">
+        <div class="h-2 bg-green-900/40 rounded-full overflow-hidden"><div id="rw-progress" class="h-full bg-white/80" style="width:0%"></div></div>
+        <p class="text-xs text-green-200 mt-1" id="rw-next"></p>
+      </div>
+    </div>
+    <div>
+      <h3 class="font-bold text-green-900 mb-2">Available Coupons</h3>
+      <div id="rw-coupons" class="grid sm:grid-cols-2 gap-3"><p class="text-gray-400 text-sm">Loading…</p></div>
+    </div>
+    <div>
+      <h3 class="font-bold text-green-900 mb-2">Points Activity</h3>
+      <div id="rw-history" class="bg-white rounded-xl border border-green-100 divide-y divide-green-50"><p class="text-gray-400 text-sm p-4">Loading…</p></div>
+    </div>
+  </div>
+
   <!-- PROFILE TAB -->
-  <div id="panel-profile" class="hidden">
+  <div id="panel-profile" class="hidden space-y-5">
     <div class="bg-white rounded-xl p-6 shadow border border-green-100">
       <h3 class="text-lg font-bold text-green-900 mb-4">Edit Profile</h3>
       <form onsubmit="saveProfile(event)" class="space-y-4">
@@ -123,13 +195,31 @@
         </div>
         <button type="submit" class="btn-primary text-white font-semibold px-6 py-2.5 rounded-lg transition">Save Changes</button>
       </form>
-      <hr class="my-6 border-green-100" />
+    </div>
+
+    <!-- Billing addresses -->
+    <div class="bg-white rounded-xl p-6 shadow border border-green-100">
+      <div class="flex items-center justify-between mb-4">
+        <h3 class="text-lg font-bold text-green-900">Billing Addresses</h3>
+        <button onclick="openBillingModal()" class="btn-primary text-white text-sm px-4 py-2 rounded-full transition">+ Add</button>
+      </div>
+      <div id="billing-list" class="space-y-3"><p class="text-gray-400 text-sm">Loading…</p></div>
+    </div>
+
+    <!-- Change password -->
+    <div class="bg-white rounded-xl p-6 shadow border border-green-100">
+      <h3 class="text-lg font-bold text-green-900 mb-4">Change Password</h3>
+      <form onsubmit="changePassword(event)" class="space-y-3">
+        <input type="password" id="new-password" minlength="6" placeholder="New password (min 6 chars)" class="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-green-500" />
+        <button type="submit" class="btn-primary text-white font-semibold px-6 py-2.5 rounded-lg transition text-sm">Update Password</button>
+      </form>
+      <hr class="my-5 border-green-100" />
       <button onclick="doLogout()" class="w-full bg-red-50 text-red-600 hover:bg-red-100 font-medium py-2.5 rounded-lg transition text-sm">Logout</button>
     </div>
   </div>
 </div>
 
-<!-- PAYMENT MODAL -->
+<!-- PAYMENT PROOF MODAL (offline) -->
 <div id="payment-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4">
   <div class="absolute inset-0 bg-black bg-opacity-50" onclick="closePaymentModal()"></div>
   <div class="relative bg-white rounded-2xl w-full max-w-md p-6 shadow-2xl">
@@ -140,9 +230,9 @@
       <div>
         <label class="block text-sm font-medium text-gray-700 mb-1">Payment Method</label>
         <select id="pay-method" class="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-green-500">
-          <option value="GCash">GCash</option>
-          <option value="Maya">Maya</option>
           <option value="Bank Transfer">Bank Transfer</option>
+          <option value="DuitNow">DuitNow</option>
+          <option value="Touch 'n Go eWallet">Touch 'n Go eWallet</option>
           <option value="Cash on Delivery">Cash on Delivery</option>
           <option value="Other">Other</option>
         </select>
@@ -156,6 +246,46 @@
   </div>
 </div>
 
+<!-- BILLING MODAL -->
+<div id="billing-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4">
+  <div class="absolute inset-0 bg-black bg-opacity-50" onclick="closeBillingModal()"></div>
+  <div class="relative bg-white rounded-2xl w-full max-w-md max-h-screen overflow-y-auto p-6 shadow-2xl">
+    <button onclick="closeBillingModal()" class="absolute top-3 right-4 text-gray-400 hover:text-gray-600 text-2xl">&times;</button>
+    <h3 id="billing-modal-title" class="text-xl font-bold text-green-900 mb-4">Add Billing Address</h3>
+    <form onsubmit="saveBilling(event)" class="space-y-3">
+      <input type="hidden" id="bill-id" />
+      <div class="flex gap-4 text-sm">
+        <label class="flex items-center gap-2"><input type="radio" name="bill-type" value="personal" checked class="accent-green-600" /> Personal</label>
+        <label class="flex items-center gap-2"><input type="radio" name="bill-type" value="company" class="accent-green-600" /> Company</label>
+      </div>
+      <input id="bill-name" placeholder="Name / Company name" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-green-500" />
+      <input id="bill-phone" placeholder="Phone" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-green-500" />
+      <input id="bill-address" placeholder="Address" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-green-500" />
+      <div class="grid grid-cols-3 gap-2">
+        <input id="bill-city" placeholder="City" class="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-green-500" />
+        <input id="bill-state" placeholder="State" class="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-green-500" />
+        <input id="bill-postcode" placeholder="Postcode" class="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-green-500" />
+      </div>
+      <input id="bill-tax" placeholder="Tax ID / SST (company)" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-green-500" />
+      <label class="flex items-center gap-2 text-sm"><input type="checkbox" id="bill-default" class="accent-green-600" /> Set as default</label>
+      <button type="submit" class="w-full btn-primary text-white font-semibold py-2.5 rounded-xl transition text-sm">Save</button>
+    </form>
+  </div>
+</div>
+
+<!-- RATING MODAL -->
+<div id="rating-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4">
+  <div class="absolute inset-0 bg-black bg-opacity-50" onclick="closeRatingModal()"></div>
+  <div class="relative bg-white rounded-2xl w-full max-w-sm p-6 shadow-2xl text-center">
+    <button onclick="closeRatingModal()" class="absolute top-3 right-4 text-gray-400 hover:text-gray-600 text-2xl">&times;</button>
+    <h3 class="text-xl font-bold text-green-900 mb-4">Rate your order</h3>
+    <input type="hidden" id="rate-order-id" />
+    <div id="rate-stars" class="flex justify-center gap-1 mb-4"></div>
+    <textarea id="rate-comment" rows="3" placeholder="Tell us about your produce…" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm mb-4 focus:outline-none focus:border-green-500"></textarea>
+    <button onclick="submitRating()" class="w-full btn-primary text-white font-semibold py-2.5 rounded-xl transition">Submit Review</button>
+  </div>
+</div>
+
 <script>
   function showToast(msg, type = 'success') {
     const c = document.getElementById('toast-container');
@@ -165,25 +295,29 @@
     c.appendChild(t);
     setTimeout(() => t.remove(), 3500);
   }
+  const rm = n => 'RM ' + (Number(n) || 0).toFixed(2);
 
   function switchTab(tab) {
-    ['cart','orders','profile'].forEach(t => {
+    ['cart','orders','rewards','profile'].forEach(t => {
       document.getElementById(`panel-${t}`).classList.toggle('hidden', t !== tab);
       const btn = document.getElementById(`tab-${t}`);
       btn.classList.toggle('active', t === tab);
       btn.classList.toggle('bg-white', t !== tab);
       btn.classList.toggle('text-green-700', t !== tab);
     });
+    if (tab === 'cart') loadCart();
     if (tab === 'orders') loadOrders();
-    if (tab === 'profile') loadProfile();
+    if (tab === 'rewards') loadRewards();
+    if (tab === 'profile') { loadProfile(); loadBilling(); }
   }
 
   async function initBuyerApp() { loadCart(); }
 
-  // ---- CART ----
+  // ---------- CART / CHECKOUT ----------
   async function loadCart() {
+    appliedCoupon = null; redeemPoints = 0;
     const { data: items } = await sb.from('cart_items')
-      .select('*, products(id, name, price, unit, quantity, seller_id)')
+      .select('*, products(id, name, price, unit, quantity, seller_id, category)')
       .eq('buyer_id', currentUser.id);
     const listEl = document.getElementById('cart-list');
     const summaryEl = document.getElementById('cart-summary');
@@ -192,24 +326,101 @@
       summaryEl.classList.add('hidden');
       return;
     }
-    const total = items.reduce((s, i) => s + (i.quantity * parseFloat(i.products?.price || 0)), 0);
-    listEl.innerHTML = items.map(i => `
+    CART = items.map(i => ({
+      cart_id: i.id, id: i.products.id, name: i.products.name, price: parseFloat(i.products.price),
+      unit: i.products.unit, stock: i.products.quantity, seller_id: i.products.seller_id,
+      category: i.products.category, qty: i.quantity, promo: 0
+    }));
+    // promotions
+    try {
+      const payload = CART.map(c => ({ product_id: c.id, category: c.category, qty: c.qty, price: c.price }));
+      const { data: promos } = await sb.rpc('promotions_for_cart', { p_items: payload });
+      (promos || []).forEach(pr => { const c = CART.find(x => x.id === pr.product_id); if (c) c.promo = parseFloat(pr.discount) || 0; });
+    } catch (_) {}
+
+    listEl.innerHTML = CART.map(i => `
       <div class="bg-white rounded-xl p-4 shadow border border-green-100 flex items-center gap-4">
         <div class="flex-1 min-w-0">
-          <p class="font-semibold text-sm">${i.products?.name}</p>
-          <p class="text-xs text-gray-500">₱${parseFloat(i.products?.price).toFixed(2)} / ${i.products?.unit}</p>
+          <p class="font-semibold text-sm">${i.name}</p>
+          <p class="text-xs text-gray-500">${rm(i.price)} / ${i.unit}${i.promo>0?` · <span class="text-green-600">promo -${rm(i.promo)}</span>`:''}</p>
         </div>
         <div class="flex items-center border border-green-200 rounded-lg overflow-hidden">
-          <button onclick="updateCartQty('${i.id}', ${i.quantity - 1}, ${i.products?.quantity})" class="px-2 py-1 bg-green-50 hover:bg-green-100 font-bold">−</button>
-          <span class="px-3 py-1 text-sm font-medium">${i.quantity}</span>
-          <button onclick="updateCartQty('${i.id}', ${i.quantity + 1}, ${i.products?.quantity})" class="px-2 py-1 bg-green-50 hover:bg-green-100 font-bold">+</button>
+          <button onclick="updateCartQty('${i.cart_id}', ${i.qty - 1}, ${i.stock})" class="px-2 py-1 bg-green-50 hover:bg-green-100 font-bold">−</button>
+          <span class="px-3 py-1 text-sm font-medium">${i.qty}</span>
+          <button onclick="updateCartQty('${i.cart_id}', ${i.qty + 1}, ${i.stock})" class="px-2 py-1 bg-green-50 hover:bg-green-100 font-bold">+</button>
         </div>
-        <span class="font-bold text-green-700 text-sm w-20 text-right">₱${(i.quantity * parseFloat(i.products?.price || 0)).toFixed(2)}</span>
-        <button onclick="removeCartItem('${i.id}')" class="text-red-400 hover:text-red-600 text-lg ml-1">×</button>
-      </div>
-    `).join('');
-    document.getElementById('cart-total').textContent = `₱${total.toFixed(2)}`;
+        <span class="font-bold text-green-700 text-sm w-20 text-right">${rm(i.qty * i.price - i.promo)}</span>
+        <button onclick="removeCartItem('${i.cart_id}')" class="text-red-400 hover:text-red-600 text-lg ml-1">×</button>
+      </div>`).join('');
+
+    // payment options
+    const opts = [];
+    if (APP.payment.offline_enabled !== false) opts.push({ v:'offline', label:'🏦 Bank Transfer / Proof' });
+    if (APP.payment.online_enabled) opts.push({ v:'online', label:'💳 Online (FPX / Card)' });
+    if (opts.length === 0) opts.push({ v:'offline', label:'🏦 Bank Transfer / Proof' });
+    document.getElementById('pay-method-options').innerHTML = opts.map((o,idx) => `
+      <label class="flex items-center gap-2 border rounded-lg px-3 py-2 text-sm cursor-pointer ${idx===0?'border-green-500 bg-green-50':'border-gray-300'}">
+        <input type="radio" name="pay-method-choice" value="${o.v}" ${idx===0?'checked':''} class="accent-green-600" onchange="document.querySelectorAll('#pay-method-options label').forEach(l=>l.className=l.className.replace('border-green-500 bg-green-50','border-gray-300'));this.closest('label').className='flex items-center gap-2 border rounded-lg px-3 py-2 text-sm cursor-pointer border-green-500 bg-green-50'" />
+        ${o.label}
+      </label>`).join('');
+
+    // points
+    await loadPointsBalance();
+    if (APP.points.enabled !== false && POINTS.balance > 0) {
+      document.getElementById('points-redeem-block').classList.remove('hidden');
+      document.getElementById('pts-available').textContent = POINTS.balance;
+      // max points limited so discount can't exceed subtotal
+      const sub = cartSubtotal();
+      const maxByValue = Math.floor((sub) / (APP.points.redeem_rm || 1)) * (APP.points.redeem_pts || 100);
+      const maxPts = Math.max(0, Math.min(POINTS.balance, maxByValue));
+      const slider = document.getElementById('points-slider');
+      slider.max = maxPts; slider.step = APP.points.redeem_pts || 100; slider.value = 0;
+    } else {
+      document.getElementById('points-redeem-block').classList.add('hidden');
+    }
     summaryEl.classList.remove('hidden');
+    recalcTotals();
+  }
+
+  function cartSubtotal() { return CART.reduce((s,i)=> s + (i.qty*i.price - i.promo), 0); }
+  function promoTotal()  { return CART.reduce((s,i)=> s + i.promo, 0); }
+  function pointsDiscount() { return Math.floor(redeemPoints / (APP.points.redeem_pts||100)) * (APP.points.redeem_rm||1); }
+
+  function onPointsSlide() {
+    redeemPoints = parseInt(document.getElementById('points-slider').value) || 0;
+    document.getElementById('points-redeem-label').textContent = `${redeemPoints} pts = ${rm(pointsDiscount())}`;
+    recalcTotals();
+  }
+
+  function recalcTotals() {
+    const sub = cartSubtotal();
+    const coup = appliedCoupon ? Math.min(appliedCoupon.discount, sub) : 0;
+    const pts = Math.min(pointsDiscount(), Math.max(0, sub - coup));
+    const total = Math.max(0, sub - coup - pts);
+    document.getElementById('sum-subtotal').textContent = rm(sub);
+    toggleRow('sum-promo-row','sum-promo', promoTotal(), true);
+    toggleRow('sum-coupon-row','sum-coupon', coup, false);
+    toggleRow('sum-points-row','sum-points', pts, false);
+    document.getElementById('sum-total').textContent = rm(total);
+  }
+  function toggleRow(rowId, valId, val, isPromo) {
+    document.getElementById(rowId).classList.toggle('hidden', !(val>0));
+    document.getElementById(valId).textContent = (isPromo?'- ':'- ') + rm(val);
+  }
+
+  async function applyCoupon() {
+    const code = document.getElementById('coupon-input').value.trim();
+    const msg = document.getElementById('coupon-msg');
+    if (!code) return;
+    const cats = [...new Set(CART.map(c => c.category))];
+    const { data, error } = await sb.rpc('preview_coupon', {
+      p_code: code, p_customer_id: currentUser.id, p_subtotal: cartSubtotal(), p_categories: cats
+    });
+    if (error) { msg.className='text-xs mt-1 text-red-600'; msg.textContent = 'Could not validate coupon.'; return; }
+    if (!data.valid) { appliedCoupon=null; msg.className='text-xs mt-1 text-red-600'; msg.textContent = data.reason; recalcTotals(); return; }
+    appliedCoupon = { code: data.code, discount: parseFloat(data.discount) };
+    msg.className='text-xs mt-1 text-green-600'; msg.textContent = `✓ ${data.name} applied — ${rm(data.discount)} off`;
+    recalcTotals();
   }
 
   async function updateCartQty(itemId, newQty, maxQty) {
@@ -218,47 +429,112 @@
     await sb.from('cart_items').update({ quantity: newQty }).eq('id', itemId);
     loadCart();
   }
-
   async function removeCartItem(itemId) {
     await sb.from('cart_items').delete().eq('id', itemId);
     loadCart();
   }
 
   async function placeOrder() {
-    const { data: items } = await sb.from('cart_items')
-      .select('*, products(id, name, price, unit, seller_id, quantity)')
-      .eq('buyer_id', currentUser.id);
-    if (!items || items.length === 0) { showToast('Cart is empty', 'warning'); return; }
-
-    // Group by seller
-    const bySeller = {};
-    for (const item of items) {
-      const sid = item.products.seller_id;
-      if (!bySeller[sid]) bySeller[sid] = [];
-      bySeller[sid].push(item);
-    }
-
+    if (CART.length === 0) { showToast('Cart is empty', 'warning'); return; }
+    const btn = document.getElementById('place-order-btn');
+    btn.disabled = true; btn.textContent = 'Placing order…';
+    const payChoice = (document.querySelector('input[name="pay-method-choice"]:checked') || {}).value || 'offline';
     const notes = document.getElementById('delivery-notes').value.trim();
-    for (const [sellerId, sellerItems] of Object.entries(bySeller)) {
-      const total = sellerItems.reduce((s, i) => s + (i.quantity * parseFloat(i.products.price)), 0);
-      const { data: order, error: oErr } = await sb.from('orders').insert({
-        buyer_id: currentUser.id, seller_id: sellerId,
-        total_amount: total, delivery_notes: notes, status: 'pending'
-      }).select().single();
-      if (oErr) { showToast('Order failed: ' + oErr.message, 'error'); return; }
-      const orderItems = sellerItems.map(i => ({
-        order_id: order.id, product_id: i.products.id,
-        quantity: i.quantity, unit_price: parseFloat(i.products.price)
-      }));
-      await sb.from('order_items').insert(orderItems);
+
+    const sub = cartSubtotal();
+    const coup = appliedCoupon ? Math.min(appliedCoupon.discount, sub) : 0;
+    const pts = Math.min(pointsDiscount(), Math.max(0, sub - coup));
+    const totalDiscount = coup + pts;
+
+    // group by seller
+    const bySeller = {};
+    CART.forEach(i => { (bySeller[i.seller_id] = bySeller[i.seller_id] || []).push(i); });
+
+    const createdOrders = [];
+    let firstOrderId = null;
+    try {
+      for (const [sellerId, sellerItems] of Object.entries(bySeller)) {
+        const sellerSub = sellerItems.reduce((s,i)=> s + (i.qty*i.price - i.promo), 0);
+        const share = sub > 0 ? sellerSub / sub : 0;
+        const sellerDiscount = +(totalDiscount * share).toFixed(2);
+        const sellerPtsRedeemed = Math.round((redeemPoints||0) * share);
+        const sellerPtsRm = +((pts) * share).toFixed(2);
+        const sellerTotal = Math.max(0, +(sellerSub - sellerDiscount).toFixed(2));
+
+        // unique order number
+        let orderNumber = null;
+        try { const { data: on } = await sb.rpc('next_order_number'); orderNumber = on; } catch (_) {}
+
+        const { data: order, error: oErr } = await sb.from('orders').insert({
+          buyer_id: currentUser.id, seller_id: sellerId,
+          order_number: orderNumber,
+          subtotal: +sellerSub.toFixed(2),
+          discount_amount: sellerDiscount,
+          total_amount: sellerTotal,
+          coupon_code: appliedCoupon ? appliedCoupon.code : null,
+          points_redeemed: sellerPtsRedeemed,
+          points_discount_rm: sellerPtsRm,
+          payment_method: payChoice,
+          delivery_notes: notes, status: 'pending'
+        }).select().single();
+        if (oErr) throw oErr;
+        if (!firstOrderId) firstOrderId = order.id;
+        createdOrders.push({ id: order.id, total: sellerTotal });
+
+        const orderItems = sellerItems.map(i => ({
+          order_id: order.id, product_id: i.id, product_name: i.name,
+          quantity: i.qty, unit_price: i.price, promotion_discount: i.promo
+        }));
+        await sb.from('order_items').insert(orderItems);
+      }
+
+      // redeem coupon once (attached to first order)
+      if (appliedCoupon && firstOrderId) {
+        const cats = [...new Set(CART.map(c => c.category))];
+        await sb.rpc('redeem_coupon', { p_code: appliedCoupon.code, p_customer_id: currentUser.id, p_order_id: firstOrderId, p_subtotal: sub, p_categories: cats });
+      }
+
+      await sb.from('cart_items').delete().eq('buyer_id', currentUser.id);
+    } catch (e) {
+      btn.disabled = false; btn.textContent = 'Place Order';
+      showToast('Order failed: ' + (e.message || e), 'error');
+      return;
     }
 
-    await sb.from('cart_items').delete().eq('buyer_id', currentUser.id);
-    showToast('Order placed successfully!');
+    btn.disabled = false; btn.textContent = 'Place Order';
+
+    // ONLINE payment → Billplz (pay the combined total via first order's bill)
+    if (payChoice === 'online') {
+      const grandTotal = createdOrders.reduce((s,o)=> s + o.total, 0);
+      await startOnlinePayment(firstOrderId, grandTotal);
+      return;
+    }
+    showToast('Order placed! Upload your payment proof.', 'success');
     switchTab('orders');
   }
 
-  // ---- ORDERS ----
+  async function startOnlinePayment(orderId, amount) {
+    showToast('Redirecting to secure payment…', 'info');
+    try {
+      const { data, error } = await sb.functions.invoke('create-billplz-bill', {
+        body: {
+          order_id: orderId,
+          amount: Math.round(amount * 100), // cents
+          email: currentUser.email,
+          name: currentUser.full_name || currentUser.email,
+          phone: currentUser.phone || '',
+          description: 'HSI Marketplace Order',
+          redirect_url: window.location.origin + window.location.pathname.replace(/buyer\/.*/, '') + 'payment-callback.html'
+        }
+      });
+      if (error || !data || !data.url) { showToast('Online payment unavailable. Please use bank transfer.', 'error'); switchTab('orders'); return; }
+      window.location.href = data.url;
+    } catch (e) {
+      showToast('Online payment failed to start.', 'error'); switchTab('orders');
+    }
+  }
+
+  // ---------- ORDERS ----------
   async function loadOrders() {
     const { data: orders } = await sb.from('orders')
       .select('*, profiles!orders_seller_id_fkey(full_name, farm_name), order_items(*, products(name, unit))')
@@ -270,31 +546,34 @@
       return;
     }
     listEl.innerHTML = orders.map(o => {
-      const canUpload = ['pending','payment_uploaded'].includes(o.status);
-      const statusClass = `status-${o.status}`;
+      const canUpload = o.payment_method !== 'online' && ['pending','payment_uploaded'].includes(o.status);
+      const canRate = o.status === 'completed' && !o.rating;
       return `
         <div class="bg-white rounded-xl p-5 shadow border border-green-100">
-          <div class="flex items-start justify-between mb-3">
+          <div class="flex items-start justify-between mb-2">
             <div>
               <p class="font-semibold text-green-900">${o.profiles?.farm_name || o.profiles?.full_name || 'Seller'}</p>
-              <p class="text-xs text-gray-400">${new Date(o.created_at).toLocaleString()}</p>
+              <p class="text-xs text-gray-400">${o.order_number ? o.order_number+' · ' : ''}${new Date(o.created_at).toLocaleString()}</p>
             </div>
-            <span class="text-xs font-semibold px-2 py-1 rounded-full ${statusClass}">${o.status.replace('_',' ').toUpperCase()}</span>
+            <span class="text-xs font-semibold px-2 py-1 rounded-full status-${o.status}">${o.status.replace(/_/g,' ').toUpperCase()}</span>
           </div>
           <div class="space-y-1 mb-3">
             ${(o.order_items || []).map(i => `
               <div class="flex justify-between text-sm text-gray-600">
-                <span>${i.products?.name} × ${i.quantity} ${i.products?.unit}</span>
-                <span>₱${(i.quantity * i.unit_price).toFixed(2)}</span>
-              </div>
-            `).join('')}
+                <span>${i.product_name || i.products?.name} × ${i.quantity} ${i.products?.unit||''}</span>
+                <span>${rm(i.quantity * i.unit_price)}</span>
+              </div>`).join('')}
           </div>
-          <div class="flex items-center justify-between border-t border-green-50 pt-3">
-            <span class="font-bold text-green-700">₱${parseFloat(o.total_amount).toFixed(2)}</span>
-            ${canUpload ? `<button onclick="openPaymentModal('${o.id}')" class="btn-primary text-white text-sm px-4 py-1.5 rounded-full transition">Upload Payment</button>` : ''}
+          ${o.discount_amount>0?`<p class="text-xs text-green-600 mb-1">Discount applied: -${rm(o.discount_amount)}</p>`:''}
+          ${o.rating?`<p class="text-xs text-amber-500 mb-1">${'★'.repeat(o.rating)}${'☆'.repeat(5-o.rating)}</p>`:''}
+          <div class="flex items-center justify-between border-t border-green-50 pt-3 flex-wrap gap-2">
+            <span class="font-bold text-green-700">${rm(o.total_amount)}</span>
+            <div class="flex gap-2">
+              ${canUpload ? `<button onclick="openPaymentModal('${o.id}')" class="btn-primary text-white text-sm px-4 py-1.5 rounded-full transition">Upload Payment</button>` : ''}
+              ${canRate ? `<button onclick="openRatingModal('${o.id}')" class="bg-amber-100 text-amber-700 text-sm px-4 py-1.5 rounded-full transition">★ Rate Order</button>` : ''}
+            </div>
           </div>
-        </div>
-      `;
+        </div>`;
     }).join('');
   }
 
@@ -302,9 +581,7 @@
     document.getElementById('pay-order-id').value = orderId;
     document.getElementById('payment-modal').classList.remove('hidden');
   }
-  function closePaymentModal() {
-    document.getElementById('payment-modal').classList.add('hidden');
-  }
+  function closePaymentModal() { document.getElementById('payment-modal').classList.add('hidden'); }
 
   async function submitPayment(e) {
     e.preventDefault();
@@ -312,24 +589,95 @@
     const method = document.getElementById('pay-method').value;
     const file = document.getElementById('pay-proof').files[0];
     if (!file) return;
-
     const path = `${currentUser.id}/${orderId}/${Date.now()}-${file.name}`;
     const { error: upErr } = await sb.storage.from('payment-proofs').upload(path, file);
     if (upErr) { showToast('Upload failed: ' + upErr.message, 'error'); return; }
     const { data: { publicUrl } } = sb.storage.from('payment-proofs').getPublicUrl(path);
-
-    await sb.from('payments').insert({
-      order_id: orderId, buyer_id: currentUser.id,
-      method, proof_url: publicUrl, status: 'pending'
-    });
+    await sb.from('payments').insert({ order_id: orderId, buyer_id: currentUser.id, method, proof_url: publicUrl, status: 'pending' });
     await sb.from('orders').update({ status: 'payment_uploaded' }).eq('id', orderId);
-
     showToast('Payment submitted!');
     closePaymentModal();
     loadOrders();
   }
 
-  // ---- PROFILE ----
+  // ---------- RATING ----------
+  let ratingValue = 0;
+  function openRatingModal(orderId) {
+    ratingValue = 0;
+    document.getElementById('rate-order-id').value = orderId;
+    document.getElementById('rate-comment').value = '';
+    renderStars();
+    document.getElementById('rating-modal').classList.remove('hidden');
+  }
+  function closeRatingModal() { document.getElementById('rating-modal').classList.add('hidden'); }
+  function renderStars() {
+    document.getElementById('rate-stars').innerHTML = [1,2,3,4,5].map(n =>
+      `<span class="star" onclick="setStars(${n})">${n<=ratingValue?'★':'☆'}</span>`).join('');
+  }
+  function setStars(n) { ratingValue = n; renderStars(); }
+  async function submitRating() {
+    if (ratingValue < 1) { showToast('Please select a rating', 'warning'); return; }
+    const orderId = document.getElementById('rate-order-id').value;
+    await sb.from('orders').update({ rating: ratingValue, rating_comment: document.getElementById('rate-comment').value.trim() || null }).eq('id', orderId);
+    showToast('Thanks for your review!');
+    closeRatingModal();
+    loadOrders();
+  }
+
+  // ---------- REWARDS ----------
+  async function loadPointsBalance() {
+    const { data } = await sb.from('customer_points_balance').select('*').eq('user_id', currentUser.id).maybeSingle();
+    POINTS = data || { balance:0, lifetime_earned:0 };
+  }
+  function tierFor(pts) {
+    const tiers = [...APP.tiers].sort((a,b)=> (b.min_points||0)-(a.min_points||0));
+    for (const t of tiers) if (pts >= (t.min_points||0)) return t;
+    return tiers.length ? tiers[tiers.length-1] : { name:'Sprout', min_points:0 };
+  }
+  function nextTier(pts) {
+    const tiers = [...APP.tiers].sort((a,b)=> (a.min_points||0)-(b.min_points||0));
+    return tiers.find(t => (t.min_points||0) > pts) || null;
+  }
+  async function loadRewards() {
+    await loadPointsBalance();
+    const lifetime = POINTS.lifetime_earned || 0;
+    const cur = tierFor(lifetime), nxt = nextTier(lifetime);
+    document.getElementById('rw-balance').textContent = POINTS.balance || 0;
+    document.getElementById('rw-tier').textContent = cur.name || 'Sprout';
+    if (nxt) {
+      const span = (nxt.min_points - (cur.min_points||0)) || 1;
+      const pct = Math.min(100, Math.max(0, Math.round(((lifetime - (cur.min_points||0)) / span) * 100)));
+      document.getElementById('rw-progress').style.width = pct + '%';
+      document.getElementById('rw-next').textContent = `${nxt.min_points - lifetime} pts to ${nxt.name}`;
+    } else {
+      document.getElementById('rw-progress').style.width = '100%';
+      document.getElementById('rw-next').textContent = 'Top tier reached 🎉';
+    }
+    // coupons
+    const today = new Date().toISOString().slice(0,10);
+    const { data: coupons } = await sb.from('coupons').select('*').eq('is_active', true).order('created_at',{ascending:false});
+    const valid = (coupons||[]).filter(c => (!c.expiry_date || c.expiry_date >= today) && (!c.start_date || c.start_date <= today) && (c.usage_limit===0 || c.usage_count < c.usage_limit));
+    document.getElementById('rw-coupons').innerHTML = valid.length ? valid.map(c => `
+      <div class="bg-white border border-dashed border-green-300 rounded-xl p-4">
+        <p class="text-lg font-extrabold text-green-700">${c.discount_type==='percentage'? c.discount_value+'% OFF' : rm(c.discount_value)+' OFF'}</p>
+        <p class="text-xs text-gray-500 mb-2">${c.name||c.description||''}${c.min_order_value>0?` · min ${rm(c.min_order_value)}`:''}</p>
+        <div class="flex items-center justify-between">
+          <code class="bg-green-50 text-green-700 px-2 py-1 rounded text-sm font-bold">${c.code}</code>
+          <button onclick="copyCode('${c.code}')" class="text-xs text-green-600 hover:underline">Copy</button>
+        </div>
+      </div>`).join('') : '<p class="text-gray-400 text-sm">No coupons available right now.</p>';
+    // history
+    const { data: ledger } = await sb.from('points_ledger').select('*').eq('user_id', currentUser.id).order('created_at',{ascending:false}).limit(30);
+    document.getElementById('rw-history').innerHTML = (ledger&&ledger.length) ? ledger.map(l => `
+      <div class="flex items-center justify-between p-3 text-sm">
+        <div><p class="font-medium text-gray-700">${l.type==='Earned'?'🌱':l.type==='Redeemed'?'🏷️':'⚙️'} ${l.note||l.type}</p>
+        <p class="text-xs text-gray-400">${new Date(l.created_at).toLocaleDateString()}</p></div>
+        <span class="font-bold ${l.change>0?'text-green-600':'text-red-500'}">${l.change>0?'+':''}${l.change}</span>
+      </div>`).join('') : '<p class="text-gray-400 text-sm p-4">No points activity yet. Earn points on your next order!</p>';
+  }
+  function copyCode(code) { navigator.clipboard.writeText(code); showToast('Coupon copied: ' + code); }
+
+  // ---------- PROFILE ----------
   async function loadProfile() {
     const { data: p } = await sb.from('profiles').select('*').eq('id', currentUser.id).single();
     if (!p) return;
@@ -337,25 +685,100 @@
     document.getElementById('profile-phone').value = p.phone || '';
     document.getElementById('profile-email').value = p.email || currentUser.email;
   }
-
   async function saveProfile(e) {
     e.preventDefault();
     const { error } = await sb.from('profiles').update({
       full_name: document.getElementById('profile-name').value.trim(),
       phone: document.getElementById('profile-phone').value.trim()
     }).eq('id', currentUser.id);
-    if (error) showToast('Save failed', 'error');
-    else showToast('Profile updated!');
+    if (error) showToast('Save failed', 'error'); else { showToast('Profile updated!'); currentUser.full_name = document.getElementById('profile-name').value.trim(); }
+  }
+  async function changePassword(e) {
+    e.preventDefault();
+    const pw = document.getElementById('new-password').value;
+    if (pw.length < 6) { showToast('Password too short', 'warning'); return; }
+    const { error } = await sb.auth.updateUser({ password: pw });
+    if (error) showToast('Failed: ' + error.message, 'error');
+    else { showToast('Password updated!'); document.getElementById('new-password').value=''; }
   }
 
-  async function doLogout() {
-    await sb.auth.signOut();
-    window.location.href = '../';
+  // ---------- BILLING ----------
+  async function loadBilling() {
+    const { data } = await sb.from('billing_info').select('*').eq('user_id', currentUser.id).order('is_default',{ascending:false});
+    const el = document.getElementById('billing-list');
+    if (!data || data.length === 0) { el.innerHTML = '<p class="text-gray-400 text-sm">No billing addresses yet.</p>'; return; }
+    el.innerHTML = data.map(b => `
+      <div class="border border-green-100 rounded-lg p-3 flex items-start justify-between">
+        <div>
+          <p class="font-medium text-sm">${b.name||''} ${b.is_default?'<span class="text-xs bg-green-100 text-green-700 px-1.5 py-0.5 rounded">Default</span>':''} <span class="text-xs text-gray-400">(${b.type})</span></p>
+          <p class="text-xs text-gray-500">${[b.address,b.city,b.state,b.postcode].filter(Boolean).join(', ')}</p>
+          ${b.tax_id?`<p class="text-xs text-gray-400">Tax ID: ${b.tax_id}</p>`:''}
+        </div>
+        <div class="flex gap-2">
+          <button onclick="editBilling('${b.id}')" class="text-xs text-green-600 hover:underline">Edit</button>
+          <button onclick="deleteBilling('${b.id}')" class="text-xs text-red-500 hover:underline">Delete</button>
+        </div>
+      </div>`).join('');
+  }
+  let billingCache = {};
+  function openBillingModal() {
+    document.getElementById('billing-modal-title').textContent = 'Add Billing Address';
+    document.getElementById('bill-id').value = '';
+    ['bill-name','bill-phone','bill-address','bill-city','bill-state','bill-postcode','bill-tax'].forEach(id=>document.getElementById(id).value='');
+    document.querySelector('input[name="bill-type"][value="personal"]').checked = true;
+    document.getElementById('bill-default').checked = false;
+    document.getElementById('billing-modal').classList.remove('hidden');
+  }
+  function closeBillingModal() { document.getElementById('billing-modal').classList.add('hidden'); }
+  async function editBilling(id) {
+    const { data: b } = await sb.from('billing_info').select('*').eq('id', id).single();
+    if (!b) return;
+    document.getElementById('billing-modal-title').textContent = 'Edit Billing Address';
+    document.getElementById('bill-id').value = b.id;
+    document.getElementById('bill-name').value = b.name||'';
+    document.getElementById('bill-phone').value = b.phone||'';
+    document.getElementById('bill-address').value = b.address||'';
+    document.getElementById('bill-city').value = b.city||'';
+    document.getElementById('bill-state').value = b.state||'';
+    document.getElementById('bill-postcode').value = b.postcode||'';
+    document.getElementById('bill-tax').value = b.tax_id||'';
+    document.querySelector(`input[name="bill-type"][value="${b.type}"]`).checked = true;
+    document.getElementById('bill-default').checked = b.is_default;
+    document.getElementById('billing-modal').classList.remove('hidden');
+  }
+  async function saveBilling(e) {
+    e.preventDefault();
+    const id = document.getElementById('bill-id').value;
+    const payload = {
+      user_id: currentUser.id,
+      type: document.querySelector('input[name="bill-type"]:checked').value,
+      name: document.getElementById('bill-name').value.trim(),
+      phone: document.getElementById('bill-phone').value.trim(),
+      address: document.getElementById('bill-address').value.trim(),
+      city: document.getElementById('bill-city').value.trim(),
+      state: document.getElementById('bill-state').value.trim(),
+      postcode: document.getElementById('bill-postcode').value.trim(),
+      tax_id: document.getElementById('bill-tax').value.trim() || null,
+      is_default: document.getElementById('bill-default').checked
+    };
+    if (payload.is_default) await sb.from('billing_info').update({ is_default:false }).eq('user_id', currentUser.id);
+    let error;
+    if (id) ({ error } = await sb.from('billing_info').update(payload).eq('id', id));
+    else ({ error } = await sb.from('billing_info').insert(payload));
+    if (error) { showToast('Save failed: ' + error.message, 'error'); return; }
+    showToast('Billing saved!');
+    closeBillingModal();
+    loadBilling();
+  }
+  async function deleteBilling(id) {
+    if (!confirm('Delete this billing address?')) return;
+    await sb.from('billing_info').delete().eq('id', id);
+    loadBilling();
   }
 
-  if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('../sw.js').catch(() => {});
-  }
+  async function doLogout() { await sb.auth.signOut(); window.location.href = '../'; }
+
+  if ('serviceWorker' in navigator) navigator.serviceWorker.register('../sw.js').catch(() => {});
 </script>
 </body>
 </html>

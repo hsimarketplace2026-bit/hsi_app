@@ -171,7 +171,7 @@
       </div>
       <div class="grid grid-cols-2 gap-3">
         <div>
-          <label class="block text-sm font-medium text-gray-700 mb-1">Price (₱) *</label>
+          <label class="block text-sm font-medium text-gray-700 mb-1">Price (RM) *</label>
           <input type="number" id="prod-price" required min="0" step="0.01" placeholder="0.00"
             class="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-green-500" />
         </div>
@@ -253,7 +253,7 @@
             <span class="text-xs px-2 py-0.5 rounded-full font-medium ${p.status === 'active' ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-500'}">${p.status}</span>
           </div>
           <p class="text-xs text-gray-500 mb-2">${p.category} · ${p.quantity} ${p.unit} available</p>
-          <p class="text-green-700 font-bold text-sm mb-3">₱${parseFloat(p.price).toFixed(2)} / ${p.unit}</p>
+          <p class="text-green-700 font-bold text-sm mb-3">RM ${parseFloat(p.price).toFixed(2)} / ${p.unit}</p>
           <div class="flex gap-2">
             <button onclick="openProductModal('${p.id}')" class="flex-1 bg-green-50 text-green-700 hover:bg-green-100 text-xs py-1.5 rounded-lg transition font-medium">Edit</button>
             <button onclick="toggleProductStatus('${p.id}', '${p.status}')" class="flex-1 bg-amber-50 text-amber-700 hover:bg-amber-100 text-xs py-1.5 rounded-lg transition font-medium">${p.status === 'active' ? 'Deactivate' : 'Activate'}</button>
@@ -378,7 +378,7 @@
             ${(o.order_items || []).map(i => `
               <div class="flex justify-between text-sm text-gray-600">
                 <span>${i.products?.name} × ${i.quantity}</span>
-                <span>₱${(i.quantity * i.unit_price).toFixed(2)}</span>
+                <span>RM ${(i.quantity * i.unit_price).toFixed(2)}</span>
               </div>
             `).join('')}
           </div>
@@ -391,7 +391,7 @@
               </a>
             </div>` : ''}
           <div class="flex items-center justify-between border-t border-green-50 pt-3 flex-wrap gap-2">
-            <span class="font-bold text-green-700">₱${parseFloat(o.total_amount).toFixed(2)}</span>
+            <span class="font-bold text-green-700">RM ${parseFloat(o.total_amount).toFixed(2)}</span>
             <div class="flex gap-2 flex-wrap">
               ${o.status === 'payment_uploaded' && payment ? `
                 <button onclick="verifyPayment('${payment.id}','${o.id}')" class="btn-primary text-white text-xs px-3 py-1.5 rounded-full transition">Verify Payment</button>
@@ -407,8 +407,14 @@
 
   async function verifyPayment(paymentId, orderId) {
     await sb.from('payments').update({ status: 'verified' }).eq('id', paymentId);
-    await sb.from('orders').update({ status: 'payment_verified' }).eq('id', orderId);
-    showToast('Payment verified!');
+    const { data: ord } = await sb.from('orders').select('total_amount').eq('id', orderId).single();
+    await sb.from('orders').update({
+      status: 'payment_verified',
+      amount_paid: ord ? ord.total_amount : undefined,
+      amount_paid_at: new Date().toISOString()
+    }).eq('id', orderId);
+    try { await sb.rpc('award_order_points', { p_order_id: orderId }); } catch (_) {}
+    showToast('Payment verified — points awarded to buyer!');
     loadOrders();
   }
 
@@ -450,7 +456,7 @@
       <div class="grid grid-cols-3 gap-4 mb-6">
         <div class="bg-white rounded-xl p-5 shadow border border-green-100 text-center">
           <p class="text-xs text-gray-500 mb-1">Total Revenue</p>
-          <p class="text-2xl font-bold text-green-700">₱${revenue.toFixed(2)}</p>
+          <p class="text-2xl font-bold text-green-700">RM ${revenue.toFixed(2)}</p>
         </div>
         <div class="bg-white rounded-xl p-5 shadow border border-green-100 text-center">
           <p class="text-xs text-gray-500 mb-1">Total Orders</p>

@@ -41,6 +41,7 @@
   const { createClient } = supabase;
   const sb = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
   let currentUser = null;
+  const rm = n => 'RM ' + (Number(n) || 0).toFixed(2);
 
   (async () => {
     const { data: { session } } = await sb.auth.getSession();
@@ -49,6 +50,7 @@
     if (!profile || profile.role !== 'admin') { window.location.href = '../'; return; }
     currentUser = { ...session.user, ...profile };
     document.getElementById('admin-name').textContent = profile.full_name || session.user.email;
+    try { await sb.rpc('release_abandoned_orders'); } catch (_) {}
     loadSellers();
   })();
 </script>
@@ -69,52 +71,126 @@
 <div class="max-w-6xl mx-auto px-4 py-6">
   <h1 class="text-2xl font-bold text-green-900 mb-6">Admin Panel</h1>
 
-  <div class="flex border border-green-200 rounded-xl overflow-x-auto mb-6">
-    <button onclick="switchTab('sellers')" id="tab-sellers" class="tab-btn active flex-1 py-2.5 text-sm font-semibold transition whitespace-nowrap px-2">👥 Sellers</button>
-    <button onclick="switchTab('orders')" id="tab-orders" class="tab-btn flex-1 py-2.5 text-sm font-semibold bg-white text-green-700 transition whitespace-nowrap px-2">📦 Orders</button>
-    <button onclick="switchTab('payments')" id="tab-payments" class="tab-btn flex-1 py-2.5 text-sm font-semibold bg-white text-green-700 transition whitespace-nowrap px-2">💰 Payments</button>
-    <button onclick="switchTab('announcements')" id="tab-announcements" class="tab-btn flex-1 py-2.5 text-sm font-semibold bg-white text-green-700 transition whitespace-nowrap px-2">📢 Announcements</button>
+  <div class="flex border border-green-200 rounded-xl overflow-x-auto mb-6 text-xs sm:text-sm">
+    <button onclick="switchTab('sellers')"       id="tab-sellers"       class="tab-btn active flex-1 py-2.5 font-semibold transition whitespace-nowrap px-3">👥 Sellers</button>
+    <button onclick="switchTab('orders')"        id="tab-orders"        class="tab-btn flex-1 py-2.5 font-semibold bg-white text-green-700 transition whitespace-nowrap px-3">📦 Orders</button>
+    <button onclick="switchTab('payments')"      id="tab-payments"      class="tab-btn flex-1 py-2.5 font-semibold bg-white text-green-700 transition whitespace-nowrap px-3">💰 Payments</button>
+    <button onclick="switchTab('customers')"     id="tab-customers"     class="tab-btn flex-1 py-2.5 font-semibold bg-white text-green-700 transition whitespace-nowrap px-3">🧑 Customers</button>
+    <button onclick="switchTab('coupons')"       id="tab-coupons"       class="tab-btn flex-1 py-2.5 font-semibold bg-white text-green-700 transition whitespace-nowrap px-3">🎟️ Coupons</button>
+    <button onclick="switchTab('promotions')"    id="tab-promotions"    class="tab-btn flex-1 py-2.5 font-semibold bg-white text-green-700 transition whitespace-nowrap px-3">🏷️ Promotions</button>
+    <button onclick="switchTab('announcements')" id="tab-announcements" class="tab-btn flex-1 py-2.5 font-semibold bg-white text-green-700 transition whitespace-nowrap px-3">📢 News</button>
+    <button onclick="switchTab('settings')"      id="tab-settings"      class="tab-btn flex-1 py-2.5 font-semibold bg-white text-green-700 transition whitespace-nowrap px-3">⚙️ Settings</button>
   </div>
 
-  <!-- SELLERS TAB -->
+  <!-- SELLERS -->
   <div id="panel-sellers">
     <div class="flex gap-2 mb-4 flex-wrap">
-      <button onclick="setSellersFilter('pending')" id="sf-pending" class="filter-btn active text-sm px-4 py-1.5 rounded-full border border-green-200 transition">Pending</button>
-      <button onclick="setSellersFilter('active')" id="sf-active" class="filter-btn text-sm px-4 py-1.5 rounded-full border border-green-200 bg-white text-green-700 transition">Active</button>
+      <button onclick="setSellersFilter('pending')"   id="sf-pending"   class="filter-btn active text-sm px-4 py-1.5 rounded-full border border-green-200 transition">Pending</button>
+      <button onclick="setSellersFilter('active')"    id="sf-active"    class="filter-btn text-sm px-4 py-1.5 rounded-full border border-green-200 bg-white text-green-700 transition">Active</button>
       <button onclick="setSellersFilter('suspended')" id="sf-suspended" class="filter-btn text-sm px-4 py-1.5 rounded-full border border-green-200 bg-white text-green-700 transition">Suspended</button>
     </div>
-    <div id="sellers-list" class="space-y-3">
-      <p class="text-gray-400 text-sm text-center py-8">Loading sellers…</p>
-    </div>
+    <div id="sellers-list" class="space-y-3"><p class="text-gray-400 text-sm text-center py-8">Loading sellers…</p></div>
   </div>
 
-  <!-- ORDERS TAB -->
+  <!-- ORDERS -->
   <div id="panel-orders" class="hidden">
     <div class="flex gap-2 mb-4 flex-wrap">
-      <button onclick="setOrdersFilter('all')" id="of-all" class="filter-btn active text-sm px-4 py-1.5 rounded-full border border-green-200 transition">All</button>
-      <button onclick="setOrdersFilter('pending')" id="of-pending" class="filter-btn text-sm px-4 py-1.5 rounded-full border border-green-200 bg-white text-green-700 transition">Pending</button>
+      <button onclick="setOrdersFilter('all')"       id="of-all"       class="filter-btn active text-sm px-4 py-1.5 rounded-full border border-green-200 transition">All</button>
+      <button onclick="setOrdersFilter('pending')"   id="of-pending"   class="filter-btn text-sm px-4 py-1.5 rounded-full border border-green-200 bg-white text-green-700 transition">Pending</button>
       <button onclick="setOrdersFilter('completed')" id="of-completed" class="filter-btn text-sm px-4 py-1.5 rounded-full border border-green-200 bg-white text-green-700 transition">Completed</button>
     </div>
-    <div id="orders-list" class="space-y-3">
-      <p class="text-gray-400 text-sm text-center py-8">Loading orders…</p>
-    </div>
+    <div id="orders-list" class="space-y-3"><p class="text-gray-400 text-sm text-center py-8">Loading orders…</p></div>
   </div>
 
-  <!-- PAYMENTS TAB -->
+  <!-- PAYMENTS -->
   <div id="panel-payments" class="hidden">
-    <div id="payments-list" class="space-y-4">
-      <p class="text-gray-400 text-sm text-center py-8">Loading payments…</p>
-    </div>
+    <div id="payments-list" class="space-y-4"><p class="text-gray-400 text-sm text-center py-8">Loading payments…</p></div>
   </div>
 
-  <!-- ANNOUNCEMENTS TAB -->
+  <!-- CUSTOMERS -->
+  <div id="panel-customers" class="hidden">
+    <input id="cust-search" oninput="renderCustomers()" placeholder="Search customers…" class="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm mb-4 focus:outline-none focus:border-green-500" />
+    <div id="customers-list" class="space-y-3"><p class="text-gray-400 text-sm text-center py-8">Loading customers…</p></div>
+  </div>
+
+  <!-- COUPONS -->
+  <div id="panel-coupons" class="hidden">
+    <div class="flex justify-between items-center mb-4">
+      <h2 class="text-lg font-bold text-green-900">Coupons</h2>
+      <button onclick="openCouponModal()" class="btn-primary text-white text-sm px-5 py-2 rounded-full transition">+ New Coupon</button>
+    </div>
+    <div id="coupons-list" class="space-y-3"><p class="text-gray-400 text-sm text-center py-8">Loading coupons…</p></div>
+  </div>
+
+  <!-- PROMOTIONS -->
+  <div id="panel-promotions" class="hidden">
+    <div class="flex justify-between items-center mb-4">
+      <h2 class="text-lg font-bold text-green-900">Promotions</h2>
+      <button onclick="openPromoModal()" class="btn-primary text-white text-sm px-5 py-2 rounded-full transition">+ New Promotion</button>
+    </div>
+    <div id="promotions-list" class="space-y-3"><p class="text-gray-400 text-sm text-center py-8">Loading promotions…</p></div>
+  </div>
+
+  <!-- ANNOUNCEMENTS -->
   <div id="panel-announcements" class="hidden">
     <div class="flex justify-between items-center mb-4">
       <h2 class="text-lg font-bold text-green-900">Announcements</h2>
       <button onclick="openAnnouncementModal()" class="btn-primary text-white text-sm px-5 py-2 rounded-full transition">+ New</button>
     </div>
-    <div id="announcements-list" class="space-y-3">
-      <p class="text-gray-400 text-sm text-center py-8">Loading announcements…</p>
+    <div id="announcements-list" class="space-y-3"><p class="text-gray-400 text-sm text-center py-8">Loading announcements…</p></div>
+  </div>
+
+  <!-- SETTINGS -->
+  <div id="panel-settings" class="hidden space-y-6">
+    <div class="bg-white rounded-xl p-6 shadow border border-green-100">
+      <h3 class="text-lg font-bold text-green-900 mb-4">Loyalty Points</h3>
+      <div class="grid sm:grid-cols-2 gap-4 text-sm">
+        <label class="flex items-center gap-2"><input type="checkbox" id="set-pts-enabled" class="accent-green-600" /> Points enabled</label>
+        <div></div>
+        <div><label class="block text-gray-600 mb-1">Every RM (earn_rm)</label><input id="set-earn-rm" type="number" min="0.01" step="0.01" class="w-full border border-gray-300 rounded-lg px-3 py-2" /></div>
+        <div><label class="block text-gray-600 mb-1">= points earned (earn_pts)</label><input id="set-earn-pts" type="number" min="0" class="w-full border border-gray-300 rounded-lg px-3 py-2" /></div>
+        <div><label class="block text-gray-600 mb-1">Redeem points (redeem_pts)</label><input id="set-redeem-pts" type="number" min="1" class="w-full border border-gray-300 rounded-lg px-3 py-2" /></div>
+        <div><label class="block text-gray-600 mb-1">= RM discount (redeem_rm)</label><input id="set-redeem-rm" type="number" min="0.01" step="0.01" class="w-full border border-gray-300 rounded-lg px-3 py-2" /></div>
+      </div>
+      <p id="pts-summary" class="text-xs text-gray-500 mt-3"></p>
+      <button onclick="savePointsConfig()" class="mt-4 btn-primary text-white font-semibold px-5 py-2 rounded-lg text-sm transition">Save Loyalty</button>
+    </div>
+    <div class="bg-white rounded-xl p-6 shadow border border-green-100">
+      <div class="flex items-center justify-between mb-3">
+        <h3 class="text-lg font-bold text-green-900">Member Tiers</h3>
+        <button onclick="addTierRow()" class="text-sm text-green-600 hover:underline">+ Add tier</button>
+      </div>
+      <div id="tiers-rows" class="space-y-2"></div>
+      <button onclick="saveTiers()" class="mt-4 btn-primary text-white font-semibold px-5 py-2 rounded-lg text-sm transition">Save Tiers</button>
+    </div>
+    <div class="bg-white rounded-xl p-6 shadow border border-green-100">
+      <h3 class="text-lg font-bold text-green-900 mb-4">Payment Methods</h3>
+      <div class="space-y-3 text-sm">
+        <label class="flex items-center gap-2"><input type="checkbox" id="set-offline-enabled" class="accent-green-600" /> Offline (bank transfer + proof upload)</label>
+        <label class="flex items-center gap-2"><input type="checkbox" id="set-online-enabled" class="accent-green-600" /> Online (Billplz — FPX / card)</label>
+        <div class="bg-amber-50 text-amber-800 text-xs rounded-lg p-3">
+          Online payments use Billplz. Deploy the edge functions in <code>supabase/functions/</code> and set your
+          Billplz secrets (<code>BILLPLZ_API_KEY</code>, <code>BILLPLZ_COLLECTION_ID</code>, <code>BILLPLZ_X_SIGNATURE_KEY</code>)
+          for <strong>your own Billplz account</strong>. See README.
+        </div>
+        <div class="grid sm:grid-cols-2 gap-3">
+          <div><label class="block text-gray-600 mb-1">Bank name</label><input id="set-bank-name" class="w-full border border-gray-300 rounded-lg px-3 py-2" /></div>
+          <div><label class="block text-gray-600 mb-1">Account holder</label><input id="set-bank-holder" class="w-full border border-gray-300 rounded-lg px-3 py-2" /></div>
+          <div><label class="block text-gray-600 mb-1">Account number</label><input id="set-bank-account" class="w-full border border-gray-300 rounded-lg px-3 py-2" /></div>
+          <div><label class="block text-gray-600 mb-1">DuitNow QR URL</label><input id="set-duitnow" class="w-full border border-gray-300 rounded-lg px-3 py-2" /></div>
+        </div>
+      </div>
+      <button onclick="savePaymentConfig()" class="mt-4 btn-primary text-white font-semibold px-5 py-2 rounded-lg text-sm transition">Save Payment</button>
+    </div>
+    <div class="bg-white rounded-xl p-6 shadow border border-green-100">
+      <h3 class="text-lg font-bold text-green-900 mb-4">Email Notifications</h3>
+      <div class="grid sm:grid-cols-2 gap-3 text-sm">
+        <div><label class="block text-gray-600 mb-1">From name</label><input id="set-from-name" class="w-full border border-gray-300 rounded-lg px-3 py-2" /></div>
+        <div><label class="block text-gray-600 mb-1">From email</label><input id="set-from-email" class="w-full border border-gray-300 rounded-lg px-3 py-2" /></div>
+      </div>
+      <label class="block text-gray-600 text-sm mt-3 mb-1">Admin emails (CC, comma-separated)</label>
+      <input id="set-admin-emails" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm" />
+      <button onclick="saveNotifConfig()" class="mt-4 btn-primary text-white font-semibold px-5 py-2 rounded-lg text-sm transition">Save Notifications</button>
     </div>
   </div>
 </div>
@@ -127,29 +203,88 @@
     <h3 id="ann-modal-title" class="text-xl font-bold text-green-900 mb-4">New Announcement</h3>
     <form onsubmit="saveAnnouncement(event)" class="space-y-4">
       <input type="hidden" id="ann-id" />
-      <div>
-        <label class="block text-sm font-medium text-gray-700 mb-1">Title *</label>
-        <input type="text" id="ann-title" required class="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-green-500" />
-      </div>
-      <div>
-        <label class="block text-sm font-medium text-gray-700 mb-1">Body</label>
-        <textarea id="ann-body" rows="3" class="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-green-500"></textarea>
-      </div>
-      <div>
-        <label class="block text-sm font-medium text-gray-700 mb-1">Image URL (optional)</label>
-        <input type="url" id="ann-image-url" placeholder="https://…" class="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-green-500" />
-      </div>
+      <input type="text" id="ann-title" required placeholder="Title" class="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-green-500" />
+      <textarea id="ann-body" rows="3" placeholder="Body" class="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-green-500"></textarea>
+      <input type="url" id="ann-image-url" placeholder="Image URL (optional)" class="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-green-500" />
       <div class="flex gap-6">
-        <label class="flex items-center gap-2 cursor-pointer text-sm">
-          <input type="checkbox" id="ann-featured" class="accent-green-600 w-4 h-4" />
-          <span>Featured</span>
-        </label>
-        <label class="flex items-center gap-2 cursor-pointer text-sm">
-          <input type="checkbox" id="ann-active" checked class="accent-green-600 w-4 h-4" />
-          <span>Active</span>
-        </label>
+        <label class="flex items-center gap-2 cursor-pointer text-sm"><input type="checkbox" id="ann-featured" class="accent-green-600 w-4 h-4" /> Featured</label>
+        <label class="flex items-center gap-2 cursor-pointer text-sm"><input type="checkbox" id="ann-active" checked class="accent-green-600 w-4 h-4" /> Active</label>
       </div>
       <button type="submit" class="w-full btn-primary text-white font-semibold py-3 rounded-xl transition">Save Announcement</button>
+    </form>
+  </div>
+</div>
+
+<!-- COUPON MODAL -->
+<div id="coupon-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4">
+  <div class="absolute inset-0 bg-black bg-opacity-50" onclick="closeCouponModal()"></div>
+  <div class="relative bg-white rounded-2xl w-full max-w-lg max-h-screen overflow-y-auto p-6 shadow-2xl">
+    <button onclick="closeCouponModal()" class="absolute top-3 right-4 text-gray-400 hover:text-gray-600 text-2xl">&times;</button>
+    <h3 id="coupon-modal-title" class="text-xl font-bold text-green-900 mb-4">New Coupon</h3>
+    <form onsubmit="saveCoupon(event)" class="space-y-3 text-sm">
+      <input type="hidden" id="coupon-id" />
+      <div class="flex gap-2">
+        <input id="coupon-code" required placeholder="CODE" class="flex-1 border border-gray-300 rounded-lg px-3 py-2 uppercase font-bold focus:outline-none focus:border-green-500" />
+        <button type="button" onclick="randomCode()" class="bg-green-100 text-green-700 px-3 rounded-lg">🎲</button>
+      </div>
+      <input id="coupon-name" placeholder="Internal name / description" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:border-green-500" />
+      <div class="grid grid-cols-2 gap-2">
+        <select id="coupon-type" class="border border-gray-300 rounded-lg px-3 py-2"><option value="percentage">Percentage %</option><option value="fixed">Fixed RM</option></select>
+        <input id="coupon-value" type="number" step="0.01" min="0" placeholder="Value" class="border border-gray-300 rounded-lg px-3 py-2" />
+      </div>
+      <div class="grid grid-cols-2 gap-2">
+        <input id="coupon-min" type="number" step="0.01" min="0" placeholder="Min order (RM)" class="border border-gray-300 rounded-lg px-3 py-2" />
+        <input id="coupon-max" type="number" step="0.01" min="0" placeholder="Max discount (0=none)" class="border border-gray-300 rounded-lg px-3 py-2" />
+      </div>
+      <div class="grid grid-cols-2 gap-2">
+        <input id="coupon-usage" type="number" min="0" placeholder="Total usage limit (0=∞)" class="border border-gray-300 rounded-lg px-3 py-2" />
+        <input id="coupon-percustomer" type="number" min="0" placeholder="Per-customer (0=∞)" class="border border-gray-300 rounded-lg px-3 py-2" />
+      </div>
+      <div class="grid grid-cols-2 gap-2">
+        <div><label class="block text-gray-500 text-xs mb-0.5">Start date</label><input id="coupon-start" type="date" class="w-full border border-gray-300 rounded-lg px-3 py-2" /></div>
+        <div><label class="block text-gray-500 text-xs mb-0.5">Expiry date</label><input id="coupon-expiry" type="date" class="w-full border border-gray-300 rounded-lg px-3 py-2" /></div>
+      </div>
+      <div class="flex gap-4">
+        <label class="flex items-center gap-2"><input type="checkbox" id="coupon-active" checked class="accent-green-600" /> Active</label>
+        <label class="flex items-center gap-2"><input type="checkbox" id="coupon-first" class="accent-green-600" /> First order only</label>
+      </div>
+      <button type="submit" class="w-full btn-primary text-white font-semibold py-3 rounded-xl transition">Save Coupon</button>
+    </form>
+  </div>
+</div>
+
+<!-- PROMOTION MODAL -->
+<div id="promo-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4">
+  <div class="absolute inset-0 bg-black bg-opacity-50" onclick="closePromoModal()"></div>
+  <div class="relative bg-white rounded-2xl w-full max-w-lg max-h-screen overflow-y-auto p-6 shadow-2xl">
+    <button onclick="closePromoModal()" class="absolute top-3 right-4 text-gray-400 hover:text-gray-600 text-2xl">&times;</button>
+    <h3 id="promo-modal-title" class="text-xl font-bold text-green-900 mb-4">New Promotion</h3>
+    <form onsubmit="savePromo(event)" class="space-y-3 text-sm">
+      <input type="hidden" id="promo-id" />
+      <input id="promo-title" required placeholder="Title" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:border-green-500" />
+      <input id="promo-banner" placeholder="Banner text (shown on storefront)" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:border-green-500" />
+      <div class="grid grid-cols-2 gap-2">
+        <select id="promo-type" class="border border-gray-300 rounded-lg px-3 py-2"><option value="percentage">Percentage %</option><option value="fixed">Fixed RM</option></select>
+        <input id="promo-value" type="number" step="0.01" min="0" placeholder="Value" class="border border-gray-300 rounded-lg px-3 py-2" />
+      </div>
+      <div class="grid grid-cols-2 gap-2">
+        <select id="promo-target" onchange="togglePromoCat()" class="border border-gray-300 rounded-lg px-3 py-2"><option value="all">All products</option><option value="category">Category</option></select>
+        <input id="promo-maxdisc" type="number" step="0.01" min="0" placeholder="Max discount (0=none)" class="border border-gray-300 rounded-lg px-3 py-2" />
+      </div>
+      <select id="promo-category" class="hidden w-full border border-gray-300 rounded-lg px-3 py-2">
+        <option value="Vegetables">Vegetables</option><option value="Fruits">Fruits</option><option value="Herbs">Herbs</option><option value="Other">Other</option>
+      </select>
+      <div class="grid grid-cols-2 gap-2">
+        <div><label class="block text-gray-500 text-xs mb-0.5">Start date</label><input id="promo-start" type="date" class="w-full border border-gray-300 rounded-lg px-3 py-2" /></div>
+        <div><label class="block text-gray-500 text-xs mb-0.5">End date</label><input id="promo-end" type="date" class="w-full border border-gray-300 rounded-lg px-3 py-2" /></div>
+      </div>
+      <div class="grid grid-cols-2 gap-2">
+        <select id="promo-status" class="border border-gray-300 rounded-lg px-3 py-2">
+          <option value="live">Live</option><option value="draft">Draft</option><option value="scheduled">Scheduled</option><option value="ended">Ended</option><option value="archived">Archived</option>
+        </select>
+        <input id="promo-priority" type="number" min="0" placeholder="Priority" class="border border-gray-300 rounded-lg px-3 py-2" />
+      </div>
+      <button type="submit" class="w-full btn-primary text-white font-semibold py-3 rounded-xl transition">Save Promotion</button>
     </form>
   </div>
 </div>
@@ -159,25 +294,28 @@
     const c = document.getElementById('toast-container');
     const t = document.createElement('div');
     t.className = `toast ${type === 'error' ? 'bg-red-600' : type === 'warning' ? 'bg-amber-500' : 'bg-green-700'}`;
-    t.textContent = msg;
-    c.appendChild(t);
-    setTimeout(() => t.remove(), 3500);
+    t.textContent = msg; c.appendChild(t); setTimeout(() => t.remove(), 3500);
   }
-
+  const TABS = ['sellers','orders','payments','customers','coupons','promotions','announcements','settings'];
   function switchTab(tab) {
-    ['sellers','orders','payments','announcements'].forEach(t => {
+    TABS.forEach(t => {
       document.getElementById(`panel-${t}`).classList.toggle('hidden', t !== tab);
       const btn = document.getElementById(`tab-${t}`);
       btn.classList.toggle('active', t === tab);
       btn.classList.toggle('bg-white', t !== tab);
       btn.classList.toggle('text-green-700', t !== tab);
     });
+    if (tab === 'sellers') loadSellers();
     if (tab === 'orders') loadAllOrders();
     if (tab === 'payments') loadAllPayments();
+    if (tab === 'customers') loadCustomers();
+    if (tab === 'coupons') loadCoupons();
+    if (tab === 'promotions') loadPromotions();
     if (tab === 'announcements') loadAnnouncements();
+    if (tab === 'settings') loadSettings();
   }
 
-  // ---- SELLERS ----
+  // ---------- SELLERS ----------
   let sellersFilter = 'pending';
   function setSellersFilter(f) {
     sellersFilter = f;
@@ -189,44 +327,34 @@
     });
     loadSellers();
   }
-
   async function loadSellers() {
-    const { data: sellers } = await sb.from('profiles')
-      .select('*')
-      .eq('role', 'seller')
-      .eq('status', sellersFilter)
-      .order('created_at', { ascending: false });
+    const { data: sellers } = await sb.from('profiles').select('*').eq('role','seller').eq('status', sellersFilter).order('created_at',{ascending:false});
     const el = document.getElementById('sellers-list');
-    if (!sellers || sellers.length === 0) {
-      el.innerHTML = `<p class="text-gray-400 text-sm text-center py-8">No ${sellersFilter} sellers.</p>`;
-      return;
-    }
+    if (!sellers || sellers.length === 0) { el.innerHTML = `<p class="text-gray-400 text-sm text-center py-8">No ${sellersFilter} sellers.</p>`; return; }
+    const ids = sellers.map(s=>s.id);
+    const { data: prods } = await sb.from('products').select('seller_id').in('seller_id', ids);
+    const counts = {}; (prods||[]).forEach(p => counts[p.seller_id] = (counts[p.seller_id]||0)+1);
     el.innerHTML = sellers.map(s => `
       <div class="bg-white rounded-xl p-4 shadow border border-green-100 flex items-center gap-4 flex-wrap">
         <div class="flex-1 min-w-0">
-          <p class="font-semibold text-sm">${s.full_name || 'Unnamed'}</p>
+          <p class="font-semibold text-sm">${s.full_name || 'Unnamed'} <span class="text-xs text-gray-400">· ${counts[s.id]||0} products</span></p>
           <p class="text-xs text-gray-500">${s.email} · ${s.phone || 'No phone'}</p>
           <p class="text-xs text-gray-500">${s.farm_name || 'No farm name'} — ${s.farm_location || 'No location'}</p>
         </div>
         <div class="flex gap-2 flex-wrap">
-          ${s.status === 'pending' ? `
-            <button onclick="updateSellerStatus('${s.id}','active')" class="btn-primary text-white text-xs px-3 py-1.5 rounded-full transition">Approve</button>
-            <button onclick="updateSellerStatus('${s.id}','suspended')" class="bg-red-50 text-red-600 text-xs px-3 py-1.5 rounded-full transition">Reject</button>` : ''}
+          ${s.status === 'pending' ? `<button onclick="updateSellerStatus('${s.id}','active')" class="btn-primary text-white text-xs px-3 py-1.5 rounded-full transition">Approve</button><button onclick="updateSellerStatus('${s.id}','suspended')" class="bg-red-50 text-red-600 text-xs px-3 py-1.5 rounded-full transition">Reject</button>` : ''}
           ${s.status === 'active' ? `<button onclick="updateSellerStatus('${s.id}','suspended')" class="bg-red-50 text-red-600 text-xs px-3 py-1.5 rounded-full transition">Suspend</button>` : ''}
           ${s.status === 'suspended' ? `<button onclick="updateSellerStatus('${s.id}','active')" class="btn-primary text-white text-xs px-3 py-1.5 rounded-full transition">Reinstate</button>` : ''}
         </div>
-      </div>
-    `).join('');
+      </div>`).join('');
   }
-
   async function updateSellerStatus(id, status) {
     const { error } = await sb.from('profiles').update({ status }).eq('id', id);
     if (error) { showToast('Update failed', 'error'); return; }
-    showToast(`Seller ${status}`);
-    loadSellers();
+    showToast(`Seller ${status}`); loadSellers();
   }
 
-  // ---- ORDERS ----
+  // ---------- ORDERS ----------
   let ordersFilter = 'all';
   function setOrdersFilter(f) {
     ordersFilter = f;
@@ -238,186 +366,384 @@
     });
     loadAllOrders();
   }
-
   async function loadAllOrders() {
-    let query = sb.from('orders')
-      .select('*, profiles!orders_buyer_id_fkey(full_name, email), profiles!orders_seller_id_fkey(full_name, farm_name)')
-      .order('created_at', { ascending: false });
-    if (ordersFilter !== 'all') query = query.eq('status', ordersFilter);
-    const { data: orders } = await query;
+    let q = sb.from('orders').select('*, buyer:profiles!orders_buyer_id_fkey(full_name,email), seller:profiles!orders_seller_id_fkey(full_name,farm_name)').order('created_at',{ascending:false});
+    if (ordersFilter !== 'all') q = q.eq('status', ordersFilter);
+    const { data: orders } = await q;
     const el = document.getElementById('orders-list');
-    if (!orders || orders.length === 0) {
-      el.innerHTML = '<p class="text-gray-400 text-sm text-center py-8">No orders.</p>';
-      return;
-    }
-    el.innerHTML = orders.map(o => {
-      const statusClass = `status-${o.status}`;
-      return `
-        <div class="bg-white rounded-xl p-4 shadow border border-green-100 flex items-center gap-3 flex-wrap">
-          <div class="flex-1 min-w-0">
-            <p class="font-semibold text-sm">${o['profiles!orders_buyer_id_fkey']?.full_name || 'Buyer'} → ${o['profiles!orders_seller_id_fkey']?.farm_name || o['profiles!orders_seller_id_fkey']?.full_name || 'Seller'}</p>
-            <p class="text-xs text-gray-400">${new Date(o.created_at).toLocaleString()}</p>
-            <p class="text-green-700 font-bold text-sm">₱${parseFloat(o.total_amount).toFixed(2)}</p>
-          </div>
-          <span class="text-xs font-semibold px-2 py-1 rounded-full ${statusClass}">${o.status.replace(/_/g,' ').toUpperCase()}</span>
-          ${!['completed','cancelled'].includes(o.status) ? `
-            <button onclick="cancelOrder('${o.id}')" class="bg-red-50 text-red-600 text-xs px-3 py-1.5 rounded-full transition">Cancel</button>` : ''}
+    if (!orders || orders.length === 0) { el.innerHTML = '<p class="text-gray-400 text-sm text-center py-8">No orders.</p>'; return; }
+    el.innerHTML = orders.map(o => `
+      <div class="bg-white rounded-xl p-4 shadow border border-green-100 flex items-center gap-3 flex-wrap">
+        <div class="flex-1 min-w-0">
+          <p class="font-semibold text-sm">${o.buyer?.full_name || 'Buyer'} → ${o.seller?.farm_name || o.seller?.full_name || 'Seller'}</p>
+          <p class="text-xs text-gray-400">${o.order_number? o.order_number+' · ':''}${new Date(o.created_at).toLocaleString()}</p>
+          <p class="text-green-700 font-bold text-sm">${rm(o.total_amount)}</p>
         </div>
-      `;
-    }).join('');
+        <span class="text-xs font-semibold px-2 py-1 rounded-full status-${o.status}">${o.status.replace(/_/g,' ').toUpperCase()}</span>
+        ${!['completed','cancelled'].includes(o.status) ? `<button onclick="cancelOrder('${o.id}')" class="bg-red-50 text-red-600 text-xs px-3 py-1.5 rounded-full transition">Cancel</button>` : ''}
+      </div>`).join('');
   }
-
   async function cancelOrder(id) {
     if (!confirm('Cancel this order?')) return;
     await sb.from('orders').update({ status: 'cancelled' }).eq('id', id);
-    showToast('Order cancelled', 'warning');
-    loadAllOrders();
+    showToast('Order cancelled', 'warning'); loadAllOrders();
   }
 
-  // ---- PAYMENTS ----
+  // ---------- PAYMENTS ----------
   async function loadAllPayments() {
-    const { data: payments } = await sb.from('payments')
-      .select('*, orders(total_amount, status), profiles!payments_buyer_id_fkey(full_name, email)')
-      .order('created_at', { ascending: false });
+    const { data: payments } = await sb.from('payments').select('*, orders(total_amount,status,order_number), profiles!payments_buyer_id_fkey(full_name,email)').order('created_at',{ascending:false});
     const el = document.getElementById('payments-list');
-    if (!payments || payments.length === 0) {
-      el.innerHTML = '<p class="text-gray-400 text-sm text-center py-8">No payments.</p>';
-      return;
-    }
-    // Pending first
-    const sorted = [...payments].sort((a, b) => (a.status === 'pending' ? -1 : 1));
+    if (!payments || payments.length === 0) { el.innerHTML = '<p class="text-gray-400 text-sm text-center py-8">No payments.</p>'; return; }
+    const sorted = [...payments].sort((a,b) => (a.status==='pending'?-1:1));
     el.innerHTML = sorted.map(p => `
       <div class="bg-white rounded-xl p-4 shadow border border-green-100">
         <div class="flex items-start justify-between mb-3 flex-wrap gap-2">
           <div>
             <p class="font-semibold text-sm">${p.profiles?.full_name || 'Buyer'} — ${p.method}</p>
-            <p class="text-xs text-gray-400">${new Date(p.created_at).toLocaleString()}</p>
-            <p class="text-xs text-gray-500">Order: ₱${parseFloat(p.orders?.total_amount || 0).toFixed(2)}</p>
+            <p class="text-xs text-gray-400">${p.orders?.order_number? p.orders.order_number+' · ':''}${new Date(p.created_at).toLocaleString()}</p>
+            <p class="text-xs text-gray-500">Order: ${rm(p.orders?.total_amount || 0)}</p>
           </div>
-          <span class="text-xs font-semibold px-2 py-1 rounded-full ${p.status === 'verified' ? 'bg-green-100 text-green-700' : p.status === 'rejected' ? 'bg-red-100 text-red-700' : 'bg-yellow-100 text-yellow-700'}">${p.status.toUpperCase()}</span>
+          <span class="text-xs font-semibold px-2 py-1 rounded-full ${p.status==='verified'?'bg-green-100 text-green-700':p.status==='rejected'?'bg-red-100 text-red-700':'bg-yellow-100 text-yellow-700'}">${p.status.toUpperCase()}</span>
         </div>
-        ${p.proof_url ? `
-          <a href="${p.proof_url}" target="_blank" class="block mb-3">
-            <img src="${p.proof_url}" alt="proof" class="h-28 rounded-lg object-cover border border-green-100" />
-          </a>` : '<p class="text-xs text-gray-400 mb-3">No proof uploaded</p>'}
-        ${p.admin_notes ? `<p class="text-xs text-gray-500 mb-2 italic">Note: ${p.admin_notes}</p>` : ''}
-        ${p.status === 'pending' ? `
-          <div class="flex gap-2">
-            <button onclick="verifyPayment('${p.id}','${p.order_id}')" class="btn-primary text-white text-xs px-4 py-1.5 rounded-full transition">Verify</button>
-            <button onclick="rejectPayment('${p.id}','${p.order_id}')" class="bg-red-50 text-red-600 text-xs px-4 py-1.5 rounded-full transition">Reject</button>
-          </div>` : ''}
-      </div>
-    `).join('');
+        ${p.proof_url ? `<a href="${p.proof_url}" target="_blank" class="block mb-3"><img src="${p.proof_url}" class="h-28 rounded-lg object-cover border border-green-100" /></a>` : '<p class="text-xs text-gray-400 mb-3">No proof uploaded</p>'}
+        ${p.status === 'pending' ? `<div class="flex gap-2"><button onclick="verifyPayment('${p.id}','${p.order_id}')" class="btn-primary text-white text-xs px-4 py-1.5 rounded-full transition">Verify</button><button onclick="rejectPayment('${p.id}','${p.order_id}')" class="bg-red-50 text-red-600 text-xs px-4 py-1.5 rounded-full transition">Reject</button></div>` : ''}
+      </div>`).join('');
   }
-
   async function verifyPayment(paymentId, orderId) {
     await sb.from('payments').update({ status: 'verified' }).eq('id', paymentId);
-    await sb.from('orders').update({ status: 'payment_verified' }).eq('id', orderId);
-    showToast('Payment verified!');
-    loadAllPayments();
+    const { data: ord } = await sb.from('orders').select('total_amount').eq('id', orderId).single();
+    await sb.from('orders').update({ status: 'payment_verified', amount_paid: ord?ord.total_amount:undefined, amount_paid_at: new Date().toISOString() }).eq('id', orderId);
+    try { await sb.rpc('award_order_points', { p_order_id: orderId }); } catch (_) {}
+    showToast('Payment verified — points awarded!'); loadAllPayments();
   }
-
   async function rejectPayment(paymentId, orderId) {
     const notes = prompt('Rejection reason (optional):');
     await sb.from('payments').update({ status: 'rejected', admin_notes: notes || null }).eq('id', paymentId);
     await sb.from('orders').update({ status: 'pending' }).eq('id', orderId);
-    showToast('Payment rejected', 'warning');
-    loadAllPayments();
+    showToast('Payment rejected', 'warning'); loadAllPayments();
   }
 
-  // ---- ANNOUNCEMENTS ----
+  // ---------- CUSTOMERS ----------
+  let allCustomers = [];
+  async function loadCustomers() {
+    const { data: buyers } = await sb.from('profiles').select('*').eq('role','buyer').order('created_at',{ascending:false});
+    const { data: balances } = await sb.from('customer_points_balance').select('*');
+    const balMap = {}; (balances||[]).forEach(b => balMap[b.user_id] = b);
+    allCustomers = (buyers||[]).map(b => ({ ...b, pts: balMap[b.id] || { balance:0, lifetime_earned:0 } }));
+    renderCustomers();
+  }
+  function tierName(lifetime) {
+    const tiers = (window.MEMBER_TIERS||[]).slice().sort((a,b)=>(b.min_points||0)-(a.min_points||0));
+    for (const t of tiers) if (lifetime >= (t.min_points||0)) return t.name;
+    return tiers.length ? tiers[tiers.length-1].name : '—';
+  }
+  function renderCustomers() {
+    const s = (document.getElementById('cust-search').value||'').toLowerCase();
+    const list = allCustomers.filter(c => !s || (c.full_name||'').toLowerCase().includes(s) || (c.email||'').toLowerCase().includes(s));
+    const el = document.getElementById('customers-list');
+    if (!list.length) { el.innerHTML = '<p class="text-gray-400 text-sm text-center py-8">No customers.</p>'; return; }
+    el.innerHTML = list.map(c => `
+      <div class="bg-white rounded-xl p-4 shadow border border-green-100 flex items-center gap-4 flex-wrap">
+        <div class="flex-1 min-w-0">
+          <p class="font-semibold text-sm">${c.full_name || 'Unnamed'}</p>
+          <p class="text-xs text-gray-500">${c.email} · ${c.phone || 'No phone'}</p>
+        </div>
+        <div class="text-right">
+          <p class="text-sm font-bold text-green-700">${c.pts.balance} pts</p>
+          <p class="text-xs text-gray-400">${tierName(c.pts.lifetime_earned)} · ${c.pts.lifetime_earned} lifetime</p>
+        </div>
+        <button onclick="adjustPoints('${c.id}')" class="bg-green-50 text-green-700 text-xs px-3 py-1.5 rounded-full transition">Adjust pts</button>
+      </div>`).join('');
+  }
+  async function adjustPoints(userId) {
+    const v = prompt('Adjust points by (use negative to deduct):');
+    if (v === null) return;
+    const change = parseInt(v); if (isNaN(change) || change === 0) return;
+    const { error } = await sb.from('points_ledger').insert({ user_id: userId, change, type:'Adjusted', note:'Admin adjustment', created_by: currentUser.email });
+    if (error) { showToast('Failed: '+error.message, 'error'); return; }
+    showToast('Points adjusted'); loadCustomers();
+  }
+
+  // ---------- COUPONS ----------
+  async function loadCoupons() {
+    const { data } = await sb.from('coupons').select('*').order('created_at',{ascending:false});
+    const el = document.getElementById('coupons-list');
+    if (!data || !data.length) { el.innerHTML = '<p class="text-gray-400 text-sm text-center py-8">No coupons yet.</p>'; return; }
+    const today = new Date().toISOString().slice(0,10);
+    el.innerHTML = data.map(c => {
+      let status = 'active';
+      if (!c.is_active) status='inactive';
+      else if (c.expiry_date && c.expiry_date < today) status='expired';
+      else if (c.start_date && c.start_date > today) status='scheduled';
+      else if (c.usage_limit>0 && c.usage_count>=c.usage_limit) status='exhausted';
+      return `
+      <div class="bg-white rounded-xl p-4 shadow border border-green-100 flex items-center gap-3 flex-wrap">
+        <div class="flex-1 min-w-0">
+          <p class="font-bold text-sm"><code class="bg-green-50 text-green-700 px-2 py-0.5 rounded">${c.code}</code> <span class="text-gray-500 font-normal">${c.name||''}</span></p>
+          <p class="text-xs text-gray-500">${c.discount_type==='percentage'? c.discount_value+'% off':rm(c.discount_value)+' off'} · used ${c.usage_count}${c.usage_limit>0?'/'+c.usage_limit:''}${c.min_order_value>0?' · min '+rm(c.min_order_value):''}${c.expiry_date?' · exp '+c.expiry_date:''}</p>
+        </div>
+        <span class="text-xs px-2 py-1 rounded-full ${status==='active'?'bg-green-100 text-green-700':status==='expired'||status==='exhausted'?'bg-red-100 text-red-600':'bg-gray-100 text-gray-500'}">${status}</span>
+        <button onclick="editCoupon('${c.id}')" class="bg-green-50 text-green-700 text-xs px-3 py-1.5 rounded-full">Edit</button>
+        <button onclick="toggleCoupon('${c.id}', ${c.is_active})" class="bg-amber-50 text-amber-700 text-xs px-3 py-1.5 rounded-full">${c.is_active?'Disable':'Enable'}</button>
+        <button onclick="deleteCoupon('${c.id}')" class="bg-red-50 text-red-600 text-xs px-3 py-1.5 rounded-full">Delete</button>
+      </div>`;
+    }).join('');
+  }
+  function randomCode() {
+    const a='ABCDEFGHJKLMNPQRSTUVWXYZ23456789'; let s='HSI';
+    for (let i=0;i<5;i++) s+=a[Math.floor(Math.random()*a.length)];
+    document.getElementById('coupon-code').value = s;
+  }
+  function openCouponModal() {
+    document.getElementById('coupon-modal-title').textContent='New Coupon';
+    ['coupon-id','coupon-code','coupon-name','coupon-value','coupon-min','coupon-max','coupon-usage','coupon-percustomer','coupon-start','coupon-expiry'].forEach(id=>document.getElementById(id).value='');
+    document.getElementById('coupon-type').value='percentage';
+    document.getElementById('coupon-active').checked=true;
+    document.getElementById('coupon-first').checked=false;
+    document.getElementById('coupon-modal').classList.remove('hidden');
+  }
+  function closeCouponModal(){ document.getElementById('coupon-modal').classList.add('hidden'); }
+  async function editCoupon(id) {
+    const { data: c } = await sb.from('coupons').select('*').eq('id',id).single(); if(!c) return;
+    document.getElementById('coupon-modal-title').textContent='Edit Coupon';
+    document.getElementById('coupon-id').value=c.id;
+    document.getElementById('coupon-code').value=c.code;
+    document.getElementById('coupon-name').value=c.name||'';
+    document.getElementById('coupon-type').value=c.discount_type;
+    document.getElementById('coupon-value').value=c.discount_value;
+    document.getElementById('coupon-min').value=c.min_order_value||'';
+    document.getElementById('coupon-max').value=c.max_discount||'';
+    document.getElementById('coupon-usage').value=c.usage_limit||'';
+    document.getElementById('coupon-percustomer').value=c.per_customer_limit||'';
+    document.getElementById('coupon-start').value=c.start_date||'';
+    document.getElementById('coupon-expiry').value=c.expiry_date||'';
+    document.getElementById('coupon-active').checked=c.is_active;
+    document.getElementById('coupon-first').checked=c.first_order_only;
+    document.getElementById('coupon-modal').classList.remove('hidden');
+  }
+  async function saveCoupon(e) {
+    e.preventDefault();
+    const id = document.getElementById('coupon-id').value;
+    const payload = {
+      code: document.getElementById('coupon-code').value.trim().toUpperCase(),
+      name: document.getElementById('coupon-name').value.trim() || null,
+      discount_type: document.getElementById('coupon-type').value,
+      discount_value: parseFloat(document.getElementById('coupon-value').value)||0,
+      min_order_value: parseFloat(document.getElementById('coupon-min').value)||0,
+      max_discount: parseFloat(document.getElementById('coupon-max').value)||null,
+      usage_limit: parseInt(document.getElementById('coupon-usage').value)||0,
+      per_customer_limit: parseInt(document.getElementById('coupon-percustomer').value)||0,
+      start_date: document.getElementById('coupon-start').value || null,
+      expiry_date: document.getElementById('coupon-expiry').value || null,
+      is_active: document.getElementById('coupon-active').checked,
+      first_order_only: document.getElementById('coupon-first').checked
+    };
+    let error;
+    if (id) ({error} = await sb.from('coupons').update(payload).eq('id',id));
+    else ({error} = await sb.from('coupons').insert(payload));
+    if (error) { showToast('Save failed: '+error.message,'error'); return; }
+    showToast('Coupon saved'); closeCouponModal(); loadCoupons();
+  }
+  async function toggleCoupon(id, active){ await sb.from('coupons').update({is_active:!active}).eq('id',id); loadCoupons(); }
+  async function deleteCoupon(id){ if(!confirm('Delete coupon?'))return; await sb.from('coupons').delete().eq('id',id); loadCoupons(); }
+
+  // ---------- PROMOTIONS ----------
+  async function loadPromotions() {
+    const { data } = await sb.from('promotions').select('*').order('priority',{ascending:false});
+    const el = document.getElementById('promotions-list');
+    if (!data || !data.length) { el.innerHTML = '<p class="text-gray-400 text-sm text-center py-8">No promotions yet.</p>'; return; }
+    el.innerHTML = data.map(p => `
+      <div class="bg-white rounded-xl p-4 shadow border border-green-100 flex items-center gap-3 flex-wrap">
+        <div class="flex-1 min-w-0">
+          <p class="font-bold text-sm">${p.banner_emoji||'🏷️'} ${p.title}</p>
+          <p class="text-xs text-gray-500">${p.discount_type==='percentage'? p.discount_value+'% off':rm(p.discount_value)+' off'} · ${p.target==='category'? (p.target_categories||[]).join(', '):'all products'}${p.end_date?' · ends '+p.end_date:''}</p>
+        </div>
+        <span class="text-xs px-2 py-1 rounded-full ${p.status==='live'?'bg-green-100 text-green-700':'bg-gray-100 text-gray-500'}">${p.status}</span>
+        <button onclick="editPromo('${p.id}')" class="bg-green-50 text-green-700 text-xs px-3 py-1.5 rounded-full">Edit</button>
+        <button onclick="deletePromo('${p.id}')" class="bg-red-50 text-red-600 text-xs px-3 py-1.5 rounded-full">Delete</button>
+      </div>`).join('');
+  }
+  function togglePromoCat(){ document.getElementById('promo-category').classList.toggle('hidden', document.getElementById('promo-target').value!=='category'); }
+  function openPromoModal() {
+    document.getElementById('promo-modal-title').textContent='New Promotion';
+    ['promo-id','promo-title','promo-banner','promo-value','promo-maxdisc','promo-start','promo-end','promo-priority'].forEach(id=>document.getElementById(id).value='');
+    document.getElementById('promo-type').value='percentage';
+    document.getElementById('promo-target').value='all';
+    document.getElementById('promo-status').value='live';
+    togglePromoCat();
+    document.getElementById('promo-modal').classList.remove('hidden');
+  }
+  function closePromoModal(){ document.getElementById('promo-modal').classList.add('hidden'); }
+  async function editPromo(id) {
+    const { data: p } = await sb.from('promotions').select('*').eq('id',id).single(); if(!p) return;
+    document.getElementById('promo-modal-title').textContent='Edit Promotion';
+    document.getElementById('promo-id').value=p.id;
+    document.getElementById('promo-title').value=p.title;
+    document.getElementById('promo-banner').value=p.banner_text||'';
+    document.getElementById('promo-type').value=p.discount_type;
+    document.getElementById('promo-value').value=p.discount_value;
+    document.getElementById('promo-target').value=p.target;
+    document.getElementById('promo-maxdisc').value=p.max_discount||'';
+    document.getElementById('promo-category').value=(p.target_categories&&p.target_categories[0])||'Vegetables';
+    document.getElementById('promo-start').value=p.start_date||'';
+    document.getElementById('promo-end').value=p.end_date||'';
+    document.getElementById('promo-status').value=p.status;
+    document.getElementById('promo-priority').value=p.priority||0;
+    togglePromoCat();
+    document.getElementById('promo-modal').classList.remove('hidden');
+  }
+  async function savePromo(e) {
+    e.preventDefault();
+    const id = document.getElementById('promo-id').value;
+    const target = document.getElementById('promo-target').value;
+    const payload = {
+      title: document.getElementById('promo-title').value.trim(),
+      banner_text: document.getElementById('promo-banner').value.trim() || null,
+      discount_type: document.getElementById('promo-type').value,
+      discount_value: parseFloat(document.getElementById('promo-value').value)||0,
+      target, target_categories: target==='category' ? [document.getElementById('promo-category').value] : [],
+      max_discount: parseFloat(document.getElementById('promo-maxdisc').value)||null,
+      start_date: document.getElementById('promo-start').value||null,
+      end_date: document.getElementById('promo-end').value||null,
+      status: document.getElementById('promo-status').value,
+      is_active: true,
+      priority: parseInt(document.getElementById('promo-priority').value)||0
+    };
+    let error;
+    if (id) ({error} = await sb.from('promotions').update(payload).eq('id',id));
+    else ({error} = await sb.from('promotions').insert(payload));
+    if (error) { showToast('Save failed: '+error.message,'error'); return; }
+    showToast('Promotion saved'); closePromoModal(); loadPromotions();
+  }
+  async function deletePromo(id){ if(!confirm('Delete promotion?'))return; await sb.from('promotions').delete().eq('id',id); loadPromotions(); }
+
+  // ---------- ANNOUNCEMENTS ----------
   async function loadAnnouncements() {
-    const { data: items } = await sb.from('announcements').select('*').order('created_at', { ascending: false });
+    const { data: items } = await sb.from('announcements').select('*').order('created_at',{ascending:false});
     const el = document.getElementById('announcements-list');
-    if (!items || items.length === 0) {
-      el.innerHTML = '<p class="text-gray-400 text-sm text-center py-8">No announcements yet.</p>';
-      return;
-    }
+    if (!items || !items.length) { el.innerHTML = '<p class="text-gray-400 text-sm text-center py-8">No announcements yet.</p>'; return; }
     el.innerHTML = items.map(a => `
       <div class="bg-white rounded-xl p-4 shadow border border-green-100 flex items-start gap-4">
         <div class="flex-1 min-w-0">
           <div class="flex items-center gap-2 mb-1 flex-wrap">
             <h4 class="font-semibold text-sm text-green-900">${a.title}</h4>
-            ${a.is_featured ? '<span class="text-xs bg-amber-100 text-amber-700 px-2 py-0.5 rounded-full">Featured</span>' : ''}
-            ${a.is_active ? '<span class="text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded-full">Active</span>' : '<span class="text-xs bg-gray-100 text-gray-500 px-2 py-0.5 rounded-full">Inactive</span>'}
+            ${a.is_featured?'<span class="text-xs bg-amber-100 text-amber-700 px-2 py-0.5 rounded-full">Featured</span>':''}
+            ${a.is_active?'<span class="text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded-full">Active</span>':'<span class="text-xs bg-gray-100 text-gray-500 px-2 py-0.5 rounded-full">Inactive</span>'}
           </div>
           <p class="text-xs text-gray-500 mb-1">${a.body || ''}</p>
-          <p class="text-xs text-gray-400">${new Date(a.created_at).toLocaleDateString()}</p>
         </div>
         <div class="flex gap-2 flex-shrink-0">
-          <button onclick="openAnnouncementModal('${a.id}')" class="bg-green-50 text-green-700 text-xs px-3 py-1.5 rounded-full transition">Edit</button>
-          <button onclick="deleteAnnouncement('${a.id}')" class="bg-red-50 text-red-600 text-xs px-3 py-1.5 rounded-full transition">Delete</button>
+          <button onclick="openAnnouncementModal('${a.id}')" class="bg-green-50 text-green-700 text-xs px-3 py-1.5 rounded-full">Edit</button>
+          <button onclick="deleteAnnouncement('${a.id}')" class="bg-red-50 text-red-600 text-xs px-3 py-1.5 rounded-full">Delete</button>
         </div>
-      </div>
-    `).join('');
+      </div>`).join('');
   }
-
   let editingAnnouncementId = null;
   function openAnnouncementModal(id = null) {
     editingAnnouncementId = id;
     document.getElementById('ann-modal-title').textContent = id ? 'Edit Announcement' : 'New Announcement';
-    if (!id) {
-      document.getElementById('ann-id').value = '';
-      document.getElementById('ann-title').value = '';
-      document.getElementById('ann-body').value = '';
-      document.getElementById('ann-image-url').value = '';
-      document.getElementById('ann-featured').checked = false;
-      document.getElementById('ann-active').checked = true;
-    } else {
-      sb.from('announcements').select('*').eq('id', id).single().then(({ data: a }) => {
-        if (!a) return;
-        document.getElementById('ann-id').value = a.id;
-        document.getElementById('ann-title').value = a.title;
-        document.getElementById('ann-body').value = a.body || '';
-        document.getElementById('ann-image-url').value = a.image_url || '';
-        document.getElementById('ann-featured').checked = a.is_featured;
-        document.getElementById('ann-active').checked = a.is_active;
-      });
-    }
+    if (!id) { ['ann-id','ann-title','ann-body','ann-image-url'].forEach(x=>document.getElementById(x).value=''); document.getElementById('ann-featured').checked=false; document.getElementById('ann-active').checked=true; }
+    else sb.from('announcements').select('*').eq('id',id).single().then(({data:a})=>{ if(!a)return; document.getElementById('ann-id').value=a.id; document.getElementById('ann-title').value=a.title; document.getElementById('ann-body').value=a.body||''; document.getElementById('ann-image-url').value=a.image_url||''; document.getElementById('ann-featured').checked=a.is_featured; document.getElementById('ann-active').checked=a.is_active; });
     document.getElementById('announcement-modal').classList.remove('hidden');
   }
-
-  function closeAnnouncementModal() {
-    document.getElementById('announcement-modal').classList.add('hidden');
-    editingAnnouncementId = null;
-  }
-
+  function closeAnnouncementModal(){ document.getElementById('announcement-modal').classList.add('hidden'); editingAnnouncementId=null; }
   async function saveAnnouncement(e) {
     e.preventDefault();
-    const payload = {
-      title: document.getElementById('ann-title').value.trim(),
-      body: document.getElementById('ann-body').value.trim() || null,
-      image_url: document.getElementById('ann-image-url').value.trim() || null,
-      is_featured: document.getElementById('ann-featured').checked,
-      is_active: document.getElementById('ann-active').checked
-    };
+    const payload = { title: document.getElementById('ann-title').value.trim(), body: document.getElementById('ann-body').value.trim()||null, image_url: document.getElementById('ann-image-url').value.trim()||null, is_featured: document.getElementById('ann-featured').checked, is_active: document.getElementById('ann-active').checked };
     let error;
-    if (editingAnnouncementId) {
-      ({ error } = await sb.from('announcements').update(payload).eq('id', editingAnnouncementId));
-    } else {
-      ({ error } = await sb.from('announcements').insert(payload));
-    }
-    if (error) { showToast('Save failed: ' + error.message, 'error'); return; }
-    showToast(editingAnnouncementId ? 'Announcement updated!' : 'Announcement created!');
-    closeAnnouncementModal();
-    loadAnnouncements();
+    if (editingAnnouncementId) ({error}=await sb.from('announcements').update(payload).eq('id',editingAnnouncementId));
+    else ({error}=await sb.from('announcements').insert(payload));
+    if (error) { showToast('Save failed: '+error.message,'error'); return; }
+    showToast('Announcement saved'); closeAnnouncementModal(); loadAnnouncements();
+  }
+  async function deleteAnnouncement(id){ if(!confirm('Delete announcement?'))return; await sb.from('announcements').delete().eq('id',id); loadAnnouncements(); }
+
+  // ---------- SETTINGS ----------
+  async function getSetting(key, def) {
+    const { data } = await sb.from('app_settings').select('value').eq('key',key).maybeSingle();
+    return data ? data.value : def;
+  }
+  async function setSetting(key, value) {
+    const { error } = await sb.from('app_settings').upsert({ key, value, updated_at: new Date().toISOString() });
+    return error;
+  }
+  async function loadSettings() {
+    const pts = await getSetting('points_config', { earn_rm:10, earn_pts:1, redeem_pts:100, redeem_rm:1, enabled:true });
+    document.getElementById('set-pts-enabled').checked = pts.enabled !== false;
+    document.getElementById('set-earn-rm').value = pts.earn_rm;
+    document.getElementById('set-earn-pts').value = pts.earn_pts;
+    document.getElementById('set-redeem-pts').value = pts.redeem_pts;
+    document.getElementById('set-redeem-rm').value = pts.redeem_rm;
+    updatePtsSummary();
+    const tiers = await getSetting('member_tiers', []); window.MEMBER_TIERS = tiers; renderTierRows(tiers);
+    const pay = await getSetting('payment_config', { online_enabled:false, offline_enabled:true });
+    document.getElementById('set-offline-enabled').checked = pay.offline_enabled !== false;
+    document.getElementById('set-online-enabled').checked = !!pay.online_enabled;
+    document.getElementById('set-bank-name').value = pay.bank_name||'';
+    document.getElementById('set-bank-holder').value = pay.account_holder||'';
+    document.getElementById('set-bank-account').value = pay.bank_account||'';
+    document.getElementById('set-duitnow').value = pay.duitnow_qr_url||'';
+    const notif = await getSetting('notification_config', { from_name:'HSI Marketplace', from_email:'', admin_emails:[] });
+    document.getElementById('set-from-name').value = notif.from_name||'';
+    document.getElementById('set-from-email').value = notif.from_email||'';
+    document.getElementById('set-admin-emails').value = (notif.admin_emails||[]).join(', ');
+  }
+  function updatePtsSummary() {
+    const er=document.getElementById('set-earn-rm').value, ep=document.getElementById('set-earn-pts').value, rp=document.getElementById('set-redeem-pts').value, rr=document.getElementById('set-redeem-rm').value;
+    document.getElementById('pts-summary').textContent = `For every RM ${er} spent, customers earn ${ep} point(s). ${rp} points = RM ${rr} discount.`;
+  }
+  document.addEventListener('input', e => { if (['set-earn-rm','set-earn-pts','set-redeem-pts','set-redeem-rm'].includes(e.target.id)) updatePtsSummary(); });
+  async function savePointsConfig() {
+    const err = await setSetting('points_config', {
+      enabled: document.getElementById('set-pts-enabled').checked,
+      earn_rm: parseFloat(document.getElementById('set-earn-rm').value)||10,
+      earn_pts: parseFloat(document.getElementById('set-earn-pts').value)||1,
+      redeem_pts: parseInt(document.getElementById('set-redeem-pts').value)||100,
+      redeem_rm: parseFloat(document.getElementById('set-redeem-rm').value)||1
+    });
+    showToast(err?'Save failed':'Loyalty saved', err?'error':'success');
+  }
+  function renderTierRows(tiers) {
+    document.getElementById('tiers-rows').innerHTML = (tiers||[]).map((t,i)=>`
+      <div class="flex gap-2 items-center">
+        <input value="${t.name||''}" data-tier-name="${i}" placeholder="Name" class="flex-1 border border-gray-300 rounded-lg px-3 py-2 text-sm" />
+        <input value="${t.min_points||0}" data-tier-min="${i}" type="number" placeholder="Min pts" class="w-28 border border-gray-300 rounded-lg px-3 py-2 text-sm" />
+        <button onclick="removeTierRow(${i})" class="text-red-500 text-lg px-2">×</button>
+      </div>`).join('') || '<p class="text-gray-400 text-sm">No tiers. Add one.</p>';
+  }
+  function collectTiers() {
+    const rows = document.querySelectorAll('[data-tier-name]');
+    const tiers = [];
+    rows.forEach(r => { const i=r.getAttribute('data-tier-name'); const min=document.querySelector(`[data-tier-min="${i}"]`); tiers.push({ name:r.value.trim(), min_points: parseInt(min.value)||0 }); });
+    return tiers.filter(t=>t.name).sort((a,b)=>a.min_points-b.min_points);
+  }
+  function addTierRow(){ const t=collectTiers(); t.push({name:'',min_points:0}); window.MEMBER_TIERS=t; renderTierRows(t); }
+  function removeTierRow(i){ const t=collectTiers(); t.splice(i,1); window.MEMBER_TIERS=t; renderTierRows(t); }
+  async function saveTiers(){ const t=collectTiers(); window.MEMBER_TIERS=t; const err=await setSetting('member_tiers', t); showToast(err?'Save failed':'Tiers saved', err?'error':'success'); }
+  async function savePaymentConfig() {
+    const err = await setSetting('payment_config', {
+      offline_enabled: document.getElementById('set-offline-enabled').checked,
+      online_enabled: document.getElementById('set-online-enabled').checked,
+      bank_name: document.getElementById('set-bank-name').value.trim(),
+      account_holder: document.getElementById('set-bank-holder').value.trim(),
+      bank_account: document.getElementById('set-bank-account').value.trim(),
+      duitnow_qr_url: document.getElementById('set-duitnow').value.trim()
+    });
+    showToast(err?'Save failed':'Payment settings saved', err?'error':'success');
+  }
+  async function saveNotifConfig() {
+    const err = await setSetting('notification_config', {
+      from_name: document.getElementById('set-from-name').value.trim(),
+      from_email: document.getElementById('set-from-email').value.trim(),
+      admin_emails: document.getElementById('set-admin-emails').value.split(',').map(s=>s.trim()).filter(Boolean)
+    });
+    showToast(err?'Save failed':'Notifications saved', err?'error':'success');
   }
 
-  async function deleteAnnouncement(id) {
-    if (!confirm('Delete this announcement?')) return;
-    await sb.from('announcements').delete().eq('id', id);
-    showToast('Announcement deleted', 'warning');
-    loadAnnouncements();
-  }
+  getSetting('member_tiers', []).then(t => window.MEMBER_TIERS = t);
 
-  async function doLogout() {
-    await sb.auth.signOut();
-    window.location.href = '../';
-  }
-
-  if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('../sw.js').catch(() => {});
-  }
+  async function doLogout(){ await sb.auth.signOut(); window.location.href='../'; }
+  if ('serviceWorker' in navigator) navigator.serviceWorker.register('../sw.js').catch(()=>{});
 </script>
 </body>
 </html>

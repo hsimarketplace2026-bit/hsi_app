@@ -125,6 +125,7 @@
   let currentCategory = 'All';
   let currentProduct = null;
   let cartOpen = false;
+  let promoMap = {};   // product_id -> { discount, title } (live promotions)
 
   function showToast(msg, type = 'success') {
     const c = document.getElementById('toast-container');
@@ -143,7 +144,24 @@
       .order('created_at', { ascending: false });
     if (error) { showToast('Error loading products', 'error'); return; }
     allProducts = data || [];
+    await loadPromotions();
     renderProducts();
+  }
+
+  async function loadPromotions() {
+    promoMap = {};
+    try {
+      const items = allProducts.map(p => ({ product_id: p.id, category: p.category, qty: 1, price: parseFloat(p.price) }));
+      if (!items.length) return;
+      const { data: promos } = await sb.rpc('promotions_for_cart', { p_items: items });
+      (promos || []).forEach(pr => { promoMap[pr.product_id] = { discount: parseFloat(pr.discount) || 0, title: pr.promo_title }; });
+    } catch (_) {}
+  }
+  function salePrice(p) {
+    const promo = promoMap[p.id];
+    const base = parseFloat(p.price);
+    if (promo && promo.discount > 0) return Math.max(0, base - promo.discount);
+    return base;
   }
 
   function filterProducts() {
@@ -173,7 +191,8 @@
       return;
     }
     grid.innerHTML = filtered.map(p => `
-      <div class="card-hover bg-white rounded-xl overflow-hidden shadow border border-green-100 cursor-pointer" onclick="openModal('${p.id}')">
+      <div class="card-hover bg-white rounded-xl overflow-hidden shadow border border-green-100 cursor-pointer relative" onclick="openModal('${p.id}')">
+        ${promoMap[p.id] ? '<span class="absolute top-2 left-2 z-10 bg-red-500 text-white text-xs font-bold px-2 py-0.5 rounded-full">SALE</span>' : ''}
         <div class="h-36 bg-green-100 overflow-hidden">
           ${p.image_url ? `<img src="${p.image_url}" alt="${p.name}" class="w-full h-full object-cover" />` : '<div class="w-full h-full flex items-center justify-center text-4xl">🌿</div>'}
         </div>
@@ -181,7 +200,9 @@
           <p class="font-semibold text-sm text-gray-800 truncate">${p.name}</p>
           <p class="text-xs text-gray-500 truncate">${p.profiles?.farm_name || p.profiles?.full_name || 'HSI Farmer'}</p>
           <div class="flex items-center justify-between mt-2">
-            <span class="text-green-700 font-bold text-sm">RM ${parseFloat(p.price).toFixed(2)}/${p.unit}</span>
+            <span class="text-green-700 font-bold text-sm">
+              ${promoMap[p.id] ? `<span class="text-gray-400 line-through font-normal mr-1">RM ${parseFloat(p.price).toFixed(2)}</span>` : ''}RM ${salePrice(p).toFixed(2)}/${p.unit}
+            </span>
             <span class="text-xs text-gray-400">${p.quantity} avail.</span>
           </div>
           <button onclick="event.stopPropagation(); quickAdd('${p.id}')" class="mt-2 w-full btn-primary text-white text-xs py-1.5 rounded-lg transition">+ Add to Cart</button>
