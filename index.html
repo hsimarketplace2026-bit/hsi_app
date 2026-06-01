@@ -299,39 +299,33 @@
   <div class="p-6">
     <div class="flex items-center justify-between mb-6">
       <h2 class="text-2xl font-bold text-green-900" data-i18n="auth.welcome">Welcome</h2>
-      <div class="flex items-center gap-3">
-        <a href="setup/" title="Admin Setup" class="text-gray-400 hover:text-green-700 transition" aria-label="Admin Setup">
-          <svg xmlns="http://www.w3.org/2000/svg" class="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
-            <path stroke-linecap="round" stroke-linejoin="round"
-              d="M9 12l2 2 4-4m5.618-4.016A11.955 11.955 0 0112 2.944a11.955 11.955 0 01-8.618 3.04A12.02 12.02 0 003 9c0 5.591 3.824 10.29 9 11.622 5.176-1.332 9-6.03 9-11.622 0-1.042-.133-2.052-.382-3.016z"/>
-          </svg>
-        </a>
-        <button onclick="closeAuth()" class="text-gray-400 hover:text-gray-600 text-2xl leading-none">&times;</button>
-      </div>
-    </div>
-
-    <!-- Tabs -->
-    <div class="flex rounded-xl overflow-hidden border border-green-200 mb-6">
-      <button id="tab-login" onclick="switchTab('login')" class="flex-1 py-2.5 text-sm font-semibold bg-green-600 text-white transition" data-i18n="auth.login_tab">Login</button>
-      <button id="tab-register" onclick="switchTab('register')" class="flex-1 py-2.5 text-sm font-semibold bg-white text-green-700 transition" data-i18n="auth.register_tab">Register</button>
+      <button onclick="closeAuth()" class="text-gray-400 hover:text-gray-600 text-2xl leading-none">&times;</button>
     </div>
 
     <!-- LOGIN FORM -->
     <form id="login-form" onsubmit="return false;">
       <div class="space-y-4">
         <div id="login-error" class="hidden bg-red-50 border border-red-300 text-red-700 text-sm rounded-lg px-4 py-3"></div>
+        <div id="login-info" class="hidden bg-green-50 border border-green-300 text-green-700 text-sm rounded-lg px-4 py-3"></div>
         <div>
           <label class="block text-sm font-medium text-gray-700 mb-1">Email</label>
           <input type="email" id="login-email" required placeholder="you@example.com"
             class="w-full border border-gray-300 rounded-lg px-4 py-2.5 focus:outline-none focus:border-green-500 text-sm" />
         </div>
         <div>
-          <label class="block text-sm font-medium text-gray-700 mb-1">Password</label>
+          <div class="flex items-center justify-between mb-1">
+            <label class="block text-sm font-medium text-gray-700">Password</label>
+            <button type="button" onclick="doForgotPassword()" class="text-xs text-green-700 hover:text-green-900 font-medium hover:underline">Forgot password?</button>
+          </div>
           <input type="password" id="login-password" placeholder="••••••••"
             onkeydown="if(event.key==='Enter') doLogin()"
             class="w-full border border-gray-300 rounded-lg px-4 py-2.5 focus:outline-none focus:border-green-500 text-sm" />
         </div>
         <button type="button" id="login-btn" onclick="doLogin()" class="w-full btn-primary text-white font-semibold py-3 rounded-lg transition text-sm">Login</button>
+        <div class="text-center text-sm text-gray-500 pt-1">
+          Don't have an account?
+          <button type="button" onclick="switchTab('register')" class="text-green-700 font-semibold hover:underline ml-1">Sign up</button>
+        </div>
       </div>
     </form>
 
@@ -388,6 +382,10 @@
         </div>
         <button type="submit" id="reg-btn" class="w-full btn-primary text-white font-semibold py-3 rounded-lg transition text-sm">Create Account</button>
         <div id="reg-error" class="hidden bg-red-50 border border-red-300 text-red-700 text-sm rounded-lg px-4 py-3"></div>
+        <div class="text-center text-sm text-gray-500 pt-1">
+          Already have an account?
+          <button type="button" onclick="switchTab('login')" class="text-green-700 font-semibold hover:underline ml-1">Log in</button>
+        </div>
       </div>
     </form>
 
@@ -407,6 +405,21 @@
         Back to Login
       </button>
     </div>
+
+    <!-- SET NEW PASSWORD (password recovery) -->
+    <form id="set-password-view" class="hidden" onsubmit="updatePassword(event)">
+      <div class="space-y-4">
+        <h3 class="text-lg font-bold text-gray-900">Set a new password</h3>
+        <p class="text-sm text-gray-500">Enter a new password for your account.</p>
+        <div id="setpw-error" class="hidden bg-red-50 border border-red-300 text-red-700 text-sm rounded-lg px-4 py-3"></div>
+        <div>
+          <label class="block text-sm font-medium text-gray-700 mb-1">New Password</label>
+          <input type="password" id="setpw-password" required minlength="6" placeholder="Min. 6 characters"
+            class="w-full border border-gray-300 rounded-lg px-4 py-2.5 focus:outline-none focus:border-green-500 text-sm" />
+        </div>
+        <button type="submit" id="setpw-btn" class="w-full btn-primary text-white font-semibold py-3 rounded-lg transition text-sm">Update Password</button>
+      </div>
+    </form>
   </div>
 </div>
 
@@ -427,22 +440,73 @@
   }
 
   // AUTH PANEL
-  function openAuth(tab = 'login') {
+  function openPanel() {
     document.getElementById('auth-panel').classList.add('open');
     document.getElementById('auth-overlay').classList.remove('hidden');
+  }
+  function openAuth(tab = 'login') {
+    openPanel();
     switchTab(tab);
   }
   function closeAuth() {
     document.getElementById('auth-panel').classList.remove('open');
     document.getElementById('auth-overlay').classList.add('hidden');
   }
+  // Switch between the login and signup ("register") forms.
   function switchTab(tab) {
     const isLogin = tab === 'login';
     document.getElementById('login-form').classList.toggle('hidden', !isLogin);
     document.getElementById('register-form').classList.toggle('hidden', isLogin);
     document.getElementById('confirm-notice').classList.add('hidden');
-    document.getElementById('tab-login').className = `flex-1 py-2.5 text-sm font-semibold transition ${isLogin ? 'bg-green-600 text-white' : 'bg-white text-green-700'}`;
-    document.getElementById('tab-register').className = `flex-1 py-2.5 text-sm font-semibold transition ${!isLogin ? 'bg-green-600 text-white' : 'bg-white text-green-700'}`;
+    document.getElementById('set-password-view').classList.add('hidden');
+    document.getElementById('login-error').classList.add('hidden');
+    document.getElementById('login-info').classList.add('hidden');
+  }
+  // Show the "set new password" view (used after a recovery-link click).
+  function showSetPassword() {
+    openPanel();
+    document.getElementById('login-form').classList.add('hidden');
+    document.getElementById('register-form').classList.add('hidden');
+    document.getElementById('confirm-notice').classList.add('hidden');
+    document.getElementById('set-password-view').classList.remove('hidden');
+  }
+  // Send a password-reset email to the address typed in the login form.
+  async function doForgotPassword() {
+    const email = document.getElementById('login-email').value.trim();
+    const errBox = document.getElementById('login-error');
+    const infoBox = document.getElementById('login-info');
+    errBox.classList.add('hidden');
+    infoBox.classList.add('hidden');
+    if (!email) {
+      errBox.textContent = 'Please enter your email above first, then click “Forgot password?”.';
+      errBox.classList.remove('hidden');
+      document.getElementById('login-email').focus();
+      return;
+    }
+    const { error } = await sb.auth.resetPasswordForEmail(email, {
+      redirectTo: window.location.origin + window.location.pathname
+    });
+    if (error) { errBox.textContent = error.message; errBox.classList.remove('hidden'); return; }
+    infoBox.textContent = `Password reset link sent to ${email}. Check your inbox.`;
+    infoBox.classList.remove('hidden');
+  }
+  // Save the new password after the user followed a recovery link.
+  async function updatePassword(e) {
+    e.preventDefault();
+    const btn = document.getElementById('setpw-btn');
+    const errBox = document.getElementById('setpw-error');
+    errBox.classList.add('hidden');
+    const pw = document.getElementById('setpw-password').value;
+    if (!pw || pw.length < 6) { errBox.textContent = 'Password must be at least 6 characters.'; errBox.classList.remove('hidden'); return; }
+    btn.disabled = true; btn.textContent = 'Updating…';
+    const { error } = await sb.auth.updateUser({ password: pw });
+    btn.disabled = false; btn.textContent = 'Update Password';
+    if (error) { errBox.textContent = error.message; errBox.classList.remove('hidden'); return; }
+    showToast('Password updated! You are now signed in.');
+    const { data: { session } } = await sb.auth.getSession();
+    if (!session) { switchTab('login'); return; }
+    const { data: profile } = await sb.from('shared_profiles').select('role,status').eq('id', session.user.id).single();
+    if (profile) routeByRole(profile);
   }
   function toggleSellerFields() {
     const isSeller = document.querySelector('input[name="role"]:checked').value === 'seller';
@@ -653,11 +717,15 @@
   // returns them here with auth tokens in the URL hash. The JS SDK
   // auto-parses the hash; we just listen for SIGNED_IN and route them.
   sb.auth.onAuthStateChange(async (event, session) => {
-    if (event !== 'SIGNED_IN' || !session) return;
     const hash = window.location.hash || '';
-    const isConfirmation = hash.includes('type=signup')
-      || hash.includes('access_token')
-      || hash.includes('type=recovery');
+    // Password recovery: let the user set a new password instead of routing them.
+    if (event === 'PASSWORD_RECOVERY' || (event === 'SIGNED_IN' && hash.includes('type=recovery'))) {
+      history.replaceState(null, '', window.location.pathname + window.location.search);
+      showSetPassword();
+      return;
+    }
+    if (event !== 'SIGNED_IN' || !session) return;
+    const isConfirmation = hash.includes('type=signup') || hash.includes('access_token');
     if (!isConfirmation) return;
     // Clean hash so we don't loop
     history.replaceState(null, '', window.location.pathname + window.location.search);
