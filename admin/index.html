@@ -459,19 +459,25 @@
     <h3 id="addprod-title" class="text-xl font-bold text-green-900 mb-4">Add Product</h3>
     <form onsubmit="saveNewProduct(event)" class="space-y-3 text-sm">
       <input type="hidden" id="np-id" />
+      <input type="hidden" id="np-image-url" />
       <div><label class="block text-gray-600 text-xs mb-1">Seller</label><select id="np-seller" class="w-full border border-gray-300 rounded-lg px-3 py-2"></select></div>
-      <input id="np-name" required placeholder="Product name" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:border-green-500" />
+      <div><label class="block text-gray-600 text-xs mb-1">Product name</label><input id="np-name" required placeholder="e.g. Cherry Tomatoes" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:border-green-500" /></div>
       <div class="grid grid-cols-2 gap-2">
-        <select id="np-category" class="border border-gray-300 rounded-lg px-3 py-2"><option>Vegetables</option><option>Fruits</option><option>Herbs</option><option>Other</option></select>
-        <input id="np-unit" placeholder="Unit (kg/bundle)" class="border border-gray-300 rounded-lg px-3 py-2" />
+        <div><label class="block text-gray-600 text-xs mb-1">Category</label><select id="np-category" class="w-full border border-gray-300 rounded-lg px-3 py-2"><option>Vegetables</option><option>Fruits</option><option>Herbs</option><option>Other</option></select></div>
+        <div><label class="block text-gray-600 text-xs mb-1">Unit</label><input id="np-unit" placeholder="kg / bundle" class="w-full border border-gray-300 rounded-lg px-3 py-2" /></div>
       </div>
       <div class="grid grid-cols-2 gap-2">
-        <input id="np-price" type="number" step="0.01" min="0" required placeholder="Price (RM)" class="border border-gray-300 rounded-lg px-3 py-2" />
-        <input id="np-qty" type="number" min="0" required placeholder="Quantity" class="border border-gray-300 rounded-lg px-3 py-2" />
+        <div><label class="block text-gray-600 text-xs mb-1">Price (RM)</label><input id="np-price" type="number" step="0.01" min="0" required placeholder="0.00" class="w-full border border-gray-300 rounded-lg px-3 py-2" /></div>
+        <div><label class="block text-gray-600 text-xs mb-1">Quantity</label><input id="np-qty" type="number" min="0" required placeholder="0" class="w-full border border-gray-300 rounded-lg px-3 py-2" /></div>
       </div>
-      <input id="np-harvest" type="date" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-gray-600" />
-      <textarea id="np-desc" rows="2" placeholder="Description (optional)" class="w-full border border-gray-300 rounded-lg px-3 py-2"></textarea>
-      <select id="np-status" class="w-full border border-gray-300 rounded-lg px-3 py-2"><option value="active">Active (visible)</option><option value="inactive">Inactive (hidden)</option></select>
+      <div><label class="block text-gray-600 text-xs mb-1">Harvest date</label><input id="np-harvest" type="date" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-gray-600" /></div>
+      <div><label class="block text-gray-600 text-xs mb-1">Description</label><textarea id="np-desc" rows="2" placeholder="Description (optional)" class="w-full border border-gray-300 rounded-lg px-3 py-2"></textarea></div>
+      <div>
+        <label class="block text-gray-600 text-xs mb-1">Product image</label>
+        <input type="file" accept="image/*" id="np-image-file" onchange="uploadProductImage(event)" class="w-full text-xs file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:bg-green-100 file:text-green-700 file:font-semibold" />
+        <div id="np-image-preview" class="mt-2"></div>
+      </div>
+      <div><label class="block text-gray-600 text-xs mb-1">Visibility</label><select id="np-status" class="w-full border border-gray-300 rounded-lg px-3 py-2"><option value="active">Published</option><option value="inactive">Unpublished</option></select></div>
       <button id="np-submit-btn" type="submit" class="w-full btn-primary text-white font-semibold py-2.5 rounded-xl transition">Create Product</button>
       <p id="np-msg" class="text-xs"></p>
     </form>
@@ -563,6 +569,15 @@
       <button type="submit" class="w-full btn-primary text-white font-semibold py-2.5 rounded-xl transition">Save Payment</button>
       <p id="ep-msg" class="text-xs"></p>
     </form>
+  </div>
+</div>
+
+<!-- ORDER DETAIL MODAL -->
+<div id="orderdetail-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4">
+  <div class="absolute inset-0 bg-black bg-opacity-50" onclick="closeOrderDetail()"></div>
+  <div class="relative bg-white rounded-2xl w-full max-w-lg p-6 shadow-2xl max-h-[90vh] overflow-y-auto">
+    <button onclick="closeOrderDetail()" class="absolute top-3 right-4 text-gray-400 hover:text-gray-600 text-2xl">&times;</button>
+    <div id="od-body"><p class="text-gray-400 text-sm text-center py-8">Loading…</p></div>
   </div>
 </div>
 
@@ -764,7 +779,6 @@
             <p class="text-xs text-gray-500 truncate">${s.farm_name || 'No farm name'}${s.farm_location ? ' — ' + s.farm_location : ''} · ${list.length} product${list.length===1?'':'s'}</p>
           </div>
           <div class="flex gap-2 flex-wrap items-center" onclick="event.stopPropagation()">
-            <button onclick="openAddProduct('${sid}','${name}')" class="bg-green-700 hover:bg-green-800 text-white text-xs px-3 py-1.5 rounded-full transition">+ Product</button>
             ${s.status === 'pending' ? `<button onclick="updateSellerStatus('${sid}','active')" class="btn-primary text-white text-xs px-3 py-1.5 rounded-full transition">Approve</button><button onclick="updateSellerStatus('${sid}','suspended')" class="bg-red-50 text-red-600 text-xs px-3 py-1.5 rounded-full transition">Reject</button>` : ''}
             ${s.status === 'active' ? `<button onclick="updateSellerStatus('${sid}','suspended')" class="bg-red-50 text-red-600 text-xs px-3 py-1.5 rounded-full transition">Suspend</button>` : ''}
             ${s.status === 'suspended' ? `<button onclick="updateSellerStatus('${sid}','active')" class="btn-primary text-white text-xs px-3 py-1.5 rounded-full transition">Reinstate</button>` : ''}
@@ -777,7 +791,7 @@
             ${tabs.map(([k,lab],idx) => `<button onclick="sellerTab('${sid}','${k}')" id="st-${sid}-${k}" class="text-xs font-semibold px-3 py-1.5 rounded-t-lg border border-green-100 ${idx===0?'bg-green-600 text-white':'bg-white text-green-700'}">${lab}</button>`).join('')}
           </div>
           <div class="p-4 bg-green-50/40">
-            <div id="sp-${sid}-products">${renderSellerProducts(list)}</div>
+            <div id="sp-${sid}-products">${renderSellerProducts(list, sid, name)}</div>
             <div id="sp-${sid}-details" class="hidden">${renderSellerDetails(s)}</div>
             <div id="sp-${sid}-payment" class="hidden">${renderSellerPayment(s)}</div>
             <div id="sp-${sid}-orders" class="hidden"><p class="text-gray-400 text-sm text-center py-4">Loading orders…</p></div>
@@ -851,19 +865,22 @@
     if (!orders || !orders.length) { box.innerHTML = '<p class="text-gray-400 text-sm text-center py-4">No orders for this seller yet.</p>'; return; }
     box.innerHTML = orders.map(o => `
       <div class="bg-white rounded-lg border border-green-100 p-3 mb-2">
-        <div class="flex items-center justify-between gap-2 flex-wrap">
-          <div class="min-w-0">
-            <p class="text-sm font-semibold">${o.buyer?.full_name || 'Buyer'} <span class="text-xs text-gray-400 font-normal">${o.order_number ? '· ' + o.order_number : ''}</span></p>
-            <p class="text-xs text-gray-400">${new Date(o.created_at).toLocaleString()}</p>
+        <div class="cursor-pointer" onclick="openOrderDetail('${o.id}')">
+          <div class="flex items-center justify-between gap-2 flex-wrap">
+            <div class="min-w-0">
+              <p class="text-sm font-semibold">${o.buyer?.full_name || 'Buyer'} <span class="text-xs text-gray-400 font-normal">${o.order_number ? '· ' + o.order_number : ''}</span></p>
+              <p class="text-xs text-gray-400">${new Date(o.created_at).toLocaleString()}</p>
+            </div>
+            <span class="text-xs font-semibold px-2 py-1 rounded-full status-${o.status}">${o.status.replace(/_/g,' ').toUpperCase()}</span>
           </div>
-          <span class="text-xs font-semibold px-2 py-1 rounded-full status-${o.status}">${o.status.replace(/_/g,' ').toUpperCase()}</span>
-        </div>
-        <div class="mt-2 space-y-0.5">
-          ${(o.order_items || []).map(i => `<div class="flex justify-between text-xs text-gray-600"><span>${i.product_name || i.products?.name} × ${i.quantity} ${i.products?.unit || ''}</span><span>${rm(i.quantity * i.unit_price)}</span></div>`).join('')}
+          <div class="mt-2 space-y-0.5">
+            ${(o.order_items || []).map(i => `<div class="flex justify-between text-xs text-gray-600"><span>${i.product_name || i.products?.name} × ${i.quantity} ${i.products?.unit || ''}</span><span>${rm(i.quantity * i.unit_price)}</span></div>`).join('')}
+          </div>
         </div>
         <div class="flex items-center justify-between border-t border-green-50 mt-2 pt-2 gap-2 flex-wrap">
           <span class="font-bold text-green-700 text-sm">${rm(o.total_amount)}</span>
           <div class="flex items-center gap-2">
+            <button onclick="openOrderDetail('${o.id}')" class="text-green-700 text-xs font-semibold hover:underline">View</button>
             <select onchange="setOrderStatus('${o.id}','${id}',this.value)" class="text-xs border border-gray-300 rounded-lg px-2 py-1 bg-white">
               ${['pending','payment_uploaded','payment_verified','processing','completed','cancelled'].map(st=>`<option value="${st}" ${o.status===st?'selected':''}>${st.replace(/_/g,' ')}</option>`).join('')}
             </select>
@@ -887,11 +904,64 @@
     if (error) { showToast('Delete failed: '+error.message, 'error'); return; }
     showToast('Order deleted', 'warning'); reloadSellerOrders(sellerId);
   }
-  function renderSellerProducts(list) {
-    if (!list.length) return '<p class="text-xs text-gray-400 italic">No products listed yet.</p>';
+  // ---- Order detail (shared modal) ----
+  function closeOrderDetail() { document.getElementById('orderdetail-modal').classList.add('hidden'); }
+  async function openOrderDetail(orderId) {
+    document.getElementById('od-body').innerHTML = '<p class="text-gray-400 text-sm text-center py-8">Loading…</p>';
+    document.getElementById('orderdetail-modal').classList.remove('hidden');
+    const { data: o } = await sb.from('mkt_orders')
+      .select('*, buyer:shared_profiles!buyer_id(full_name,email,phone), seller:shared_profiles!seller_id(full_name,farm_name), order_items:mkt_order_items(*, products:mkt_products(name,unit))')
+      .eq('id', orderId).single();
+    if (!o) { document.getElementById('od-body').innerHTML = '<p class="text-red-500 text-sm text-center py-8">Order not found.</p>'; return; }
+    document.getElementById('od-body').innerHTML = orderDetailHTML(o);
+  }
+  function orderDetailHTML(o) {
+    const items = o.order_items || [];
+    const rows = items.map(i => `
+      <tr class="border-b border-green-50">
+        <td class="py-2 pr-2">${i.product_name || i.products?.name || 'Item'}</td>
+        <td class="py-2 px-2 text-center whitespace-nowrap">${i.quantity} ${i.products?.unit || ''}</td>
+        <td class="py-2 px-2 text-right whitespace-nowrap">${rm(i.unit_price)}</td>
+        <td class="py-2 pl-2 text-right font-semibold whitespace-nowrap">${rm(i.quantity * i.unit_price)}</td>
+      </tr>`).join('');
+    const b = o.buyer || {}, s = o.seller || {};
+    return `
+      <h3 class="text-lg font-bold text-green-900 mb-1">Order Details</h3>
+      <div class="flex items-center justify-between mb-4 flex-wrap gap-2">
+        <p class="text-xs text-gray-400">${o.order_number ? o.order_number + ' · ' : ''}${new Date(o.created_at).toLocaleString()}</p>
+        <span class="text-xs font-semibold px-2 py-1 rounded-full status-${o.status}">${o.status.replace(/_/g,' ').toUpperCase()}</span>
+      </div>
+      <div class="grid sm:grid-cols-2 gap-3 mb-4 text-sm">
+        <div class="bg-green-50/60 rounded-lg p-3">
+          <p class="text-xs font-semibold text-gray-500 mb-1">Buyer</p>
+          <p class="font-medium">${b.full_name || '—'}</p>
+          ${b.email ? `<p class="text-xs text-gray-500 break-words">${b.email}</p>` : ''}
+          ${b.phone ? `<p class="text-xs text-gray-500">${b.phone}</p>` : ''}
+        </div>
+        <div class="bg-green-50/60 rounded-lg p-3">
+          <p class="text-xs font-semibold text-gray-500 mb-1">Seller</p>
+          <p class="font-medium">${s.farm_name || s.full_name || '—'}</p>
+        </div>
+      </div>
+      <table class="w-full text-sm mb-3">
+        <thead><tr class="text-xs text-gray-400 border-b border-green-100"><th class="text-left py-1 pr-2 font-medium">Product</th><th class="py-1 px-2 font-medium">Qty</th><th class="text-right py-1 px-2 font-medium">Unit price</th><th class="text-right py-1 pl-2 font-medium">Total</th></tr></thead>
+        <tbody>${rows}</tbody>
+      </table>
+      <div class="border-t border-green-100 pt-3 space-y-1 text-sm">
+        ${o.subtotal ? `<div class="flex justify-between text-gray-500"><span>Subtotal</span><span>${rm(o.subtotal)}</span></div>` : ''}
+        ${o.discount_amount > 0 ? `<div class="flex justify-between text-green-600"><span>Discount${o.coupon_code ? ' (' + o.coupon_code + ')' : ''}</span><span>- ${rm(o.discount_amount)}</span></div>` : ''}
+        ${o.points_discount_rm > 0 ? `<div class="flex justify-between text-green-600"><span>Points redeemed</span><span>- ${rm(o.points_discount_rm)}</span></div>` : ''}
+        <div class="flex justify-between font-bold text-green-800 text-base"><span>Total</span><span>${rm(o.total_amount)}</span></div>
+      </div>
+      ${o.payment_method ? `<p class="text-xs text-gray-500 mt-3">Payment method: ${o.payment_method}</p>` : ''}
+      ${o.delivery_notes ? `<p class="text-xs text-gray-500 mt-1">Notes: ${o.delivery_notes}</p>` : ''}`;
+  }
+  function renderSellerProducts(list, sid, name) {
+    const addBtn = (sid != null) ? `<div class="flex justify-end mb-3"><button onclick="openAddProduct('${sid}','${name||''}')" class="bg-green-700 hover:bg-green-800 text-white text-xs font-semibold px-3 py-1.5 rounded-full transition">+ Add Product</button></div>` : '';
+    if (!list.length) return addBtn + '<p class="text-xs text-gray-400 italic">No products listed yet.</p>';
     const cats = ['Vegetables','Fruits','Herbs','Other'];
     const groups = {}; list.forEach(p => { (groups[p.category] = groups[p.category] || []).push(p); });
-    return cats.filter(c => groups[c]).map(c => `
+    return addBtn + cats.filter(c => groups[c]).map(c => `
       <div class="mb-3 last:mb-0">
         <p class="text-xs font-bold text-green-800 uppercase tracking-wide mb-1.5">${c} <span class="text-gray-400 font-normal">(${groups[c].length})</span></p>
         <div class="grid sm:grid-cols-2 gap-2">
@@ -900,7 +970,7 @@
               ${p.image_url ? `<img src="${p.image_url}" class="w-10 h-10 rounded object-cover flex-shrink-0" onerror="this.style.display='none'" />` : '<div class="w-10 h-10 rounded bg-green-100 flex items-center justify-center text-sm flex-shrink-0">🥬</div>'}
               <div class="flex-1 min-w-0">
                 <p class="text-xs font-semibold truncate">${p.name}</p>
-                <p class="text-[11px] text-gray-500">${rm(p.price)}/${p.unit} · ${p.quantity} ${p.unit}${p.status==='inactive' ? ' · <span class="text-red-500 font-semibold">inactive</span>' : ''}</p>
+                <p class="text-[11px] text-gray-500">${rm(p.price)}/${p.unit} · ${p.quantity} ${p.unit}${p.status==='inactive' ? ' · <span class="text-red-500 font-semibold">Unpublished</span>' : '<span class="text-green-600"> · Published</span>'}</p>
               </div>
               <button onclick="openEditProduct('${p.id}')" title="Edit" class="text-green-600 hover:bg-green-50 rounded p-1 shrink-0">✏️</button>
               <button onclick="deleteProduct('${p.id}')" title="Delete" class="text-red-500 hover:bg-red-50 rounded p-1 shrink-0">🗑️</button>
@@ -1583,13 +1653,32 @@
       sel.disabled = false;
       sel.innerHTML = (sellers && sellers.length) ? sellers.map(s=>`<option value="${s.id}">${s.farm_name||s.full_name||s.id}</option>`).join('') : '<option value="">No active sellers — add one first</option>';
     }
-    ['np-id','np-name','np-price','np-qty','np-harvest','np-desc'].forEach(id=>document.getElementById(id).value='');
+    ['np-id','np-name','np-price','np-qty','np-harvest','np-desc','np-image-url'].forEach(id=>document.getElementById(id).value='');
     document.getElementById('np-unit').value='kg'; document.getElementById('np-msg').textContent='';
     document.getElementById('np-category').value='Vegetables';
     document.getElementById('np-status').value='active';
+    document.getElementById('np-image-file').value='';
+    renderNpImage('');
     document.getElementById('addprod-title').textContent='Add Product';
     document.getElementById('np-submit-btn').textContent='Create Product';
     openAdd('addprod');
+  }
+  function renderNpImage(url) {
+    document.getElementById('np-image-preview').innerHTML = url
+      ? `<img src="${url}" class="h-24 rounded-lg border border-green-100 object-cover" onerror="this.style.display='none'" />`
+      : '<p class="text-xs text-gray-400">No image yet.</p>';
+  }
+  async function uploadProductImage(e) {
+    const file = e.target.files[0]; if (!file) return;
+    const ext = (file.name.split('.').pop() || 'png').toLowerCase();
+    const path = `admin/${Date.now()}.${ext}`;
+    showToast('Uploading image…');
+    const { error: upErr } = await sb.storage.from('mkt-product-images').upload(path, file, { upsert: true });
+    if (upErr) { showToast('Upload failed: '+upErr.message, 'error'); return; }
+    const { data: { publicUrl } } = sb.storage.from('mkt-product-images').getPublicUrl(path);
+    document.getElementById('np-image-url').value = publicUrl;
+    renderNpImage(publicUrl);
+    showToast('Image uploaded — remember to Save');
   }
   async function openEditProduct(id) {
     const { data: p } = await sb.from('mkt_products').select('*, seller:shared_profiles!seller_id(full_name,farm_name)').eq('id', id).single();
@@ -1606,6 +1695,9 @@
     document.getElementById('np-harvest').value = p.harvest_date || '';
     document.getElementById('np-desc').value = p.description || '';
     document.getElementById('np-status').value = p.status || 'active';
+    document.getElementById('np-image-url').value = p.image_url || '';
+    document.getElementById('np-image-file').value = '';
+    renderNpImage(p.image_url || '');
     document.getElementById('np-msg').textContent = '';
     document.getElementById('addprod-title').textContent = 'Edit Product';
     document.getElementById('np-submit-btn').textContent = 'Save Product';
@@ -1631,7 +1723,8 @@
       unit: document.getElementById('np-unit').value.trim()||'kg',
       quantity: parseInt(document.getElementById('np-qty').value)||0,
       harvest_date: document.getElementById('np-harvest').value || null,
-      status: document.getElementById('np-status').value
+      status: document.getElementById('np-status').value,
+      image_url: document.getElementById('np-image-url').value.trim() || null
     };
     let error;
     if (id) ({ error } = await sb.from('mkt_products').update(fields).eq('id', id));
