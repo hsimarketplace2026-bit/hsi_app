@@ -84,6 +84,7 @@
         <button onclick="switchTab('orders')"    id="tab-orders"    class="side-btn active"><span>📦</span><span>Orders</span></button>
         <button onclick="switchTab('customers')" id="tab-customers" class="side-btn"><span>🧑</span><span>Customers</span></button>
         <button onclick="switchTab('sellers')"   id="tab-sellers"   class="side-btn"><span>🌾</span><span>Sellers &amp; Products</span></button>
+        <button onclick="switchTab('reports')"   id="tab-reports"   class="side-btn"><span>📊</span><span>Reports</span></button>
         <button onclick="switchTab('points')"    id="tab-points"    class="side-btn"><span>💎</span><span>Points &amp; Membership</span></button>
         <button onclick="switchTab('settings')"  id="tab-settings"  class="side-btn"><span>⚙️</span><span>Settings</span></button>
         <button onclick="switchTab('staff')"     id="tab-staff"     class="side-btn hidden"><span>🛡️</span><span>User Access</span></button>
@@ -111,6 +112,47 @@
       <button onclick="setSellersFilter('suspended')" id="sf-suspended" class="filter-btn text-sm px-4 py-1.5 rounded-full border border-green-200 bg-white text-green-700 transition">Suspended</button>
     </div>
     <div id="sellers-list" class="space-y-3"><p class="text-gray-400 text-sm text-center py-8">Loading sellers…</p></div>
+  </div>
+
+  <!-- REPORTS -->
+  <div id="panel-reports" class="hidden">
+    <div class="flex justify-between items-center mb-4 gap-2 flex-wrap">
+      <h2 class="text-lg font-bold text-green-900">Reports</h2>
+    </div>
+    <div class="bg-white rounded-xl p-4 shadow border border-green-100 mb-5">
+      <div class="flex items-end gap-3 flex-wrap">
+        <div>
+          <label class="block text-xs text-gray-500 mb-1">From</label>
+          <input type="date" id="rep-from" class="border border-gray-300 rounded-lg px-3 py-2 text-sm" />
+        </div>
+        <div>
+          <label class="block text-xs text-gray-500 mb-1">To</label>
+          <input type="date" id="rep-to" class="border border-gray-300 rounded-lg px-3 py-2 text-sm" />
+        </div>
+        <button onclick="loadReports()" class="btn-primary text-white text-sm px-5 py-2 rounded-lg transition">Apply</button>
+        <button onclick="exportReportCSV()" class="bg-white border border-green-300 text-green-700 text-sm px-5 py-2 rounded-lg hover:bg-green-50 transition">⬇ Export CSV</button>
+        <div class="flex gap-1.5 ml-auto">
+          <button onclick="setReportRange(7)"  class="text-xs px-3 py-1.5 rounded-full border border-green-200 bg-white text-green-700 hover:bg-green-50 transition">7d</button>
+          <button onclick="setReportRange(30)" class="text-xs px-3 py-1.5 rounded-full border border-green-200 bg-white text-green-700 hover:bg-green-50 transition">30d</button>
+          <button onclick="setReportRange(90)" class="text-xs px-3 py-1.5 rounded-full border border-green-200 bg-white text-green-700 hover:bg-green-50 transition">90d</button>
+        </div>
+      </div>
+    </div>
+    <div id="rep-kpis" class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6"></div>
+    <div class="grid lg:grid-cols-2 gap-6">
+      <div class="bg-white rounded-xl p-5 shadow border border-green-100">
+        <h3 class="font-bold text-green-900 mb-3">Orders by Status</h3>
+        <div id="rep-status"></div>
+      </div>
+      <div class="bg-white rounded-xl p-5 shadow border border-green-100">
+        <h3 class="font-bold text-green-900 mb-3">Top Sellers (by sales)</h3>
+        <div id="rep-sellers"></div>
+      </div>
+      <div class="bg-white rounded-xl p-5 shadow border border-green-100 lg:col-span-2">
+        <h3 class="font-bold text-green-900 mb-3">Top Products (by quantity sold)</h3>
+        <div id="rep-products"></div>
+      </div>
+    </div>
   </div>
 
   <!-- ORDERS -->
@@ -506,10 +548,11 @@
     t.className = `toast ${type === 'error' ? 'bg-red-600' : type === 'warning' ? 'bg-amber-500' : 'bg-green-700'}`;
     t.textContent = msg; c.appendChild(t); setTimeout(() => t.remove(), 3500);
   }
-  const TABS = ['sellers','orders','payments','customers','points','coupons','promotions','announcements','settings','staff'];
-  const TAB_LABELS = { orders:'📦 Orders', customers:'🧑 Customers', sellers:'🌾 Sellers & Products', points:'💎 Points & Membership', settings:'⚙️ Settings', staff:'🛡️ User Access', payments:'💰 Payments', coupons:'🎟️ Coupons', promotions:'🏷️ Promotions', announcements:'📢 Announcements' };
+  const TABS = ['sellers','reports','orders','payments','customers','points','coupons','promotions','announcements','settings','staff'];
+  const TAB_LABELS = { orders:'📦 Orders', customers:'🧑 Customers', sellers:'🌾 Sellers & Products', reports:'📊 Reports', points:'💎 Points & Membership', settings:'⚙️ Settings', staff:'🛡️ User Access', payments:'💰 Payments', coupons:'🎟️ Coupons', promotions:'🏷️ Promotions', announcements:'📢 Announcements' };
   const MANAGEABLE_TABS = [
     ['orders','📦 Orders'],['customers','🧑 Customers'],['sellers','🌾 Sellers & Products'],
+    ['reports','📊 Reports'],
     ['points','💎 Points & Membership'],['settings','⚙️ Settings'],['payments','💰 Payments'],
     ['coupons','🎟️ Coupons'],['promotions','🏷️ Promotions'],['announcements','📢 Announcements']
   ];
@@ -524,6 +567,7 @@
     const cur = document.getElementById('sidebar-current'); if (cur) cur.textContent = TAB_LABELS[tab] || 'Menu';
     if (window.innerWidth < 640) document.getElementById('sidebar').classList.add('hidden');
     if (tab === 'sellers') loadSellers();
+    if (tab === 'reports') loadReports();
     if (tab === 'orders') loadAllOrders();
     if (tab === 'payments') loadAllPayments();
     if (tab === 'customers') loadCustomers();
@@ -687,6 +731,130 @@
     const { error } = await sb.from('shared_profiles').update({ status }).eq('id', id);
     if (error) { showToast('Update failed', 'error'); return; }
     showToast(`Seller ${status}`); loadSellers();
+  }
+
+  // ---------- REPORTS ----------
+  let reportOrders = [];
+  const PAID_STATUSES = ['payment_verified','processing','completed'];
+
+  function setReportRange(days) {
+    const to = new Date();
+    const from = new Date(); from.setDate(from.getDate() - days + 1);
+    document.getElementById('rep-to').value = to.toISOString().slice(0,10);
+    document.getElementById('rep-from').value = from.toISOString().slice(0,10);
+    loadReports();
+  }
+
+  async function loadReports() {
+    const fromEl = document.getElementById('rep-from'), toEl = document.getElementById('rep-to');
+    if (!fromEl.value || !toEl.value) {  // default to last 30 days
+      const to = new Date(), from = new Date(); from.setDate(from.getDate() - 29);
+      toEl.value = to.toISOString().slice(0,10);
+      fromEl.value = from.toISOString().slice(0,10);
+    }
+    const fromISO = new Date(fromEl.value + 'T00:00:00').toISOString();
+    const toISO   = new Date(toEl.value   + 'T23:59:59.999').toISOString();
+    document.getElementById('rep-kpis').innerHTML = '<p class="col-span-full text-gray-400 text-sm text-center py-6">Loading report…</p>';
+
+    const { data: orders } = await sb.from('mkt_orders')
+      .select('id,order_number,total_amount,status,created_at, buyer:shared_profiles!buyer_id(full_name,email), seller:shared_profiles!seller_id(full_name,farm_name)')
+      .gte('created_at', fromISO).lte('created_at', toISO)
+      .order('created_at', { ascending: false });
+    reportOrders = orders || [];
+
+    const [{ count: custCount }, { count: sellerCount }, { count: prodCount }] = await Promise.all([
+      sb.from('shared_profiles').select('id', { count: 'exact', head: true }).eq('role','buyer'),
+      sb.from('shared_profiles').select('id', { count: 'exact', head: true }).eq('role','seller').eq('status','active'),
+      sb.from('mkt_products').select('id', { count: 'exact', head: true })
+    ]);
+
+    const paid = reportOrders.filter(o => PAID_STATUSES.includes(o.status));
+    const revenue = paid.reduce((s,o) => s + Number(o.total_amount||0), 0);
+    const aov = paid.length ? revenue / paid.length : 0;
+    const pendingRev = reportOrders.filter(o => ['pending','payment_uploaded'].includes(o.status))
+      .reduce((s,o) => s + Number(o.total_amount||0), 0);
+
+    renderKpis({ revenue, paidCount: paid.length, totalCount: reportOrders.length, aov, pendingRev, custCount, sellerCount, prodCount });
+    renderStatusBreakdown(reportOrders);
+    renderTopSellers(paid);
+    await renderTopProducts(paid.map(o => o.id));
+  }
+
+  function kpiCard(label, val, sub) {
+    return `<div class="bg-white rounded-xl p-4 shadow border border-green-100">
+      <p class="text-xs text-gray-500">${label}</p>
+      <p class="text-xl font-bold text-green-900 mt-1">${val}</p>
+      ${sub ? `<p class="text-xs text-gray-400 mt-0.5">${sub}</p>` : ''}</div>`;
+  }
+  function renderKpis(k) {
+    document.getElementById('rep-kpis').innerHTML = [
+      kpiCard('Total Sales', rm(k.revenue), `${k.paidCount} paid order(s)`),
+      kpiCard('Avg Order Value', rm(k.aov), 'paid orders'),
+      kpiCard('Orders', k.totalCount, `${rm(k.pendingRev)} awaiting payment`),
+      kpiCard('Active Sellers', k.sellerCount ?? '—', `${k.prodCount ?? 0} products listed`),
+      kpiCard('Customers', k.custCount ?? '—', 'registered buyers')
+    ].join('');
+  }
+  function renderStatusBreakdown(orders) {
+    const statuses = ['pending','payment_uploaded','payment_verified','processing','completed','cancelled'];
+    const agg = {}; statuses.forEach(s => agg[s] = { c:0, amt:0 });
+    orders.forEach(o => { (agg[o.status] = agg[o.status] || { c:0, amt:0 }); agg[o.status].c++; agg[o.status].amt += Number(o.total_amount||0); });
+    const total = orders.length || 1;
+    document.getElementById('rep-status').innerHTML = statuses.map(s => {
+      const a = agg[s], pct = Math.round(a.c / total * 100);
+      return `<div class="mb-2">
+        <div class="flex justify-between text-xs mb-0.5"><span class="font-medium">${s.replace(/_/g,' ')}</span><span class="text-gray-500">${a.c} · ${rm(a.amt)}</span></div>
+        <div class="h-2 bg-green-50 rounded-full overflow-hidden"><div class="h-full bg-green-500" style="width:${pct}%"></div></div>
+      </div>`;
+    }).join('');
+  }
+  function renderTopSellers(paid) {
+    const agg = {};
+    paid.forEach(o => { const n = o.seller?.farm_name || o.seller?.full_name || 'Unknown'; (agg[n] = agg[n] || { amt:0, c:0 }); agg[n].amt += Number(o.total_amount||0); agg[n].c++; });
+    const rows = Object.entries(agg).sort((a,b) => b[1].amt - a[1].amt).slice(0,8);
+    const el = document.getElementById('rep-sellers');
+    if (!rows.length) { el.innerHTML = '<p class="text-gray-400 text-sm">No sales in this range.</p>'; return; }
+    el.innerHTML = `<table class="w-full text-sm"><tbody>${rows.map(([n,v],i) =>
+      `<tr class="border-b border-green-50"><td class="py-1.5 pr-2 text-gray-400">${i+1}</td><td class="py-1.5">${n}</td><td class="py-1.5 text-right text-gray-500">${v.c}</td><td class="py-1.5 text-right font-semibold text-green-700">${rm(v.amt)}</td></tr>`
+    ).join('')}</tbody></table>`;
+  }
+  async function renderTopProducts(paidOrderIds) {
+    const el = document.getElementById('rep-products');
+    if (!paidOrderIds.length) { el.innerHTML = '<p class="text-gray-400 text-sm">No sales in this range.</p>'; return; }
+    let items = [];
+    for (let i = 0; i < paidOrderIds.length; i += 100) {
+      const { data } = await sb.from('mkt_order_items')
+        .select('quantity,unit_price,product:mkt_products(name,unit)')
+        .in('order_id', paidOrderIds.slice(i, i+100));
+      items = items.concat(data || []);
+    }
+    const agg = {};
+    items.forEach(it => { const n = it.product?.name || 'Unknown'; (agg[n] = agg[n] || { qty:0, amt:0, unit: it.product?.unit || '' }); agg[n].qty += Number(it.quantity||0); agg[n].amt += Number(it.quantity||0) * Number(it.unit_price||0); });
+    const rows = Object.entries(agg).sort((a,b) => b[1].qty - a[1].qty).slice(0,10);
+    if (!rows.length) { el.innerHTML = '<p class="text-gray-400 text-sm">No items sold in this range.</p>'; return; }
+    el.innerHTML = `<table class="w-full text-sm">
+      <thead><tr class="text-xs text-gray-400 text-left"><th class="py-1 pr-2">#</th><th>Product</th><th class="text-right">Qty sold</th><th class="text-right">Revenue</th></tr></thead>
+      <tbody>${rows.map(([n,v],i) =>
+        `<tr class="border-b border-green-50"><td class="py-1.5 pr-2 text-gray-400">${i+1}</td><td class="py-1.5">${n}</td><td class="py-1.5 text-right text-gray-500">${v.qty} ${v.unit}</td><td class="py-1.5 text-right font-semibold text-green-700">${rm(v.amt)}</td></tr>`
+      ).join('')}</tbody></table>`;
+  }
+  function exportReportCSV() {
+    if (!reportOrders.length) { showToast('Nothing to export for this range', 'warning'); return; }
+    const headers = ['Order #','Date','Buyer','Seller','Status','Total (RM)'];
+    const rows = reportOrders.map(o => [
+      o.order_number || o.id.slice(0,8),
+      new Date(o.created_at).toLocaleString(),
+      o.buyer?.full_name || o.buyer?.email || '',
+      o.seller?.farm_name || o.seller?.full_name || '',
+      o.status,
+      Number(o.total_amount||0).toFixed(2)
+    ]);
+    const csv = [headers, ...rows].map(r => r.map(c => `"${String(c).replace(/"/g,'""')}"`).join(',')).join('\n');
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url; a.download = `hsi-report-${document.getElementById('rep-from').value}_to_${document.getElementById('rep-to').value}.csv`;
+    a.click(); URL.revokeObjectURL(url);
   }
 
   // ---------- ORDERS ----------
