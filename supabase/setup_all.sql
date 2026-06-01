@@ -579,6 +579,20 @@ create policy "Users manage own billing" on public.mkt_billing_info for all usin
 create policy "Admins read billing"      on public.mkt_billing_info for select using (public.is_admin(auth.uid()));
 
 -- ================================================================
+-- PART C — GRANTS  (PostgREST/API roles need table privileges;
+-- Row Level Security still enforces who can see/modify each row.)
+-- ================================================================
+grant usage on schema public to anon, authenticated;
+grant select, insert, update, delete on all tables    in schema public to anon, authenticated;
+grant usage, select                  on all sequences  in schema public to anon, authenticated;
+grant execute                        on all functions  in schema public to anon, authenticated;
+
+-- Make sure future objects are reachable too
+alter default privileges in schema public grant select, insert, update, delete on tables to anon, authenticated;
+alter default privileges in schema public grant usage, select on sequences to anon, authenticated;
+alter default privileges in schema public grant execute on functions to anon, authenticated;
+
+-- ================================================================
 -- DONE. Idempotent — safe to re-run.
 -- Create your admin: visit /setup/ while logged in, or run
 --   update public.shared_profiles set role='admin', status='active'
