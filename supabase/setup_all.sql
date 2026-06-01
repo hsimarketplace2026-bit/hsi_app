@@ -221,11 +221,13 @@ create policy "Buyers manage own cart" on public.mkt_cart_items for all using (a
 
 drop policy if exists "Buyers view own orders"    on public.mkt_orders;
 drop policy if exists "Buyers create orders"      on public.mkt_orders;
+drop policy if exists "Buyers update own orders"  on public.mkt_orders;
 drop policy if exists "Sellers view own orders"   on public.mkt_orders;
 drop policy if exists "Sellers update own orders" on public.mkt_orders;
 drop policy if exists "Admins manage all orders"  on public.mkt_orders;
 create policy "Buyers view own orders"    on public.mkt_orders for select using (auth.uid() = buyer_id);
 create policy "Buyers create orders"      on public.mkt_orders for insert with check (auth.uid() = buyer_id);
+create policy "Buyers update own orders"  on public.mkt_orders for update using (auth.uid() = buyer_id) with check (auth.uid() = buyer_id);
 create policy "Sellers view own orders"   on public.mkt_orders for select using (auth.uid() = seller_id);
 create policy "Sellers update own orders" on public.mkt_orders for update using (auth.uid() = seller_id);
 create policy "Admins manage all orders"  on public.mkt_orders for all   using (public.is_admin(auth.uid()));

@@ -655,7 +655,7 @@
     const STATUS_LABEL = {
       pending:          'PENDING PAYMENT SLIP',
       payment_uploaded: 'PAYMENT SLIP UPLOADED · PENDING VERIFICATION',
-      processing:       'ORDER CONFIRMED',
+      processing:       'ORDER SUCCESSFULLY',
       completed:        'ORDER COMPLETED',
       cancelled:        'CANCELLED'
     };
@@ -804,17 +804,21 @@
 
   async function submitPayment(e) {
     e.preventDefault();
+    const btn = e.target.querySelector('button[type=submit]');
+    if (btn) { btn.disabled = true; btn.textContent = 'Uploading…'; }
     const orderId = document.getElementById('pay-order-id').value;
     const method = document.getElementById('pay-method').value;
     const file = document.getElementById('pay-proof').files[0];
-    if (!file) return;
+    if (!file) { if (btn) { btn.disabled = false; btn.textContent = 'Submit Payment Slip'; } return; }
     const path = `${currentUser.id}/${orderId}/${Date.now()}-${file.name}`;
     const { error: upErr } = await sb.storage.from('mkt-payment-proofs').upload(path, file);
-    if (upErr) { showToast('Upload failed: ' + upErr.message, 'error'); return; }
+    if (upErr) { showToast('Upload failed: ' + upErr.message, 'error'); if (btn) { btn.disabled = false; btn.textContent = 'Submit Payment Slip'; } return; }
     const { data: { publicUrl } } = sb.storage.from('mkt-payment-proofs').getPublicUrl(path);
-    await sb.from('mkt_payments').insert({ order_id: orderId, buyer_id: currentUser.id, method, proof_url: publicUrl, status: 'pending' });
-    await sb.from('mkt_orders').update({ status: 'payment_uploaded' }).eq('id', orderId);
-    showToast('Payment submitted!');
+    const { error: insErr } = await sb.from('mkt_payments').insert({ order_id: orderId, buyer_id: currentUser.id, method, proof_url: publicUrl, status: 'pending' });
+    if (insErr) { showToast('Failed to save payment: ' + insErr.message, 'error'); if (btn) { btn.disabled = false; btn.textContent = 'Submit Payment Slip'; } return; }
+    const { error: updErr } = await sb.from('mkt_orders').update({ status: 'payment_uploaded' }).eq('id', orderId);
+    if (updErr) { showToast('Failed to update order: ' + updErr.message, 'error'); if (btn) { btn.disabled = false; btn.textContent = 'Submit Payment Slip'; } return; }
+    showToast('Payment slip submitted! Awaiting seller verification.');
     closePaymentModal();
     loadOrders();
   }
