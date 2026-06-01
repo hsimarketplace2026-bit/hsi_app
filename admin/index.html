@@ -104,10 +104,7 @@
   <div id="panel-sellers" class="hidden">
     <div class="flex justify-between items-center mb-4 gap-2 flex-wrap">
       <h2 class="text-lg font-bold text-green-900">Sellers &amp; Products</h2>
-      <div class="flex gap-2">
-        <button onclick="openAddSeller()" class="btn-primary text-white text-sm px-4 py-2 rounded-full transition">+ Add Seller</button>
-        <button onclick="openAddProduct()" class="bg-green-700 hover:bg-green-800 text-white text-sm px-4 py-2 rounded-full transition">+ Add Product</button>
-      </div>
+      <button onclick="openAddSeller()" class="btn-primary text-white text-sm px-4 py-2 rounded-full transition">+ Add Seller</button>
     </div>
     <div class="flex gap-2 mb-4 flex-wrap">
       <button onclick="setSellersFilter('pending')"   id="sf-pending"   class="filter-btn active text-sm px-4 py-1.5 rounded-full border border-green-200 transition">Pending</button>
@@ -627,6 +624,7 @@
             <p class="text-xs text-gray-500">${s.farm_name || 'No farm name'} — ${s.farm_location || 'No location'}</p>
           </div>
           <div class="flex gap-2 flex-wrap">
+            <button onclick="openAddProduct('${s.id}','${(s.farm_name||s.full_name||'Seller').replace(/'/g,'’')}')" class="bg-green-700 hover:bg-green-800 text-white text-xs px-3 py-1.5 rounded-full transition">+ Product</button>
             ${s.status === 'pending' ? `<button onclick="updateSellerStatus('${s.id}','active')" class="btn-primary text-white text-xs px-3 py-1.5 rounded-full transition">Approve</button><button onclick="updateSellerStatus('${s.id}','suspended')" class="bg-red-50 text-red-600 text-xs px-3 py-1.5 rounded-full transition">Reject</button>` : ''}
             ${s.status === 'active' ? `<button onclick="updateSellerStatus('${s.id}','suspended')" class="bg-red-50 text-red-600 text-xs px-3 py-1.5 rounded-full transition">Suspend</button>` : ''}
             ${s.status === 'suspended' ? `<button onclick="updateSellerStatus('${s.id}','active')" class="btn-primary text-white text-xs px-3 py-1.5 rounded-full transition">Reinstate</button>` : ''}
@@ -1107,10 +1105,16 @@
   }
 
   // ---- Add Product ----
-  async function openAddProduct() {
-    const { data: sellers } = await sb.from('shared_profiles').select('id,full_name,farm_name').eq('role','seller').eq('status','active').order('created_at');
+  async function openAddProduct(sellerId, sellerName) {
     const sel = document.getElementById('np-seller');
-    sel.innerHTML = (sellers && sellers.length) ? sellers.map(s=>`<option value="${s.id}">${s.farm_name||s.full_name||s.id}</option>`).join('') : '<option value="">No active sellers — add one first</option>';
+    if (sellerId) {
+      sel.innerHTML = `<option value="${sellerId}">${sellerName || sellerId}</option>`;
+      sel.value = sellerId; sel.disabled = true;
+    } else {
+      const { data: sellers } = await sb.from('shared_profiles').select('id,full_name,farm_name').eq('role','seller').eq('status','active').order('created_at');
+      sel.disabled = false;
+      sel.innerHTML = (sellers && sellers.length) ? sellers.map(s=>`<option value="${s.id}">${s.farm_name||s.full_name||s.id}</option>`).join('') : '<option value="">No active sellers — add one first</option>';
+    }
     ['np-name','np-price','np-qty','np-harvest','np-desc'].forEach(id=>document.getElementById(id).value='');
     document.getElementById('np-unit').value='kg'; document.getElementById('np-msg').textContent='';
     openAdd('addprod');
@@ -1130,7 +1134,7 @@
       harvest_date: document.getElementById('np-harvest').value || null
     });
     if (error) { msg.className='text-xs text-red-600'; msg.textContent='Failed: '+error.message; return; }
-    showToast('Product added'); closeAdd('addprod');
+    showToast('Product added'); closeAdd('addprod'); loadSellers();
   }
 
   // ---- Add Order ----
