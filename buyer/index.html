@@ -235,6 +235,24 @@
 
   <!-- ORDERS TAB -->
   <div id="panel-orders" class="hidden">
+    <div class="grid grid-cols-4 gap-1.5 mb-4">
+      <button onclick="setOrderView('pending')" id="ordview-pending"
+        class="py-2 px-1 text-xs font-semibold rounded-lg bg-green-600 text-white transition text-center">
+        💰 To Pay<span id="badge-pending" class="ml-1 hidden bg-white text-green-700 text-xs font-bold rounded-full px-1.5 py-0.5"></span>
+      </button>
+      <button onclick="setOrderView('payment_uploaded')" id="ordview-payment_uploaded"
+        class="py-2 px-1 text-xs font-semibold rounded-lg bg-white border border-green-200 text-green-700 transition text-center">
+        💳 Paid<span id="badge-payment_uploaded" class="ml-1 hidden bg-teal-100 text-teal-700 text-xs font-bold rounded-full px-1.5 py-0.5"></span>
+      </button>
+      <button onclick="setOrderView('processing')" id="ordview-processing"
+        class="py-2 px-1 text-xs font-semibold rounded-lg bg-white border border-green-200 text-green-700 transition text-center">
+        🚚 In Delivery<span id="badge-processing" class="ml-1 hidden bg-sky-100 text-sky-700 text-xs font-bold rounded-full px-1.5 py-0.5"></span>
+      </button>
+      <button onclick="setOrderView('completed')" id="ordview-completed"
+        class="py-2 px-1 text-xs font-semibold rounded-lg bg-white border border-green-200 text-green-700 transition text-center">
+        ✅ Completed
+      </button>
+    </div>
     <div id="orders-list" class="space-y-4">
       <p class="text-gray-400 text-sm text-center py-8">Loading orders…</p>
     </div>
@@ -382,6 +400,19 @@
     if (tab === 'cart') loadCart();
     if (tab === 'orders') loadOrders();
     if (tab === 'profile') { loadProfile(); loadBilling(); }
+  }
+
+  let orderView = 'pending';
+  function setOrderView(v) {
+    orderView = v;
+    ['pending','payment_uploaded','processing','completed'].forEach(s => {
+      const btn = document.getElementById('ordview-' + s);
+      if (!btn) return;
+      btn.className = `py-2 px-1 text-xs font-semibold rounded-lg transition text-center ${
+        s === v ? 'bg-green-600 text-white' : 'bg-white border border-green-200 text-green-700'
+      }`;
+    });
+    loadOrders();
   }
 
   function toggleCart() { switchTab('cart'); }
@@ -648,8 +679,33 @@
       .eq('buyer_id', currentUser.id)
       .order('created_at', { ascending: false });
     const listEl = document.getElementById('orders-list');
-    if (!orders || orders.length === 0) {
-      listEl.innerHTML = '<p class="text-gray-400 text-sm text-center py-8">No orders yet.</p>';
+    const allOrders = orders || [];
+
+    // Normalize effective status: a not-yet-rejected slip on a pending order = payment_uploaded
+    allOrders.forEach(o => {
+      const hasPendingSlip = (o.payments || []).some(p => p.proof_url && p.status !== 'rejected');
+      if (o.status === 'pending' && hasPendingSlip) o.status = 'payment_uploaded';
+    });
+
+    // Tab badges (counts per status)
+    const counts = { pending:0, payment_uploaded:0, processing:0, completed:0 };
+    allOrders.forEach(o => { if (counts[o.status] !== undefined) counts[o.status]++; });
+    ['pending','payment_uploaded','processing'].forEach(k => {
+      const b = document.getElementById('badge-' + k);
+      if (!b) return;
+      if (counts[k] > 0) { b.textContent = counts[k]; b.classList.remove('hidden'); }
+      else b.classList.add('hidden');
+    });
+
+    const orders_ = allOrders.filter(o => o.status === orderView);
+    const emptyMsgs = {
+      pending: 'No orders awaiting payment.',
+      payment_uploaded: 'No orders pending verification.',
+      processing: 'No orders in delivery.',
+      completed: 'No completed orders yet.'
+    };
+    if (orders_.length === 0) {
+      listEl.innerHTML = `<p class="text-gray-400 text-sm text-center py-8">${emptyMsgs[orderView] || 'No orders yet.'}</p>`;
       return;
     }
     const STATUS_LABEL = {
@@ -659,7 +715,7 @@
       completed:        'ORDER COMPLETED',
       cancelled:        'CANCELLED'
     };
-    listEl.innerHTML = orders.map(o => {
+    listEl.innerHTML = orders_.map(o => {
       // Determine latest payment to reflect verification state
       const payments = (o.payments || []).slice().sort((a,b) =>
         new Date(b.created_at || 0) - new Date(a.created_at || 0));
