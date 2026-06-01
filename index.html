@@ -109,6 +109,11 @@
     <div class="flex items-center gap-3">
       <button id="lang-toggle" onclick="toggleLang()" class="text-green-200 hover:text-white border border-green-700 hover:border-green-400 text-xs px-2.5 py-1 rounded-full font-semibold transition">BM</button>
       <button id="nav-auth-btn" onclick="openAuth()" class="btn-primary text-white text-sm px-4 py-1.5 rounded-full font-medium transition" data-i18n="nav.login_register">Login / Register</button>
+      <!-- CART (shown when logged in) -->
+      <button id="nav-cart-btn" onclick="toggleCart()" class="hidden relative btn-primary p-2 rounded-full" aria-label="Cart" title="Cart">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-1.5 6h13M10 19a1 1 0 100 2 1 1 0 000-2zm7 0a1 1 0 100 2 1 1 0 000-2z"/></svg>
+        <span id="cart-badge" class="hidden absolute -top-1 -right-1 bg-red-500 text-white text-xs font-bold w-5 h-5 rounded-full flex items-center justify-center">0</span>
+      </button>
       <!-- USER MENU (shown when logged in) -->
       <div id="nav-user-menu" class="hidden relative">
         <button id="nav-user-btn" onclick="toggleUserMenu()" class="btn-primary text-white text-sm px-4 py-1.5 rounded-full font-medium transition flex items-center gap-1.5">
@@ -135,6 +140,28 @@
     </div>
   </div>
 </nav>
+
+<!-- CART DRAWER -->
+<div id="cart-overlay" class="hidden fixed inset-0 bg-black bg-opacity-30 z-40" onclick="toggleCart()"></div>
+<div id="cart-sidebar" class="fixed top-0 right-0 h-full w-full max-w-sm bg-white z-50 shadow-2xl transform translate-x-full transition-transform overflow-y-auto">
+  <div class="p-5">
+    <div class="flex items-center justify-between mb-5">
+      <h3 class="text-xl font-bold text-green-900">Your Cart</h3>
+      <button onclick="toggleCart()" class="text-gray-400 hover:text-gray-600 text-2xl">&times;</button>
+    </div>
+    <div id="cart-items-list">
+      <p class="text-gray-400 text-sm text-center py-10">Your cart is empty.</p>
+    </div>
+    <div id="cart-footer" class="hidden border-t border-green-100 pt-4 mt-4">
+      <div class="flex justify-between font-bold text-green-900 mb-4">
+        <span>Total</span>
+        <span id="cart-total">RM 0.00</span>
+      </div>
+      <a href="marketplace/" class="block w-full border-2 border-green-600 text-green-700 hover:bg-green-50 font-semibold py-2.5 rounded-xl text-center transition mb-2">Continue Shopping</a>
+      <a href="buyer/" class="block w-full btn-primary text-white font-semibold py-3 rounded-xl text-center transition">Go to Checkout</a>
+    </div>
+  </div>
+</div>
 
 <!-- HERO -->
 <section class="hero-gradient text-white">
@@ -670,11 +697,56 @@
     document.getElementById('nav-auth-btn').classList.add('hidden');
     document.getElementById('lang-toggle').classList.add('hidden');
     document.getElementById('nav-user-menu').classList.remove('hidden');
+    document.getElementById('nav-cart-btn').classList.remove('hidden');
     const { data: profile } = await sb.from('shared_profiles')
       .select('full_name').eq('id', session.user.id).single();
     currentUserName = (profile?.full_name || session.user.email || '').trim();
     updateGreeting();
     updateLangChecks();
+    updateCartBadge();
+  }
+
+  // CART (view-anytime drawer)
+  let cartOpen = false;
+  function toggleCart() {
+    cartOpen = !cartOpen;
+    document.getElementById('cart-sidebar').classList.toggle('translate-x-full', !cartOpen);
+    document.getElementById('cart-overlay').classList.toggle('hidden', !cartOpen);
+    if (cartOpen) loadCart();
+  }
+  async function updateCartBadge() {
+    const { data: { session } } = await sb.auth.getSession();
+    const badge = document.getElementById('cart-badge');
+    if (!session) { badge.classList.add('hidden'); return; }
+    const { count } = await sb.from('mkt_cart_items').select('id', { count: 'exact', head: true }).eq('buyer_id', session.user.id);
+    if (count && count > 0) { badge.textContent = count; badge.classList.remove('hidden'); }
+    else badge.classList.add('hidden');
+  }
+  async function loadCart() {
+    const { data: { session } } = await sb.auth.getSession();
+    if (!session) return;
+    const { data: items } = await sb.from('mkt_cart_items')
+      .select('*, products:mkt_products(name, price, unit)')
+      .eq('buyer_id', session.user.id);
+    const list = document.getElementById('cart-items-list');
+    const footer = document.getElementById('cart-footer');
+    if (!items || items.length === 0) {
+      list.innerHTML = '<p class="text-gray-400 text-sm text-center py-10">Your cart is empty.</p>';
+      footer.classList.add('hidden');
+      return;
+    }
+    const total = items.reduce((s, i) => s + (i.quantity * parseFloat(i.products?.price || 0)), 0);
+    list.innerHTML = items.map(i => `
+      <div class="flex items-center gap-3 py-3 border-b border-green-50">
+        <div class="flex-1 min-w-0">
+          <p class="text-sm font-medium truncate">${i.products?.name}</p>
+          <p class="text-xs text-gray-500">RM ${parseFloat(i.products?.price).toFixed(2)} / ${i.products?.unit}</p>
+        </div>
+        <span class="text-sm font-semibold">×${i.quantity}</span>
+        <span class="text-green-700 text-sm font-bold">RM ${(i.quantity * parseFloat(i.products?.price || 0)).toFixed(2)}</span>
+      </div>`).join('');
+    document.getElementById('cart-total').textContent = `RM ${total.toFixed(2)}`;
+    footer.classList.remove('hidden');
   }
 
   function updateGreeting() {
