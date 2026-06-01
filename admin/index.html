@@ -77,9 +77,9 @@
 <div class="max-w-7xl mx-auto px-3 sm:px-4 py-4 sm:py-6">
   <button onclick="toggleSidebar()" class="sm:hidden mb-3 flex items-center gap-2 bg-white border border-green-200 text-green-800 font-semibold text-sm px-4 py-2 rounded-xl shadow-sm">☰ <span id="sidebar-current">Menu</span></button>
 
-  <div class="flex gap-4 sm:gap-6">
+  <div class="flex flex-col sm:flex-row gap-4 sm:gap-6">
     <!-- SIDEBAR -->
-    <aside id="sidebar" class="hidden sm:block w-60 flex-shrink-0">
+    <aside id="sidebar" class="hidden sm:block w-full sm:w-60 flex-shrink-0">
       <nav class="bg-white rounded-2xl shadow border border-green-100 p-2 sm:sticky sm:top-20 space-y-0.5">
         <button onclick="switchTab('orders')"    id="tab-orders"    class="side-btn active"><span>📦</span><span>Orders</span></button>
         <button onclick="switchTab('customers')" id="tab-customers" class="side-btn"><span>🧑</span><span>Customers</span></button>
@@ -197,7 +197,7 @@
         <div><label class="block text-gray-600 mb-1">= RM discount (redeem_rm)</label><input id="set-redeem-rm" type="number" min="0.01" step="0.01" class="w-full border border-gray-300 rounded-lg px-3 py-2" /></div>
       </div>
       <p id="pts-summary" class="text-xs text-gray-500 mt-3"></p>
-      <button onclick="savePointsConfig()" class="mt-4 btn-primary text-white font-semibold px-5 py-2 rounded-lg text-sm transition">Save Loyalty</button>
+      <div class="mt-4 flex justify-end"><button onclick="savePointsConfig()" class="btn-primary text-white font-semibold px-5 py-2 rounded-lg text-sm transition">Save</button></div>
     </div>
 
     <div class="bg-white rounded-xl p-6 shadow border border-green-100">
@@ -206,7 +206,7 @@
         <button onclick="addTierRow()" class="text-sm text-green-600 hover:underline">+ Add tier</button>
       </div>
       <div id="tiers-rows" class="space-y-2"></div>
-      <button onclick="saveTiers()" class="mt-4 btn-primary text-white font-semibold px-5 py-2 rounded-lg text-sm transition">Save Tiers</button>
+      <div class="mt-4 flex justify-end"><button onclick="saveTiers()" class="btn-primary text-white font-semibold px-5 py-2 rounded-lg text-sm transition">Save</button></div>
     </div>
   </div>
 
@@ -254,7 +254,6 @@
             <svg id="pay-offline-chevron" class="w-5 h-5 text-green-700 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
           </button>
           <div id="pay-offline-body" class="hidden px-4 py-4 space-y-4 text-sm">
-            <label class="flex items-center gap-2"><input type="checkbox" id="set-offline-enabled" class="accent-green-600" /> Enable offline bank transfer (buyers upload payment proof)</label>
             <div>
               <h4 class="font-bold text-green-900 mb-3">Bank Details</h4>
               <div class="grid sm:grid-cols-2 gap-3">
@@ -287,7 +286,7 @@
         </div>
 
       </div>
-      <button onclick="savePaymentConfig()" class="mt-4 btn-primary text-white font-semibold px-5 py-2 rounded-lg text-sm transition">Save</button>
+      <div class="mt-4 flex justify-end"><button onclick="savePaymentConfig()" class="btn-primary text-white font-semibold px-5 py-2 rounded-lg text-sm transition">Save</button></div>
     </div>
     <div class="bg-white rounded-xl p-6 shadow border border-green-100">
       <h3 class="text-lg font-bold text-green-900 mb-4">Email Notifications</h3>
@@ -297,7 +296,7 @@
       </div>
       <label class="block text-gray-600 text-sm mt-3 mb-1">Admin emails (CC, comma-separated)</label>
       <input id="set-admin-emails" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm" />
-      <button onclick="saveNotifConfig()" class="mt-4 btn-primary text-white font-semibold px-5 py-2 rounded-lg text-sm transition">Save Notifications</button>
+      <div class="mt-4 flex justify-end"><button onclick="saveNotifConfig()" class="btn-primary text-white font-semibold px-5 py-2 rounded-lg text-sm transition">Save</button></div>
     </div>
   </div>
 
@@ -1180,7 +1179,6 @@
     updatePtsSummary();
     const tiers = await getSetting('member_tiers', []); window.MEMBER_TIERS = tiers; renderTierRows(tiers);
     const pay = await getSetting('payment_config', { online_enabled:false, offline_enabled:true });
-    document.getElementById('set-offline-enabled').checked = pay.offline_enabled !== false;
     document.getElementById('set-bank-name').value = pay.bank_name||'';
     document.getElementById('set-bank-holder').value = pay.account_holder||'';
     document.getElementById('set-bank-account').value = pay.bank_account||'';
@@ -1250,7 +1248,7 @@
   }
   async function savePaymentConfig() {
     const err = await setSetting('payment_config', {
-      offline_enabled: document.getElementById('set-offline-enabled').checked,
+      offline_enabled: true,
       online_enabled: false,
       bank_name: document.getElementById('set-bank-name').value.trim(),
       account_holder: document.getElementById('set-bank-holder').value.trim(),
