@@ -1,0 +1,9 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="384" height="384">
+<defs>
+<linearGradient id="gT" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#86efac"/><stop offset="1" stop-color="#4ade80"/></linearGradient>
+<linearGradient id="gB" x1="1" y1="1" x2="0" y2="0"><stop offset="0" stop-color="#16a34a"/><stop offset="1" stop-color="#22c55e"/></linearGradient>
+</defs><rect width="200" height="200" rx="38" fill="#14532d"/>
+<g transform="rotate(180 100 92)"><path d="M40,118 C40,150 160,150 160,118 C158,134 42,134 40,118 Z" fill="url(#gB)"/><circle cx="62" cy="118" r="9" fill="url(#gB)"/><circle cx="86" cy="118" r="9" fill="url(#gB)"/><circle cx="110" cy="118" r="9" fill="url(#gB)"/><circle cx="134" cy="118" r="9" fill="url(#gB)"/><ellipse cx="42" cy="124" rx="8" ry="13" fill="url(#gB)" transform="rotate(-25 42 124)"/></g>
+<g transform="translate(0,2)"><path d="M40,118 C40,150 160,150 160,118 C158,134 42,134 40,118 Z" fill="url(#gB)"/><circle cx="62" cy="118" r="9" fill="url(#gB)"/><circle cx="86" cy="118" r="9" fill="url(#gB)"/><circle cx="110" cy="118" r="9" fill="url(#gB)"/><circle cx="134" cy="118" r="9" fill="url(#gB)"/><ellipse cx="42" cy="124" rx="8" ry="13" fill="url(#gB)" transform="rotate(-25 42 124)"/></g>
+<path d="M100,108 C100,92 100,78 100,66" stroke="#14532d" stroke-width="4" fill="none" stroke-linecap="round" opacity="0.0"/><path d="M100,104 C88,96 80,80 86,66 C96,74 102,88 100,104 Z" fill="url(#gT)"/><path d="M100,104 C112,96 120,80 114,66 C104,74 98,88 100,104 Z" fill="url(#gT)"/>
+</svg>

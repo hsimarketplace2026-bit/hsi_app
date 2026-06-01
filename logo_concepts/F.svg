@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="384" height="384">
+<defs>
+<linearGradient id="gT" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#86efac"/><stop offset="1" stop-color="#4ade80"/></linearGradient>
+<linearGradient id="gB" x1="1" y1="1" x2="0" y2="0"><stop offset="0" stop-color="#16a34a"/><stop offset="1" stop-color="#22c55e"/></linearGradient>
+</defs><rect width="200" height="200" rx="38" fill="#14532d"/>
+<g fill="url(#gT)"><path d="M100,100 C93,73 104,46 132,41 C150,38 168,44 174,40 C171,55 162,66 153,76 C146,93 126,104 112,102 C108,101 103,101 100,100 Z"/><path d="M112,102 C118,108 116,116 108,116 C104,112 105,105 112,102 Z"/></g>
+<g fill="none"><path d="M120,98 C134,86 146,74 156,62" stroke="#14532d" stroke-width="2.4" fill="none" stroke-linecap="round" opacity="0.42"/><path d="M118,99 C128,92 136,88 144,86" stroke="#14532d" stroke-width="2.4" fill="none" stroke-linecap="round" opacity="0.42"/><path d="M122,96 C134,90 144,86 152,80" stroke="#14532d" stroke-width="2.4" fill="none" stroke-linecap="round" opacity="0.42"/></g>
+<g transform="rotate(180 100 100)">
+  <g fill="url(#gB)"><path d="M100,100 C93,73 104,46 132,41 C150,38 168,44 174,40 C171,55 162,66 153,76 C146,93 126,104 112,102 C108,101 103,101 100,100 Z"/><path d="M112,102 C118,108 116,116 108,116 C104,112 105,105 112,102 Z"/></g>
+  <g fill="none"><path d="M120,98 C134,86 146,74 156,62" stroke="#14532d" stroke-width="2.4" fill="none" stroke-linecap="round" opacity="0.42"/><path d="M118,99 C128,92 136,88 144,86" stroke="#14532d" stroke-width="2.4" fill="none" stroke-linecap="round" opacity="0.42"/><path d="M122,96 C134,90 144,86 152,80" stroke="#14532d" stroke-width="2.4" fill="none" stroke-linecap="round" opacity="0.42"/></g>
+</g>
+</svg>

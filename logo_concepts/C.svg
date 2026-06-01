@@ -1,0 +1,21 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="192" height="192">
+<defs>
+<linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+<stop offset="0" stop-color="#4ade80"/><stop offset="1" stop-color="#16a34a"/>
+</linearGradient>
+<linearGradient id="g2" x1="0" y1="0" x2="0" y2="1">
+<stop offset="0" stop-color="#86efac"/><stop offset="1" stop-color="#22c55e"/>
+</linearGradient>
+</defs>
+<rect width="200" height="200" rx="38" fill="#14532d"/>
+
+<path d="M100,98 C96,70 108,44 138,42 C162,40 178,56 174,80 C171,98 156,108 134,108 C118,108 108,104 100,98 Z" fill="url(#g)"/>
+<path d="M100,102 C104,130 92,156 62,158 C38,160 22,144 26,120 C29,102 44,92 66,92 C82,92 92,96 100,102 Z" fill="url(#g2)"/>
+<!-- leaf tips -->
+<path d="M138,42 C150,30 162,26 172,22 C168,34 160,44 150,50 Z" fill="#86efac"/>
+<path d="M62,158 C50,170 38,174 28,178 C32,166 40,156 50,150 Z" fill="#16a34a"/>
+<!-- center vein curving through both -->
+<path d="M150,52 C120,66 116,86 110,100 C104,114 100,134 70,148"
+      fill="none" stroke="#14532d" stroke-width="3.5" opacity="0.4" stroke-linecap="round"/>
+
+</svg>
