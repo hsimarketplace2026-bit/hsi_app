@@ -301,12 +301,14 @@
   }
 
   function ratingStarsHTML(avg, count) {
-    const a = Number(avg) || 0;
+    const a = Math.max(0, Math.min(5, Number(avg) || 0));
     const c = Number(count) || 0;
     if (c < 1) return '<span class="text-gray-400">No ratings yet</span>';
-    const full = Math.round(a);
-    const stars = '★'.repeat(full) + '☆'.repeat(5 - full);
-    return `<span class="text-amber-500">${stars}</span> <span class="text-gray-500">${a.toFixed(1)} (${c})</span>`;
+    const pct = (a / 5) * 100;
+    return `<span class="relative inline-block align-middle leading-none" aria-label="${a.toFixed(1)} out of 5">`
+      + `<span class="text-gray-300">★★★★★</span>`
+      + `<span class="text-amber-500 absolute inset-0 overflow-hidden whitespace-nowrap" style="width:${pct}%">★★★★★</span>`
+      + `</span> <span class="text-gray-500 align-middle">${a.toFixed(1)} (${c})</span>`;
   }
 
   function openModal(id) {
