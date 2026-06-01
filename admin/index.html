@@ -46,11 +46,11 @@
   (async () => {
     const { data: { session } } = await sb.auth.getSession();
     if (!session) { window.location.href = '../'; return; }
-    const { data: profile } = await sb.from('profiles').select('*').eq('id', session.user.id).single();
+    const { data: profile } = await sb.from('shared_profiles').select('*').eq('id', session.user.id).single();
     if (!profile || profile.role !== 'admin') { window.location.href = '../'; return; }
     currentUser = { ...session.user, ...profile };
     document.getElementById('admin-name').textContent = profile.full_name || session.user.email;
-    try { await sb.rpc('release_abandoned_orders'); } catch (_) {}
+    try { await sb.rpc('mkt_release_abandoned_orders'); } catch (_) {}
     loadSellers();
   })();
 </script>
@@ -328,11 +328,11 @@
     loadSellers();
   }
   async function loadSellers() {
-    const { data: sellers } = await sb.from('profiles').select('*').eq('role','seller').eq('status', sellersFilter).order('created_at',{ascending:false});
+    const { data: sellers } = await sb.from('shared_profiles').select('*').eq('role','seller').eq('status', sellersFilter).order('created_at',{ascending:false});
     const el = document.getElementById('sellers-list');
     if (!sellers || sellers.length === 0) { el.innerHTML = `<p class="text-gray-400 text-sm text-center py-8">No ${sellersFilter} sellers.</p>`; return; }
     const ids = sellers.map(s=>s.id);
-    const { data: prods } = await sb.from('products').select('seller_id').in('seller_id', ids);
+    const { data: prods } = await sb.from('mkt_products').select('seller_id').in('seller_id', ids);
     const counts = {}; (prods||[]).forEach(p => counts[p.seller_id] = (counts[p.seller_id]||0)+1);
     el.innerHTML = sellers.map(s => `
       <div class="bg-white rounded-xl p-4 shadow border border-green-100 flex items-center gap-4 flex-wrap">
@@ -349,7 +349,7 @@
       </div>`).join('');
   }
   async function updateSellerStatus(id, status) {
-    const { error } = await sb.from('profiles').update({ status }).eq('id', id);
+    const { error } = await sb.from('shared_profiles').update({ status }).eq('id', id);
     if (error) { showToast('Update failed', 'error'); return; }
     showToast(`Seller ${status}`); loadSellers();
   }
@@ -367,7 +367,7 @@
     loadAllOrders();
   }
   async function loadAllOrders() {
-    let q = sb.from('orders').select('*, buyer:profiles!orders_buyer_id_fkey(full_name,email), seller:profiles!orders_seller_id_fkey(full_name,farm_name)').order('created_at',{ascending:false});
+    let q = sb.from('mkt_orders').select('*, buyer:shared_profiles!buyer_id(full_name,email), seller:shared_profiles!seller_id(full_name,farm_name)').order('created_at',{ascending:false});
     if (ordersFilter !== 'all') q = q.eq('status', ordersFilter);
     const { data: orders } = await q;
     const el = document.getElementById('orders-list');
@@ -385,13 +385,13 @@
   }
   async function cancelOrder(id) {
     if (!confirm('Cancel this order?')) return;
-    await sb.from('orders').update({ status: 'cancelled' }).eq('id', id);
+    await sb.from('mkt_orders').update({ status: 'cancelled' }).eq('id', id);
     showToast('Order cancelled', 'warning'); loadAllOrders();
   }
 
   // ---------- PAYMENTS ----------
   async function loadAllPayments() {
-    const { data: payments } = await sb.from('payments').select('*, orders(total_amount,status,order_number), profiles!payments_buyer_id_fkey(full_name,email)').order('created_at',{ascending:false});
+    const { data: payments } = await sb.from('mkt_payments').select('*, orders:mkt_orders(total_amount,status,order_number), profiles:shared_profiles!buyer_id(full_name,email)').order('created_at',{ascending:false});
     const el = document.getElementById('payments-list');
     if (!payments || payments.length === 0) { el.innerHTML = '<p class="text-gray-400 text-sm text-center py-8">No payments.</p>'; return; }
     const sorted = [...payments].sort((a,b) => (a.status==='pending'?-1:1));
@@ -410,24 +410,24 @@
       </div>`).join('');
   }
   async function verifyPayment(paymentId, orderId) {
-    await sb.from('payments').update({ status: 'verified' }).eq('id', paymentId);
-    const { data: ord } = await sb.from('orders').select('total_amount').eq('id', orderId).single();
-    await sb.from('orders').update({ status: 'payment_verified', amount_paid: ord?ord.total_amount:undefined, amount_paid_at: new Date().toISOString() }).eq('id', orderId);
-    try { await sb.rpc('award_order_points', { p_order_id: orderId }); } catch (_) {}
+    await sb.from('mkt_payments').update({ status: 'verified' }).eq('id', paymentId);
+    const { data: ord } = await sb.from('mkt_orders').select('total_amount').eq('id', orderId).single();
+    await sb.from('mkt_orders').update({ status: 'payment_verified', amount_paid: ord?ord.total_amount:undefined, amount_paid_at: new Date().toISOString() }).eq('id', orderId);
+    try { await sb.rpc('mkt_award_order_points', { p_order_id: orderId }); } catch (_) {}
     showToast('Payment verified — points awarded!'); loadAllPayments();
   }
   async function rejectPayment(paymentId, orderId) {
     const notes = prompt('Rejection reason (optional):');
-    await sb.from('payments').update({ status: 'rejected', admin_notes: notes || null }).eq('id', paymentId);
-    await sb.from('orders').update({ status: 'pending' }).eq('id', orderId);
+    await sb.from('mkt_payments').update({ status: 'rejected', admin_notes: notes || null }).eq('id', paymentId);
+    await sb.from('mkt_orders').update({ status: 'pending' }).eq('id', orderId);
     showToast('Payment rejected', 'warning'); loadAllPayments();
   }
 
   // ---------- CUSTOMERS ----------
   let allCustomers = [];
   async function loadCustomers() {
-    const { data: buyers } = await sb.from('profiles').select('*').eq('role','buyer').order('created_at',{ascending:false});
-    const { data: balances } = await sb.from('customer_points_balance').select('*');
+    const { data: buyers } = await sb.from('shared_profiles').select('*').eq('role','buyer').order('created_at',{ascending:false});
+    const { data: balances } = await sb.from('mkt_customer_points_balance').select('*');
     const balMap = {}; (balances||[]).forEach(b => balMap[b.user_id] = b);
     allCustomers = (buyers||[]).map(b => ({ ...b, pts: balMap[b.id] || { balance:0, lifetime_earned:0 } }));
     renderCustomers();
@@ -459,14 +459,14 @@
     const v = prompt('Adjust points by (use negative to deduct):');
     if (v === null) return;
     const change = parseInt(v); if (isNaN(change) || change === 0) return;
-    const { error } = await sb.from('points_ledger').insert({ user_id: userId, change, type:'Adjusted', note:'Admin adjustment', created_by: currentUser.email });
+    const { error } = await sb.from('mkt_points_ledger').insert({ user_id: userId, change, type:'Adjusted', note:'Admin adjustment', created_by: currentUser.email });
     if (error) { showToast('Failed: '+error.message, 'error'); return; }
     showToast('Points adjusted'); loadCustomers();
   }
 
   // ---------- COUPONS ----------
   async function loadCoupons() {
-    const { data } = await sb.from('coupons').select('*').order('created_at',{ascending:false});
+    const { data } = await sb.from('mkt_coupons').select('*').order('created_at',{ascending:false});
     const el = document.getElementById('coupons-list');
     if (!data || !data.length) { el.innerHTML = '<p class="text-gray-400 text-sm text-center py-8">No coupons yet.</p>'; return; }
     const today = new Date().toISOString().slice(0,10);
@@ -504,7 +504,7 @@
   }
   function closeCouponModal(){ document.getElementById('coupon-modal').classList.add('hidden'); }
   async function editCoupon(id) {
-    const { data: c } = await sb.from('coupons').select('*').eq('id',id).single(); if(!c) return;
+    const { data: c } = await sb.from('mkt_coupons').select('*').eq('id',id).single(); if(!c) return;
     document.getElementById('coupon-modal-title').textContent='Edit Coupon';
     document.getElementById('coupon-id').value=c.id;
     document.getElementById('coupon-code').value=c.code;
@@ -539,17 +539,17 @@
       first_order_only: document.getElementById('coupon-first').checked
     };
     let error;
-    if (id) ({error} = await sb.from('coupons').update(payload).eq('id',id));
-    else ({error} = await sb.from('coupons').insert(payload));
+    if (id) ({error} = await sb.from('mkt_coupons').update(payload).eq('id',id));
+    else ({error} = await sb.from('mkt_coupons').insert(payload));
     if (error) { showToast('Save failed: '+error.message,'error'); return; }
     showToast('Coupon saved'); closeCouponModal(); loadCoupons();
   }
-  async function toggleCoupon(id, active){ await sb.from('coupons').update({is_active:!active}).eq('id',id); loadCoupons(); }
-  async function deleteCoupon(id){ if(!confirm('Delete coupon?'))return; await sb.from('coupons').delete().eq('id',id); loadCoupons(); }
+  async function toggleCoupon(id, active){ await sb.from('mkt_coupons').update({is_active:!active}).eq('id',id); loadCoupons(); }
+  async function deleteCoupon(id){ if(!confirm('Delete coupon?'))return; await sb.from('mkt_coupons').delete().eq('id',id); loadCoupons(); }
 
   // ---------- PROMOTIONS ----------
   async function loadPromotions() {
-    const { data } = await sb.from('promotions').select('*').order('priority',{ascending:false});
+    const { data } = await sb.from('mkt_promotions').select('*').order('priority',{ascending:false});
     const el = document.getElementById('promotions-list');
     if (!data || !data.length) { el.innerHTML = '<p class="text-gray-400 text-sm text-center py-8">No promotions yet.</p>'; return; }
     el.innerHTML = data.map(p => `
@@ -575,7 +575,7 @@
   }
   function closePromoModal(){ document.getElementById('promo-modal').classList.add('hidden'); }
   async function editPromo(id) {
-    const { data: p } = await sb.from('promotions').select('*').eq('id',id).single(); if(!p) return;
+    const { data: p } = await sb.from('mkt_promotions').select('*').eq('id',id).single(); if(!p) return;
     document.getElementById('promo-modal-title').textContent='Edit Promotion';
     document.getElementById('promo-id').value=p.id;
     document.getElementById('promo-title').value=p.title;
@@ -610,16 +610,16 @@
       priority: parseInt(document.getElementById('promo-priority').value)||0
     };
     let error;
-    if (id) ({error} = await sb.from('promotions').update(payload).eq('id',id));
-    else ({error} = await sb.from('promotions').insert(payload));
+    if (id) ({error} = await sb.from('mkt_promotions').update(payload).eq('id',id));
+    else ({error} = await sb.from('mkt_promotions').insert(payload));
     if (error) { showToast('Save failed: '+error.message,'error'); return; }
     showToast('Promotion saved'); closePromoModal(); loadPromotions();
   }
-  async function deletePromo(id){ if(!confirm('Delete promotion?'))return; await sb.from('promotions').delete().eq('id',id); loadPromotions(); }
+  async function deletePromo(id){ if(!confirm('Delete promotion?'))return; await sb.from('mkt_promotions').delete().eq('id',id); loadPromotions(); }
 
   // ---------- ANNOUNCEMENTS ----------
   async function loadAnnouncements() {
-    const { data: items } = await sb.from('announcements').select('*').order('created_at',{ascending:false});
+    const { data: items } = await sb.from('mkt_announcements').select('*').order('created_at',{ascending:false});
     const el = document.getElementById('announcements-list');
     if (!items || !items.length) { el.innerHTML = '<p class="text-gray-400 text-sm text-center py-8">No announcements yet.</p>'; return; }
     el.innerHTML = items.map(a => `
@@ -643,7 +643,7 @@
     editingAnnouncementId = id;
     document.getElementById('ann-modal-title').textContent = id ? 'Edit Announcement' : 'New Announcement';
     if (!id) { ['ann-id','ann-title','ann-body','ann-image-url'].forEach(x=>document.getElementById(x).value=''); document.getElementById('ann-featured').checked=false; document.getElementById('ann-active').checked=true; }
-    else sb.from('announcements').select('*').eq('id',id).single().then(({data:a})=>{ if(!a)return; document.getElementById('ann-id').value=a.id; document.getElementById('ann-title').value=a.title; document.getElementById('ann-body').value=a.body||''; document.getElementById('ann-image-url').value=a.image_url||''; document.getElementById('ann-featured').checked=a.is_featured; document.getElementById('ann-active').checked=a.is_active; });
+    else sb.from('mkt_announcements').select('*').eq('id',id).single().then(({data:a})=>{ if(!a)return; document.getElementById('ann-id').value=a.id; document.getElementById('ann-title').value=a.title; document.getElementById('ann-body').value=a.body||''; document.getElementById('ann-image-url').value=a.image_url||''; document.getElementById('ann-featured').checked=a.is_featured; document.getElementById('ann-active').checked=a.is_active; });
     document.getElementById('announcement-modal').classList.remove('hidden');
   }
   function closeAnnouncementModal(){ document.getElementById('announcement-modal').classList.add('hidden'); editingAnnouncementId=null; }
@@ -651,20 +651,20 @@
     e.preventDefault();
     const payload = { title: document.getElementById('ann-title').value.trim(), body: document.getElementById('ann-body').value.trim()||null, image_url: document.getElementById('ann-image-url').value.trim()||null, is_featured: document.getElementById('ann-featured').checked, is_active: document.getElementById('ann-active').checked };
     let error;
-    if (editingAnnouncementId) ({error}=await sb.from('announcements').update(payload).eq('id',editingAnnouncementId));
-    else ({error}=await sb.from('announcements').insert(payload));
+    if (editingAnnouncementId) ({error}=await sb.from('mkt_announcements').update(payload).eq('id',editingAnnouncementId));
+    else ({error}=await sb.from('mkt_announcements').insert(payload));
     if (error) { showToast('Save failed: '+error.message,'error'); return; }
     showToast('Announcement saved'); closeAnnouncementModal(); loadAnnouncements();
   }
-  async function deleteAnnouncement(id){ if(!confirm('Delete announcement?'))return; await sb.from('announcements').delete().eq('id',id); loadAnnouncements(); }
+  async function deleteAnnouncement(id){ if(!confirm('Delete announcement?'))return; await sb.from('mkt_announcements').delete().eq('id',id); loadAnnouncements(); }
 
   // ---------- SETTINGS ----------
   async function getSetting(key, def) {
-    const { data } = await sb.from('app_settings').select('value').eq('key',key).maybeSingle();
+    const { data } = await sb.from('shared_app_settings').select('value').eq('key',key).maybeSingle();
     return data ? data.value : def;
   }
   async function setSetting(key, value) {
-    const { error } = await sb.from('app_settings').upsert({ key, value, updated_at: new Date().toISOString() });
+    const { error } = await sb.from('shared_app_settings').upsert({ key, value, updated_at: new Date().toISOString() });
     return error;
   }
   async function loadSettings() {

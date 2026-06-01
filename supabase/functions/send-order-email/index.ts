@@ -23,8 +23,8 @@ serve(async (req) => {
       Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') ?? '',
     )
 
-    const { data: o } = await sb.from('orders')
-      .select('*, order_items(product_name, quantity, unit_price), profiles!orders_buyer_id_fkey(full_name, email)')
+    const { data: o } = await sb.from('mkt_orders')
+      .select('*, order_items:mkt_order_items(product_name, quantity, unit_price), profiles:shared_profiles!buyer_id(full_name, email)')
       .eq('id', order_id).single()
     if (!o) return resp({ ok: false, error: 'order not found' }, 404)
     if (o.email_sent_at) return resp({ ok: true, skipped: 'already sent' })
@@ -34,7 +34,7 @@ serve(async (req) => {
 
     // config
     let fromEmail = 'orders@hsimarketplace.com', fromName = 'HSI Marketplace', adminEmails: string[] = []
-    const { data: cfgRow } = await sb.from('app_settings').select('value').eq('key', 'notification_config').maybeSingle()
+    const { data: cfgRow } = await sb.from('shared_app_settings').select('value').eq('key', 'notification_config').maybeSingle()
     if (cfgRow?.value) {
       const c = cfgRow.value
       if (c.from_email) fromEmail = c.from_email
@@ -76,7 +76,7 @@ serve(async (req) => {
       if (!r.ok) return resp({ ok: false, error: 'resend failed', detail: await r.text() }, 200)
     }
 
-    await sb.from('orders').update({ email_sent_at: new Date().toISOString() }).eq('id', order_id)
+    await sb.from('mkt_orders').update({ email_sent_at: new Date().toISOString() }).eq('id', order_id)
     return resp({ ok: true })
   } catch (e) {
     return resp({ ok: false, error: String(e?.message || e) }, 200)

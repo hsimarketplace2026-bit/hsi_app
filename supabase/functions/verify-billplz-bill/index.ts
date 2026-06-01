@@ -48,11 +48,11 @@ serve(async (req) => {
 })
 
 async function markOrderPaid(sb: any, orderId: string, billId: string) {
-  const { data: o } = await sb.from('orders').select('*').eq('id', orderId).single()
+  const { data: o } = await sb.from('mkt_orders').select('*').eq('id', orderId).single()
   if (!o) return
   if (o.amount_paid && Number(o.amount_paid) >= Number(o.total_amount || 0) && o.total_amount > 0) return
 
-  await sb.from('orders').update({
+  await sb.from('mkt_orders').update({
     status: ['pending', 'payment_uploaded'].includes(o.status) ? 'payment_verified' : o.status,
     amount_paid: o.total_amount,
     amount_paid_at: new Date().toISOString(),
@@ -60,13 +60,13 @@ async function markOrderPaid(sb: any, orderId: string, billId: string) {
     updated_at: new Date().toISOString(),
   }).eq('id', orderId)
 
-  await sb.from('payments').insert({
+  await sb.from('mkt_payments').insert({
     order_id: orderId, buyer_id: o.buyer_id,
     method: 'Billplz (FPX/Card)', amount: o.total_amount,
     reference: billId, status: 'verified',
   })
 
-  try { await sb.rpc('award_order_points', { p_order_id: orderId }) } catch (_) {}
+  try { await sb.rpc('mkt_award_order_points', { p_order_id: orderId }) } catch (_) {}
 
   try {
     if (!o.email_sent_at) {

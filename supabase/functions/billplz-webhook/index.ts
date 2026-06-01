@@ -46,14 +46,14 @@ serve(async (req) => {
 
 // Shared: flip order to paid, award points, send email (idempotent)
 export async function markOrderPaid(sb: any, orderId: string, billId: string) {
-  const { data: o } = await sb.from('orders').select('*').eq('id', orderId).single()
+  const { data: o } = await sb.from('mkt_orders').select('*').eq('id', orderId).single()
   if (!o) return
   // idempotency — already settled
   if (o.amount_paid && Number(o.amount_paid) >= Number(o.total_amount || 0) && o.total_amount > 0) {
     return
   }
 
-  await sb.from('orders').update({
+  await sb.from('mkt_orders').update({
     status: ['pending', 'payment_uploaded'].includes(o.status) ? 'payment_verified' : o.status,
     amount_paid: o.total_amount,
     amount_paid_at: new Date().toISOString(),
@@ -62,7 +62,7 @@ export async function markOrderPaid(sb: any, orderId: string, billId: string) {
   }).eq('id', orderId)
 
   // record a payment row (online channel)
-  await sb.from('payments').insert({
+  await sb.from('mkt_payments').insert({
     order_id: orderId,
     buyer_id: o.buyer_id,
     method: 'Billplz (FPX/Card)',
@@ -72,7 +72,7 @@ export async function markOrderPaid(sb: any, orderId: string, billId: string) {
   })
 
   // award loyalty points (RPC is idempotent)
-  try { await sb.rpc('award_order_points', { p_order_id: orderId }) } catch (_) {}
+  try { await sb.rpc('mkt_award_order_points', { p_order_id: orderId }) } catch (_) {}
 
   // fire confirmation email (fire-and-forget)
   try {

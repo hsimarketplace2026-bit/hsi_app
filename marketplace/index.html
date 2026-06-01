@@ -137,8 +137,8 @@
   }
 
   async function loadProducts() {
-    const { data, error } = await sb.from('products')
-      .select('*, profiles(full_name, farm_name)')
+    const { data, error } = await sb.from('mkt_products')
+      .select('*, profiles:shared_profiles(full_name, farm_name)')
       .eq('status', 'active')
       .gt('quantity', 0)
       .order('created_at', { ascending: false });
@@ -153,7 +153,7 @@
     try {
       const items = allProducts.map(p => ({ product_id: p.id, category: p.category, qty: 1, price: parseFloat(p.price) }));
       if (!items.length) return;
-      const { data: promos } = await sb.rpc('promotions_for_cart', { p_items: items });
+      const { data: promos } = await sb.rpc('mkt_promotions_for_cart', { p_items: items });
       (promos || []).forEach(pr => { promoMap[pr.product_id] = { discount: parseFloat(pr.discount) || 0, title: pr.promo_title }; });
     } catch (_) {}
   }
@@ -252,7 +252,7 @@
   async function doAddToCart(productId, qty) {
     const { data: { session } } = await sb.auth.getSession();
     if (!session) { showToast('Please login to add items to your cart', 'warning'); return; }
-    const { error } = await sb.from('cart_items').upsert(
+    const { error } = await sb.from('mkt_cart_items').upsert(
       { buyer_id: session.user.id, product_id: productId, quantity: qty },
       { onConflict: 'buyer_id,product_id', ignoreDuplicates: false }
     );
@@ -264,8 +264,8 @@
   async function loadCart() {
     const { data: { session } } = await sb.auth.getSession();
     if (!session) return;
-    const { data: items } = await sb.from('cart_items')
-      .select('*, products(name, price, unit)')
+    const { data: items } = await sb.from('mkt_cart_items')
+      .select('*, products:mkt_products(name, price, unit)')
       .eq('buyer_id', session.user.id);
     const list = document.getElementById('cart-items-list');
     const footer = document.getElementById('cart-footer');
@@ -305,7 +305,7 @@
   async function goToDashboard() {
     const { data: { session } } = await sb.auth.getSession();
     if (!session) return (window.location.href = '../');
-    const { data: p } = await sb.from('profiles').select('role,status').eq('id', session.user.id).single();
+    const { data: p } = await sb.from('shared_profiles').select('role,status').eq('id', session.user.id).single();
     if (!p) return;
     if (p.role === 'admin') window.location.href = '../admin/';
     else if (p.role === 'seller' && p.status === 'active') window.location.href = '../seller/';

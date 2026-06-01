@@ -382,7 +382,7 @@
   function goToDashboard() {
     sb.auth.getSession().then(async ({ data: { session } }) => {
       if (!session) return openAuth();
-      const { data: profile } = await sb.from('profiles').select('role,status').eq('id', session.user.id).single();
+      const { data: profile } = await sb.from('shared_profiles').select('role,status').eq('id', session.user.id).single();
       routeByRole(profile);
     });
   }
@@ -411,10 +411,10 @@
       return;
     }
     btn.textContent = 'Redirecting…';
-    const { data: profile, error: profErr } = await sb.from('profiles').select('role,status').eq('id', data.user.id).single();
+    const { data: profile, error: profErr } = await sb.from('shared_profiles').select('role,status').eq('id', data.user.id).single();
     if (profErr || !profile) {
       errBox.innerHTML = profErr
-        ? 'Profile load failed: ' + profErr.message + '<br><span class="text-xs">If this mentions "recursion", run supabase/fix_rls_recursion.sql in your Supabase SQL Editor.</span>'
+        ? 'Profile load failed: ' + profErr.message + '<br><span class="text-xs">If this mentions "recursion", run supabase/setup_all.sql in your Supabase SQL Editor.</span>'
         : 'Profile not found. Please sign up first.';
       errBox.classList.remove('hidden');
       btn.disabled = false;
@@ -457,7 +457,7 @@
       }
       // If session was created immediately (email confirmation off), route straight to dashboard
       if (data.session && data.user) {
-        const { data: profile } = await sb.from('profiles').select('role,status').eq('id', data.user.id).single();
+        const { data: profile } = await sb.from('shared_profiles').select('role,status').eq('id', data.user.id).single();
         if (profile) { routeByRole(profile); return; }
       }
       // Otherwise show "check your email" notice
@@ -507,14 +507,14 @@
     if (!isConfirmation) return;
     // Clean hash so we don't loop
     history.replaceState(null, '', window.location.pathname + window.location.search);
-    const { data: profile } = await sb.from('profiles').select('role,status').eq('id', session.user.id).single();
+    const { data: profile } = await sb.from('shared_profiles').select('role,status').eq('id', session.user.id).single();
     if (profile) routeByRole(profile);
   });
 
   // FEATURED PRODUCTS
   async function loadFeaturedProducts() {
-    const { data: products } = await sb.from('products')
-      .select('*, profiles(full_name, farm_name)')
+    const { data: products } = await sb.from('mkt_products')
+      .select('*, profiles:shared_profiles(full_name, farm_name)')
       .eq('status', 'active')
       .order('created_at', { ascending: false })
       .limit(6);
@@ -539,7 +539,7 @@
 
   // ANNOUNCEMENTS
   async function loadAnnouncements() {
-    const { data: items } = await sb.from('announcements')
+    const { data: items } = await sb.from('mkt_announcements')
       .select('*')
       .eq('is_active', true)
       .eq('is_featured', true)

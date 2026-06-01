@@ -24,12 +24,20 @@ Public-facing pages:
 > portal, those products flow straight onto the shared sales web (`marketplace/`), and a
 > main admin oversees all sellers.
 
+## Database naming convention (MJM-style)
+
+Tables are module-namespaced so future modules can be added cleanly:
+
+- **`shared_*`** — cross-module identity/config: `shared_profiles`, `shared_app_settings`
+- **`mkt_*`** — marketplace module: `mkt_products`, `mkt_cart_items`, `mkt_orders`, `mkt_order_items`, `mkt_payments`, `mkt_announcements`, `mkt_coupons`, `mkt_coupon_redemptions`, `mkt_promotions`, `mkt_points_ledger`, `mkt_billing_info`, view `mkt_customer_points_balance`
+- RPCs are prefixed `mkt_*` (e.g. `mkt_next_order_number`, `mkt_preview_coupon`, `mkt_award_order_points`); the shared auth helper is `is_admin`.
+
 ## Ported MJM features (full port)
 
-- **Loyalty points** — program-wide HSI points, earned on paid orders, redeemable at checkout (`points_ledger`, `customer_points_balance` view, configurable `points_config`)
+- **Loyalty points** — program-wide HSI points, earned on paid orders, redeemable at checkout (`mkt_points_ledger`, `mkt_customer_points_balance` view, configurable `points_config`)
 - **Member tiers** — Sprout → Grower → Harvester → Master Farmer (configurable in admin)
-- **Coupons** — percentage/fixed, min order, usage & per-customer limits, first-order-only, expiry (`coupons`, `preview_coupon`/`redeem_coupon` RPCs)
-- **Promotions** — auto-apply sale pricing by category/product, shown on the storefront (`promotions`, `promotions_for_cart` RPC)
+- **Coupons** — percentage/fixed, min order, usage & per-customer limits, first-order-only, expiry (`mkt_coupons`, `mkt_preview_coupon`/`mkt_redeem_coupon` RPCs)
+- **Promotions** — auto-apply sale pricing by category/product, shown on the storefront (`mkt_promotions`, `mkt_promotions_for_cart` RPC)
 - **Billplz online payment** — FPX/card via edge functions, with offline bank-transfer + proof upload as the alternative
 - **Customer portal** — rewards, points history, billing-address CRUD, order ratings, change password
 - **Order lifecycle** — human order numbers, `amount_paid` tracking, auto-release of abandoned unpaid orders, payment-confirmation email
@@ -37,9 +45,9 @@ Public-facing pages:
 ## Setup
 
 ### 1. Database
-In the Supabase SQL Editor, run **in order**:
-1. `supabase/full_setup.sql` — base marketplace (profiles, products, cart, orders, payments, announcements, RLS, storage buckets)
-2. `supabase/hsi_marketplace_v2.sql` — loyalty, coupons, promotions, billing, settings, RPCs, RLS
+In the Supabase SQL Editor, run the single file **`supabase/setup_all.sql`**.
+It is fully idempotent: it renames any older un-prefixed tables to the new
+`shared_`/`mkt_` names (keeping data), then creates everything else. Safe to re-run.
 
 ### 2. App config
 `SUPABASE_URL` / `SUPABASE_ANON_KEY` are already set in every HTML file. To use a
@@ -49,6 +57,7 @@ different Supabase project, replace them, then set **Authentication → URL Conf
 ### 3. Create the admin
 Sign up, then visit `setup/` while logged in with the admin email (configured in
 `setup/index.html` and `index.html` as `ADMIN_EMAIL`) and click **Activate Admin Access**.
+Or promote via SQL: `update public.shared_profiles set role='admin', status='active' where email='you@example.com';`
 
 ### 4. Online payments — point Billplz at **your own account**
 Online payment is **off by default**. To enable it:

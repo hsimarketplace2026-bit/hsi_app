@@ -116,7 +116,7 @@
         return;
       }
 
-      const { data: profile } = await sb.from('profiles').select('role').eq('id', session.user.id).single();
+      const { data: profile } = await sb.from('shared_profiles').select('role').eq('id', session.user.id).single();
 
       if (profile?.role === 'admin') {
         show('step-already');
@@ -135,7 +135,7 @@
       const { data: { session } } = await sb.auth.getSession();
       if (!session) { show('step-login'); return; }
 
-      const { error } = await sb.from('profiles')
+      const { error } = await sb.from('shared_profiles')
         .update({ role: 'admin', status: 'active' })
         .eq('id', session.user.id);
 
