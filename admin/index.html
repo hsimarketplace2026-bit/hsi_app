@@ -55,7 +55,7 @@
     const { data: profile } = await sb.from('shared_profiles').select('*').eq('id', session.user.id).single();
     if (!profile || profile.role !== 'admin') { window.location.href = '../'; return; }
     currentUser = { ...session.user, ...profile };
-    document.getElementById('admin-name').textContent = profile.full_name || session.user.email;
+    document.getElementById('admin-name').textContent = 'Hi, ' + (profile.full_name || session.user.email);
     try { await sb.rpc('mkt_release_abandoned_orders'); } catch (_) {}
     initAdminAccess();
   })();
@@ -65,10 +65,10 @@
   <div class="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
     <a href="../" class="flex items-center gap-2 font-bold">
       <img src="../applogo.png" alt="HSI" class="w-7 h-7 rounded" onerror="this.style.display='none'" />
-      <span>HSI Admin</span>
+      <span class="text-sm sm:text-base">HSI Marketplace Admin Portal</span>
     </a>
     <div class="flex items-center gap-3">
-      <span id="admin-name" class="text-green-200 text-sm hidden sm:inline"></span>
+      <span id="admin-name" class="text-green-100 text-sm font-medium hidden sm:inline"></span>
       <button onclick="doLogout()" class="bg-green-800 hover:bg-green-700 text-sm px-3 py-1.5 rounded-full transition">Logout</button>
     </div>
   </div>
