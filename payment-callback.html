@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Payment Status — HSI Marketplace</title>
+  <meta name="theme-color" content="#14532d" />
+  <link rel="manifest" href="manifest.json" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body class="min-h-screen bg-green-50 flex items-center justify-center p-4 font-sans">
+  <div class="bg-white rounded-2xl shadow-2xl w-full max-w-md p-8 text-center">
+    <!-- LOADING -->
+    <div id="state-loading">
+      <svg class="animate-spin h-10 w-10 text-green-600 mx-auto mb-4" viewBox="0 0 24 24" fill="none">
+        <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"/>
+        <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z"/>
+      </svg>
+      <h1 class="text-lg font-bold text-gray-900">Confirming your payment…</h1>
+      <p class="text-gray-500 text-sm mt-1">Please wait, do not close this page.</p>
+    </div>
+
+    <!-- SUCCESS -->
+    <div id="state-success" class="hidden">
+      <div class="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4 text-4xl">✅</div>
+      <h1 class="text-xl font-bold text-green-900">Payment Successful!</h1>
+      <p class="text-gray-600 text-sm mt-2">Your order is confirmed and the farmer has been notified.</p>
+      <p id="order-ref" class="text-green-700 font-semibold text-sm mt-3"></p>
+      <a href="buyer/" class="inline-block mt-6 bg-green-600 hover:bg-green-700 text-white font-semibold px-6 py-2.5 rounded-xl transition">Go to My Orders</a>
+    </div>
+
+    <!-- PENDING / FAILED -->
+    <div id="state-pending" class="hidden">
+      <div class="w-16 h-16 bg-amber-100 rounded-full flex items-center justify-center mx-auto mb-4 text-4xl">⏳</div>
+      <h1 class="text-xl font-bold text-amber-700">Payment Not Confirmed</h1>
+      <p class="text-gray-600 text-sm mt-2">We couldn't confirm your payment yet. If you completed it, it may take a moment — check My Orders shortly.</p>
+      <a href="buyer/" class="inline-block mt-6 bg-green-600 hover:bg-green-700 text-white font-semibold px-6 py-2.5 rounded-xl transition">Go to My Orders</a>
+    </div>
+  </div>
+
+  <script>
+    const SUPABASE_URL = 'https://kdhcxmzwgiwyskfamvkb.supabase.co';
+    const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtkaGN4bXp3Z2l3eXNrZmFtdmtiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODAyODYzMDgsImV4cCI6MjA5NTg2MjMwOH0.gvvp2oKrkEPLtbjmBsj_u4Hby8nyy52qi7tSNaDU3Bk';
+    const sb = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+    function show(id) {
+      ['state-loading','state-success','state-pending'].forEach(s =>
+        document.getElementById(s).classList.toggle('hidden', s !== id));
+    }
+
+    // Billplz redirects with ?billplz[id]=...&billplz[paid]=true
+    function getBillId() {
+      const params = new URLSearchParams(window.location.search);
+      return params.get('billplz[id]') || params.get('bill_id') || '';
+    }
+
+    (async () => {
+      const billId = getBillId();
+      if (!billId) { show('state-pending'); return; }
+      try {
+        const { data, error } = await sb.functions.invoke('verify-billplz-bill', { body: { bill_id: billId } });
+        if (error || !data || !data.paid) { show('state-pending'); return; }
+        if (data.order_id) document.getElementById('order-ref').textContent = 'Order reference: ' + data.order_id.substring(0,8).toUpperCase();
+        show('state-success');
+      } catch (e) {
+        show('state-pending');
+      }
+    })();
+  </script>
+</body>
+</html>
