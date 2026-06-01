@@ -235,9 +235,10 @@
 <!-- PAYMENT PROOF MODAL (offline) -->
 <div id="payment-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4">
   <div class="absolute inset-0 bg-black bg-opacity-50" onclick="closePaymentModal()"></div>
-  <div class="relative bg-white rounded-2xl w-full max-w-md p-6 shadow-2xl">
+  <div class="relative bg-white rounded-2xl w-full max-w-md p-6 shadow-2xl max-h-[90vh] overflow-y-auto">
     <button onclick="closePaymentModal()" class="absolute top-3 right-4 text-gray-400 hover:text-gray-600 text-2xl">&times;</button>
-    <h3 class="text-xl font-bold text-green-900 mb-4">Upload Payment Proof</h3>
+    <h3 class="text-xl font-bold text-green-900 mb-4">Payment</h3>
+    <div id="pay-bank-details" class="mb-4"></div>
     <form onsubmit="submitPayment(event)" class="space-y-4">
       <input type="hidden" id="pay-order-id" />
       <div>
@@ -606,7 +607,23 @@
 
   function openPaymentModal(orderId) {
     document.getElementById('pay-order-id').value = orderId;
+    renderBankDetails();
     document.getElementById('payment-modal').classList.remove('hidden');
+  }
+  function renderBankDetails() {
+    const p = APP.payment || {};
+    const el = document.getElementById('pay-bank-details');
+    const has = p.bank_name || p.bank_account || p.account_holder || p.duitnow_qr_url;
+    if (!has) { el.innerHTML = ''; return; }
+    el.innerHTML = `
+      <div class="bg-green-50 border border-green-100 rounded-xl p-4 text-sm">
+        <p class="font-semibold text-green-900 mb-2">Transfer your payment to:</p>
+        ${p.bank_name?`<div class="flex justify-between py-0.5"><span class="text-gray-500">Bank</span><span class="font-medium">${p.bank_name}</span></div>`:''}
+        ${p.account_holder?`<div class="flex justify-between py-0.5"><span class="text-gray-500">Account name</span><span class="font-medium">${p.account_holder}</span></div>`:''}
+        ${p.bank_account?`<div class="flex justify-between items-center py-0.5"><span class="text-gray-500">Account no.</span><span class="font-mono font-semibold">${p.bank_account} <button type="button" onclick="navigator.clipboard.writeText('${p.bank_account}');showToast('Copied!')" class="text-green-600 text-xs ml-1 hover:underline">copy</button></span></div>`:''}
+        ${p.duitnow_qr_url?`<div class="mt-3 text-center"><p class="text-xs text-gray-500 mb-1">Or scan DuitNow QR</p><img src="${p.duitnow_qr_url}" alt="DuitNow QR" class="h-44 mx-auto rounded-lg border border-green-100" /></div>`:''}
+        <p class="text-xs text-gray-500 mt-3">After paying, upload your payment proof below.</p>
+      </div>`;
   }
   function closePaymentModal() { document.getElementById('payment-modal').classList.add('hidden'); }
 
