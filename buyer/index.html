@@ -44,6 +44,16 @@
 
 <!-- AUTH GUARD -->
 <script>
+  /* ============================================================================
+   * BUYER PORTAL — cart, checkout, orders, ratings, rewards, profile, billing
+   * ----------------------------------------------------------------------------
+   * Requires a logged-in buyer. Orders are shown in four tabs that mirror the
+   * seller dashboard and are filtered strictly by mkt_orders.status:
+   *   pending → To Pay · payment_uploaded → Paid · processing → In Delivery ·
+   *   completed → Completed.
+   * A rejected slip puts the order back to pending (To Pay) with re-upload /
+   * cancel options. See docs/ORDER-LIFECYCLE.md.
+   * ========================================================================== */
   const SUPABASE_URL = 'https://kdhcxmzwgiwyskfamvkb.supabase.co';
   const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtkaGN4bXp3Z2l3eXNrZmFtdmtiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODAyODYzMDgsImV4cCI6MjA5NTg2MjMwOH0.gvvp2oKrkEPLtbjmBsj_u4Hby8nyy52qi7tSNaDU3Bk';
   const { createClient } = supabase;

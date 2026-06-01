@@ -24,6 +24,14 @@ Public-facing pages:
 > portal, those products flow straight onto the shared sales web (`marketplace/`), and a
 > main admin oversees all sellers.
 
+## Developer documentation
+
+Architecture and implementation details live in [`docs/`](docs/):
+
+- [`docs/ARCHITECTURE.md`](docs/ARCHITECTURE.md) — tech stack, folder map, data flow, conventions
+- [`docs/ORDER-LIFECYCLE.md`](docs/ORDER-LIFECYCLE.md) — the four-state order flow (To Pay → Paid → In Delivery → Completed)
+- [`docs/DATABASE.md`](docs/DATABASE.md) — tables, RLS policies, RPC functions, triggers, storage buckets
+
 ## Database naming convention (MJM-style)
 
 Tables are module-namespaced so future modules can be added cleanly:

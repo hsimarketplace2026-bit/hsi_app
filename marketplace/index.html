@@ -206,6 +206,15 @@
 </div>
 
 <script>
+  /* ============================================================================
+   * MARKETPLACE — public storefront (runs as anon)
+   * ----------------------------------------------------------------------------
+   * Shows every active seller's products with live promotion pricing. No login
+   * required to browse; adding to cart prompts sign-in. Seller name/photo/rating
+   * on the "About the Farmer" card come from public reads of shared_profiles.
+   * Reviews are fetched via the mkt_seller_reviews RPC (orders stay private).
+   * See docs/ARCHITECTURE.md and docs/ORDER-LIFECYCLE.md.
+   * ========================================================================== */
   const SUPABASE_URL = 'https://kdhcxmzwgiwyskfamvkb.supabase.co';
   const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtkaGN4bXp3Z2l3eXNrZmFtdmtiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODAyODYzMDgsImV4cCI6MjA5NTg2MjMwOH0.gvvp2oKrkEPLtbjmBsj_u4Hby8nyy52qi7tSNaDU3Bk';
   const { createClient } = supabase;
@@ -315,6 +324,9 @@
     `).join('');
   }
 
+  // ---------- SELLER RATINGS & REVIEWS ----------
+  // Renders the average rating as a proportional star fill (e.g. 4.5 → 4½ stars)
+  // using an amber star layer clipped to (avg/5)% over a grey full-star layer.
   function ratingStarsHTML(avg, count) {
     const a = Math.max(0, Math.min(5, Number(avg) || 0));
     const c = Number(count) || 0;

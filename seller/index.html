@@ -35,6 +35,16 @@
 <div id="toast-container"></div>
 
 <script>
+  /* ============================================================================
+   * SELLER DASHBOARD — products, orders, analytics, farmer profile
+   * ----------------------------------------------------------------------------
+   * Requires a logged-in, approved seller. Orders use the same four-tab flow as
+   * the buyer (filtered by mkt_orders.status):
+   *   To Pay → verify/reject slip in Paid → mark delivered in In Delivery →
+   *   Completed. "Delivery Completed" calls the mkt_complete_order RPC which
+   *   atomically completes the order and decrements product stock.
+   * See docs/ORDER-LIFECYCLE.md.
+   * ========================================================================== */
   const SUPABASE_URL = 'https://kdhcxmzwgiwyskfamvkb.supabase.co';
   const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtkaGN4bXp3Z2l3eXNrZmFtdmtiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODAyODYzMDgsImV4cCI6MjA5NTg2MjMwOH0.gvvp2oKrkEPLtbjmBsj_u4Hby8nyy52qi7tSNaDU3Bk';
   const { createClient } = supabase;
@@ -511,6 +521,9 @@
   }
 
   // ---- ORDERS ----
+  // Four tabs, each a single mkt_orders.status. orderView is the active tab;
+  // loadOrders() queries that status only, while updateOrderBadges() counts all
+  // statuses for the tab badges.
   let orderView = 'pending';
 
   function setOrderView(v) {
