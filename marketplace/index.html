@@ -192,12 +192,26 @@
 
   async function loadProducts() {
     const { data, error } = await sb.from('mkt_products')
-      .select('*, profiles:shared_profiles!seller_id(full_name, farm_name, photo_url, farm_location, age, ethnicity, farming_since, farm_size, certifications, story)')
+      .select('*')
       .eq('status', 'active')
       .gt('quantity', 0)
       .order('created_at', { ascending: false });
     if (error) { showToast('Error loading products', 'error'); return; }
     allProducts = data || [];
+
+    // Fetch seller profiles separately (more reliable than FK join)
+    const sellerIds = [...new Set(allProducts.map(p => p.seller_id).filter(Boolean))];
+    if (sellerIds.length) {
+      const { data: profilesData } = await sb.from('shared_profiles')
+        .select('id, full_name, farm_name, photo_url, farm_location, age, ethnicity, farming_since, farm_size, certifications, story')
+        .in('id', sellerIds);
+      if (profilesData) {
+        const profileMap = {};
+        profilesData.forEach(pr => { profileMap[pr.id] = pr; });
+        allProducts.forEach(p => { p.profiles = profileMap[p.seller_id] || null; });
+      }
+    }
+
     await loadPromotions();
     renderProducts();
   }
