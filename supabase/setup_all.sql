@@ -578,6 +578,30 @@ drop policy if exists "Admins read billing"      on public.mkt_billing_info;
 create policy "Users manage own billing" on public.mkt_billing_info for all using (auth.uid() = user_id) with check (auth.uid() = user_id);
 create policy "Admins read billing"      on public.mkt_billing_info for select using (public.is_admin(auth.uid()));
 
+-- ---- B9. Staff access (admin-panel tab permissions) ------------
+-- A "staff" is an admin-role account restricted to specific tabs.
+-- No row, or level='admin' => full admin (sees everything).
+create table if not exists public.mkt_admin_access (
+  user_id    uuid primary key references public.shared_profiles(id) on delete cascade,
+  level      text not null default 'staff' check (level in ('admin','staff')),
+  tabs       text[] not null default '{}',
+  updated_at timestamptz default now()
+);
+alter table public.mkt_admin_access enable row level security;
+
+-- Full admin = role 'admin' AND not flagged as staff-level.
+create or replace function public.is_full_admin(uid uuid)
+returns boolean language sql security definer set search_path = public stable as $$
+  select exists (select 1 from public.shared_profiles p where p.id = uid and p.role = 'admin')
+     and not exists (select 1 from public.mkt_admin_access a where a.user_id = uid and a.level = 'staff');
+$$;
+grant execute on function public.is_full_admin(uuid) to anon, authenticated;
+
+drop policy if exists "Read admin access"     on public.mkt_admin_access;
+drop policy if exists "Full admins write access" on public.mkt_admin_access;
+create policy "Read admin access"      on public.mkt_admin_access for select using (auth.uid() = user_id or public.is_admin(auth.uid()));
+create policy "Full admins write access" on public.mkt_admin_access for all using (public.is_full_admin(auth.uid())) with check (public.is_full_admin(auth.uid()));
+
 -- ================================================================
 -- PART C — GRANTS  (PostgREST/API roles need table privileges;
 -- Row Level Security still enforces who can see/modify each row.)
