@@ -200,20 +200,57 @@
   <div id="panel-settings" class="hidden space-y-6">
     <div class="bg-white rounded-xl p-6 shadow border border-green-100">
       <h3 class="text-lg font-bold text-green-900 mb-4">Payment Methods</h3>
-      <div class="space-y-3 text-sm">
-        <label class="flex items-center gap-2"><input type="checkbox" id="set-offline-enabled" class="accent-green-600" /> Offline (bank transfer + proof upload)</label>
-        <label class="flex items-center gap-2"><input type="checkbox" id="set-online-enabled" class="accent-green-600" /> Online (Billplz — FPX / card)</label>
-        <div class="bg-amber-50 text-amber-800 text-xs rounded-lg p-3">
-          Online payments use Billplz. Deploy the edge functions in <code>supabase/functions/</code> and set your
-          Billplz secrets (<code>BILLPLZ_API_KEY</code>, <code>BILLPLZ_COLLECTION_ID</code>, <code>BILLPLZ_X_SIGNATURE_KEY</code>)
-          for <strong>your own Billplz account</strong>. See README.
+      <div class="space-y-3">
+
+        <!-- OFFLINE ACCORDION -->
+        <div class="border border-green-100 rounded-xl overflow-hidden">
+          <button type="button" onclick="togglePaySection('offline')" class="w-full flex items-center justify-between px-4 py-3 bg-green-50 hover:bg-green-100 transition text-left">
+            <span class="font-semibold text-sm text-green-900">🏦 Offline — Bank Transfer</span>
+            <svg id="pay-offline-chevron" class="w-5 h-5 text-green-700 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+          </button>
+          <div id="pay-offline-body" class="hidden px-4 py-4 space-y-4 text-sm">
+            <label class="flex items-center gap-2"><input type="checkbox" id="set-offline-enabled" class="accent-green-600" /> Enable offline bank transfer (buyers upload payment proof)</label>
+            <div>
+              <h4 class="font-bold text-green-900 mb-3">Bank Details</h4>
+              <div class="grid sm:grid-cols-2 gap-3">
+                <div><label class="block text-gray-600 mb-1">Account holder name</label><input id="set-bank-holder" class="w-full border border-gray-300 rounded-lg px-3 py-2" /></div>
+                <div><label class="block text-gray-600 mb-1">Account number</label><input id="set-bank-account" class="w-full border border-gray-300 rounded-lg px-3 py-2" /></div>
+                <div><label class="block text-gray-600 mb-1">Bank name</label><input id="set-bank-name" class="w-full border border-gray-300 rounded-lg px-3 py-2" /></div>
+                <div>
+                  <label class="block text-gray-600 mb-1">DuitNow QR</label>
+                  <input type="file" accept="image/*" id="set-duitnow-file" onchange="uploadDuitnowQr(event)" class="w-full text-xs file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:bg-green-100 file:text-green-700 file:font-semibold" />
+                  <input type="hidden" id="set-duitnow" />
+                  <div id="duitnow-preview" class="mt-2"></div>
+                </div>
+              </div>
+            </div>
+          </div>
         </div>
-        <div class="grid sm:grid-cols-2 gap-3">
-          <div><label class="block text-gray-600 mb-1">Bank name</label><input id="set-bank-name" class="w-full border border-gray-300 rounded-lg px-3 py-2" /></div>
-          <div><label class="block text-gray-600 mb-1">Account holder</label><input id="set-bank-holder" class="w-full border border-gray-300 rounded-lg px-3 py-2" /></div>
-          <div><label class="block text-gray-600 mb-1">Account number</label><input id="set-bank-account" class="w-full border border-gray-300 rounded-lg px-3 py-2" /></div>
-          <div><label class="block text-gray-600 mb-1">DuitNow QR URL</label><input id="set-duitnow" class="w-full border border-gray-300 rounded-lg px-3 py-2" /></div>
+
+        <!-- ONLINE ACCORDION -->
+        <div class="border border-green-100 rounded-xl overflow-hidden">
+          <button type="button" onclick="togglePaySection('online')" class="w-full flex items-center justify-between px-4 py-3 bg-green-50 hover:bg-green-100 transition text-left">
+            <span class="font-semibold text-sm text-green-900">💳 Online Payment</span>
+            <svg id="pay-online-chevron" class="w-5 h-5 text-green-700 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+          </button>
+          <div id="pay-online-body" class="hidden px-4 py-4 space-y-3 text-sm">
+            <p class="text-xs text-gray-500">These online services are integrated but not active yet.</p>
+            <label class="flex items-center justify-between gap-2 border border-gray-100 rounded-lg px-3 py-2.5 opacity-70">
+              <span class="flex items-center gap-2"><input type="checkbox" id="set-fpx-enabled" disabled class="accent-green-600" /> FPX Transfer</span>
+              <span class="text-[10px] bg-gray-100 text-gray-500 px-2 py-0.5 rounded-full">not active yet</span>
+            </label>
+            <label class="flex items-center justify-between gap-2 border border-gray-100 rounded-lg px-3 py-2.5 opacity-70">
+              <span class="flex items-center gap-2"><input type="checkbox" id="set-card-enabled" disabled class="accent-green-600" /> Debit / Credit Card</span>
+              <span class="text-[10px] bg-gray-100 text-gray-500 px-2 py-0.5 rounded-full">not active yet</span>
+            </label>
+            <div class="bg-amber-50 text-amber-800 text-xs rounded-lg p-3">
+              Online payments use Billplz. Deploy the edge functions in <code>supabase/functions/</code> and set your
+              Billplz secrets (<code>BILLPLZ_API_KEY</code>, <code>BILLPLZ_COLLECTION_ID</code>, <code>BILLPLZ_X_SIGNATURE_KEY</code>)
+              for <strong>your own Billplz account</strong>. See README.
+            </div>
+          </div>
         </div>
+
       </div>
       <button onclick="savePaymentConfig()" class="mt-4 btn-primary text-white font-semibold px-5 py-2 rounded-lg text-sm transition">Save Payment</button>
     </div>
@@ -983,11 +1020,13 @@
     const tiers = await getSetting('member_tiers', []); window.MEMBER_TIERS = tiers; renderTierRows(tiers);
     const pay = await getSetting('payment_config', { online_enabled:false, offline_enabled:true });
     document.getElementById('set-offline-enabled').checked = pay.offline_enabled !== false;
-    document.getElementById('set-online-enabled').checked = !!pay.online_enabled;
+    document.getElementById('set-fpx-enabled').checked = !!pay.fpx_enabled;
+    document.getElementById('set-card-enabled').checked = !!pay.card_enabled;
     document.getElementById('set-bank-name').value = pay.bank_name||'';
     document.getElementById('set-bank-holder').value = pay.account_holder||'';
     document.getElementById('set-bank-account').value = pay.bank_account||'';
     document.getElementById('set-duitnow').value = pay.duitnow_qr_url||'';
+    renderDuitnowPreview(pay.duitnow_qr_url||'');
     const notif = await getSetting('notification_config', { from_name:'HSI Marketplace', from_email:'', admin_emails:[] });
     document.getElementById('set-from-name').value = notif.from_name||'';
     document.getElementById('set-from-email').value = notif.from_email||'';
@@ -1025,10 +1064,39 @@
   function addTierRow(){ const t=collectTiers(); t.push({name:'',min_points:0}); window.MEMBER_TIERS=t; renderTierRows(t); }
   function removeTierRow(i){ const t=collectTiers(); t.splice(i,1); window.MEMBER_TIERS=t; renderTierRows(t); }
   async function saveTiers(){ const t=collectTiers(); window.MEMBER_TIERS=t; const err=await setSetting('member_tiers', t); showToast(err?'Save failed':'Tiers saved', err?'error':'success'); }
+  function togglePaySection(key) {
+    const body = document.getElementById(`pay-${key}-body`);
+    const chevron = document.getElementById(`pay-${key}-chevron`);
+    const open = body.classList.toggle('hidden');
+    if (chevron) chevron.style.transform = open ? '' : 'rotate(180deg)';
+  }
+  function renderDuitnowPreview(url) {
+    const el = document.getElementById('duitnow-preview');
+    el.innerHTML = url
+      ? `<a href="${url}" target="_blank"><img src="${url}" class="h-24 rounded-lg border border-green-100 object-contain bg-white" /></a>`
+      : '<p class="text-xs text-gray-400">No DuitNow QR uploaded yet.</p>';
+  }
+  async function uploadDuitnowQr(e) {
+    const file = e.target.files[0];
+    if (!file) return;
+    const ext = (file.name.split('.').pop() || 'png').toLowerCase();
+    const path = `duitnow/qr-${Date.now()}.${ext}`;
+    showToast('Uploading DuitNow QR…');
+    const { error: upErr } = await sb.storage.from('mkt-product-images').upload(path, file, { upsert: true });
+    if (upErr) { showToast('Upload failed: ' + upErr.message, 'error'); return; }
+    const { data: { publicUrl } } = sb.storage.from('mkt-product-images').getPublicUrl(path);
+    document.getElementById('set-duitnow').value = publicUrl;
+    renderDuitnowPreview(publicUrl);
+    showToast('QR uploaded — remember to Save Payment');
+  }
   async function savePaymentConfig() {
+    const fpx = document.getElementById('set-fpx-enabled').checked;
+    const card = document.getElementById('set-card-enabled').checked;
     const err = await setSetting('payment_config', {
       offline_enabled: document.getElementById('set-offline-enabled').checked,
-      online_enabled: document.getElementById('set-online-enabled').checked,
+      online_enabled: fpx || card,
+      fpx_enabled: fpx,
+      card_enabled: card,
       bank_name: document.getElementById('set-bank-name').value.trim(),
       account_holder: document.getElementById('set-bank-holder').value.trim(),
       bank_account: document.getElementById('set-bank-account').value.trim(),
