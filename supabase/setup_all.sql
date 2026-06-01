@@ -181,7 +181,9 @@ drop policy if exists "Admins view all profiles"       on public.shared_profiles
 drop policy if exists "Admins update all profiles"     on public.shared_profiles;
 drop policy if exists "Admins can view all profiles"   on public.shared_profiles;
 drop policy if exists "Admins can update all profiles" on public.shared_profiles;
+drop policy if exists "Users insert own profile"       on public.shared_profiles;
 create policy "Users view own profile"     on public.shared_profiles for select using (auth.uid() = id);
+create policy "Users insert own profile"   on public.shared_profiles for insert with check (auth.uid() = id);
 create policy "Users update own profile"   on public.shared_profiles for update using (auth.uid() = id);
 create policy "Admins view all profiles"   on public.shared_profiles for select using (public.is_admin(auth.uid()));
 create policy "Admins update all profiles" on public.shared_profiles for update using (public.is_admin(auth.uid()));

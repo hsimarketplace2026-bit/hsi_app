@@ -411,17 +411,39 @@
       return;
     }
     btn.textContent = 'Redirecting…';
-    const { data: profile, error: profErr } = await sb.from('shared_profiles').select('role,status').eq('id', data.user.id).single();
+    let { data: profile, error: profErr } = await sb.from('shared_profiles').select('role,status').eq('id', data.user.id).single();
+    if (profErr || !profile) {
+      // Self-heal: the DB trigger may not have created the profile — create it now from auth metadata.
+      await ensureProfile(data.user, data.user.user_metadata || {});
+      ({ data: profile, error: profErr } = await sb.from('shared_profiles').select('role,status').eq('id', data.user.id).single());
+    }
     if (profErr || !profile) {
       errBox.innerHTML = profErr
-        ? 'Profile load failed: ' + profErr.message + '<br><span class="text-xs">If this mentions "recursion", run supabase/setup_all.sql in your Supabase SQL Editor.</span>'
-        : 'Profile not found. Please sign up first.';
+        ? 'Profile load failed: ' + profErr.message + '<br><span class="text-xs">Make sure you ran supabase/setup_all.sql in this Supabase project.</span>'
+        : 'Profile could not be created. Make sure you ran supabase/setup_all.sql in this Supabase project.';
       errBox.classList.remove('hidden');
       btn.disabled = false;
       btn.textContent = 'Login';
       return;
     }
     routeByRole(profile);
+  }
+
+  // Ensure a shared_profiles row exists for this user. Works even if the
+  // DB trigger isn't installed (an INSERT RLS policy allows self-creation).
+  async function ensureProfile(user, meta) {
+    try {
+      await sb.from('shared_profiles').upsert({
+        id: user.id,
+        email: user.email,
+        full_name: meta.full_name || '',
+        phone: meta.phone || null,
+        farm_name: meta.farm_name || null,
+        farm_location: meta.farm_location || null,
+        role: meta.role || 'buyer',
+        status: (meta.role === 'seller') ? 'pending' : 'active'
+      }, { onConflict: 'id', ignoreDuplicates: true });
+    } catch (_) {}
   }
 
   async function doRegister(e) {
@@ -433,34 +455,43 @@
     btn.textContent = 'Creating account…';
     const email = document.getElementById('reg-email').value.trim();
     const role = document.querySelector('input[name="role"]:checked').value;
+    const meta = {
+      full_name: document.getElementById('reg-name').value.trim(),
+      role,
+      phone: document.getElementById('reg-phone').value.trim(),
+      farm_name: document.getElementById('reg-farm-name').value.trim() || null,
+      farm_location: document.getElementById('reg-farm-location').value.trim() || null
+    };
     try {
       const { data, error } = await sb.auth.signUp({
         email,
         password: document.getElementById('reg-password').value,
-        options: {
-          data: {
-            full_name: document.getElementById('reg-name').value.trim(),
-            role,
-            phone: document.getElementById('reg-phone').value.trim(),
-            farm_name: document.getElementById('reg-farm-name').value.trim() || null,
-            farm_location: document.getElementById('reg-farm-location').value.trim() || null
-          },
-          emailRedirectTo: window.location.origin + window.location.pathname
-        }
+        options: { data: meta, emailRedirectTo: window.location.origin + window.location.pathname }
       });
       if (error) {
-        errBox.textContent = error.message;
+        let m = error.message;
+        if (/already registered|already exists/i.test(m)) m = 'This email is already registered. Please log in or reset your password.';
+        errBox.textContent = m;
         errBox.classList.remove('hidden');
         btn.disabled = false;
         btn.textContent = 'Create Account';
         return;
       }
-      // If session was created immediately (email confirmation off), route straight to dashboard
+      // Supabase returns a fake user with an empty identities[] when the email already exists.
+      if (data.user && Array.isArray(data.user.identities) && data.user.identities.length === 0) {
+        errBox.textContent = 'This email is already registered. Please log in instead.';
+        errBox.classList.remove('hidden');
+        btn.disabled = false;
+        btn.textContent = 'Create Account';
+        return;
+      }
+      // Email confirmation OFF → we get a session immediately. Create the profile and go.
       if (data.session && data.user) {
-        const { data: profile } = await sb.from('shared_profiles').select('role,status').eq('id', data.user.id).single();
+        await ensureProfile(data.user, meta);
+        let { data: profile } = await sb.from('shared_profiles').select('role,status').eq('id', data.user.id).single();
         if (profile) { routeByRole(profile); return; }
       }
-      // Otherwise show "check your email" notice
+      // Email confirmation ON → show the "check your email" notice.
       document.getElementById('register-form').classList.add('hidden');
       document.getElementById('confirm-email-display').textContent = email;
       document.getElementById('confirm-notice').classList.remove('hidden');
@@ -507,6 +538,7 @@
     if (!isConfirmation) return;
     // Clean hash so we don't loop
     history.replaceState(null, '', window.location.pathname + window.location.search);
+    await ensureProfile(session.user, session.user.user_metadata || {});
     const { data: profile } = await sb.from('shared_profiles').select('role,status').eq('id', session.user.id).single();
     if (profile) routeByRole(profile);
   });
