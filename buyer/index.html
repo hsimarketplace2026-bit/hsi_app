@@ -681,12 +681,7 @@
     const listEl = document.getElementById('orders-list');
     const allOrders = orders || [];
 
-    // Normalize effective status: a not-yet-rejected slip on a pending order = payment_uploaded
-    allOrders.forEach(o => {
-      const hasPendingSlip = (o.payments || []).some(p => p.proof_url && p.status !== 'rejected');
-      if (o.status === 'pending' && hasPendingSlip) o.status = 'payment_uploaded';
-    });
-
+    // Tab placement follows the order's actual DB status (matches the seller view).
     // Tab badges (counts per status)
     const counts = { pending:0, payment_uploaded:0, processing:0, completed:0 };
     allOrders.forEach(o => { if (counts[o.status] !== undefined) counts[o.status]++; });
@@ -721,9 +716,6 @@
         new Date(b.created_at || 0) - new Date(a.created_at || 0));
       const latestPayment = payments[0] || null;
       const isRejected = o.status === 'pending' && latestPayment && latestPayment.status === 'rejected';
-      // If still pending but a not-yet-rejected slip exists, treat as payment_uploaded
-      const hasPendingSlip = (o.payments || []).some(p => p.proof_url && p.status !== 'rejected');
-      if (o.status === 'pending' && hasPendingSlip) o.status = 'payment_uploaded';
       const needsPayment = o.status === 'pending';
       const canRate = o.status === 'completed' && !o.rating;
       const s = o.profiles || {};
