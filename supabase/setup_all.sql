@@ -70,6 +70,15 @@ create table if not exists public.shared_profiles (
   created_at    timestamptz default now()
 );
 
+-- Rich seller/farmer profile fields (photo, story, etc.)
+alter table public.shared_profiles add column if not exists photo_url      text;
+alter table public.shared_profiles add column if not exists age            integer;
+alter table public.shared_profiles add column if not exists ethnicity      text;
+alter table public.shared_profiles add column if not exists farm_size      text;
+alter table public.shared_profiles add column if not exists farming_since  integer;
+alter table public.shared_profiles add column if not exists certifications text;
+alter table public.shared_profiles add column if not exists story          text;
+
 create table if not exists public.mkt_products (
   id           uuid primary key default gen_random_uuid(),
   seller_id    uuid references public.shared_profiles(id) on delete cascade,
@@ -242,6 +251,14 @@ create policy "Admins manage announcements"       on public.mkt_announcements fo
 -- ---- A4. Storage buckets + policies ----------------------------
 insert into storage.buckets (id, name, public) values ('mkt-product-images','mkt-product-images', true) on conflict (id) do nothing;
 insert into storage.buckets (id, name, public) values ('mkt-payment-proofs','mkt-payment-proofs', false) on conflict (id) do nothing;
+insert into storage.buckets (id, name, public) values ('farmer-photos','farmer-photos', true) on conflict (id) do nothing;
+
+drop policy if exists "Public read farmer photos"   on storage.objects;
+drop policy if exists "Sellers upload farmer photos" on storage.objects;
+drop policy if exists "Sellers update farmer photos" on storage.objects;
+create policy "Public read farmer photos"    on storage.objects for select using (bucket_id = 'farmer-photos');
+create policy "Sellers upload farmer photos"  on storage.objects for insert with check (bucket_id = 'farmer-photos' and auth.role() = 'authenticated');
+create policy "Sellers update farmer photos"  on storage.objects for update using (bucket_id = 'farmer-photos' and auth.uid()::text = (storage.foldername(name))[1]);
 
 drop policy if exists "Public read product images"        on storage.objects;
 drop policy if exists "Sellers upload product images"     on storage.objects;
