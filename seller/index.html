@@ -319,9 +319,9 @@
     const file = document.getElementById('prod-image').files[0];
     if (file) {
       const path = `${currentUser.id}/${Date.now()}-${file.name}`;
-      const { error: upErr } = await sb.storage.from('product-images').upload(path, file, { upsert: true });
+      const { error: upErr } = await sb.storage.from('mkt-product-images').upload(path, file, { upsert: true });
       if (upErr) { showToast('Image upload failed', 'error'); btn.disabled = false; btn.textContent = 'Save Product'; return; }
-      const { data: { publicUrl } } = sb.storage.from('product-images').getPublicUrl(path);
+      const { data: { publicUrl } } = sb.storage.from('mkt-product-images').getPublicUrl(path);
       imageUrl = publicUrl;
     }
 

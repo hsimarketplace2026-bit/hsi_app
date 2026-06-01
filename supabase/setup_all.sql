@@ -238,8 +238,8 @@ create policy "Anyone views active announcements" on public.mkt_announcements fo
 create policy "Admins manage announcements"       on public.mkt_announcements for all    using (public.is_admin(auth.uid()));
 
 -- ---- A4. Storage buckets + policies ----------------------------
-insert into storage.buckets (id, name, public) values ('product-images','product-images', true) on conflict (id) do nothing;
-insert into storage.buckets (id, name, public) values ('payment-proofs','payment-proofs', false) on conflict (id) do nothing;
+insert into storage.buckets (id, name, public) values ('mkt-product-images','mkt-product-images', true) on conflict (id) do nothing;
+insert into storage.buckets (id, name, public) values ('mkt-payment-proofs','mkt-payment-proofs', false) on conflict (id) do nothing;
 
 drop policy if exists "Public read product images"        on storage.objects;
 drop policy if exists "Sellers upload product images"     on storage.objects;
@@ -247,12 +247,12 @@ drop policy if exists "Sellers delete own product images" on storage.objects;
 drop policy if exists "Buyers upload payment proofs"      on storage.objects;
 drop policy if exists "Buyers view own payment proofs"    on storage.objects;
 drop policy if exists "Admins view all payment proofs"    on storage.objects;
-create policy "Public read product images"        on storage.objects for select using (bucket_id = 'product-images');
-create policy "Sellers upload product images"     on storage.objects for insert with check (bucket_id = 'product-images' and auth.role() = 'authenticated');
-create policy "Sellers delete own product images" on storage.objects for delete using (bucket_id = 'product-images' and auth.uid()::text = (storage.foldername(name))[1]);
-create policy "Buyers upload payment proofs"      on storage.objects for insert with check (bucket_id = 'payment-proofs' and auth.role() = 'authenticated');
-create policy "Buyers view own payment proofs"    on storage.objects for select using (bucket_id = 'payment-proofs' and auth.uid()::text = (storage.foldername(name))[1]);
-create policy "Admins view all payment proofs"    on storage.objects for select using (bucket_id = 'payment-proofs' and public.is_admin(auth.uid()));
+create policy "Public read product images"        on storage.objects for select using (bucket_id = 'mkt-product-images');
+create policy "Sellers upload product images"     on storage.objects for insert with check (bucket_id = 'mkt-product-images' and auth.role() = 'authenticated');
+create policy "Sellers delete own product images" on storage.objects for delete using (bucket_id = 'mkt-product-images' and auth.uid()::text = (storage.foldername(name))[1]);
+create policy "Buyers upload payment proofs"      on storage.objects for insert with check (bucket_id = 'mkt-payment-proofs' and auth.role() = 'authenticated');
+create policy "Buyers view own payment proofs"    on storage.objects for select using (bucket_id = 'mkt-payment-proofs' and auth.uid()::text = (storage.foldername(name))[1]);
+create policy "Admins view all payment proofs"    on storage.objects for select using (bucket_id = 'mkt-payment-proofs' and public.is_admin(auth.uid()));
 
 
 -- ================================================================

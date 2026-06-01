@@ -590,9 +590,9 @@
     const file = document.getElementById('pay-proof').files[0];
     if (!file) return;
     const path = `${currentUser.id}/${orderId}/${Date.now()}-${file.name}`;
-    const { error: upErr } = await sb.storage.from('payment-proofs').upload(path, file);
+    const { error: upErr } = await sb.storage.from('mkt-payment-proofs').upload(path, file);
     if (upErr) { showToast('Upload failed: ' + upErr.message, 'error'); return; }
-    const { data: { publicUrl } } = sb.storage.from('payment-proofs').getPublicUrl(path);
+    const { data: { publicUrl } } = sb.storage.from('mkt-payment-proofs').getPublicUrl(path);
     await sb.from('mkt_payments').insert({ order_id: orderId, buyer_id: currentUser.id, method, proof_url: publicUrl, status: 'pending' });
     await sb.from('mkt_orders').update({ status: 'payment_uploaded' }).eq('id', orderId);
     showToast('Payment submitted!');
