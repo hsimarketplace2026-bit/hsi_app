@@ -30,6 +30,12 @@
     .status-completed { background:#dcfce7;color:#166534; }
     .status-cancelled { background:#fee2e2;color:#991b1b; }
     .star { cursor:pointer; font-size:1.75rem; line-height:1; }
+    body.checkout-mode #site-nav { display:none; }
+    body.checkout-mode #page-title { display:none; }
+    body.checkout-mode #tabs-bar { display:none; }
+    body.checkout-mode #panel-orders, body.checkout-mode #panel-profile,
+    body.checkout-mode #panel-rewards { display:none !important; }
+    body.checkout-mode #panel-cart { display:block !important; }
   </style>
 </head>
 <body class="bg-green-50 text-gray-800 font-sans">
@@ -105,7 +111,7 @@
 </script>
 
 <!-- NAV -->
-<nav class="nav-bg text-white sticky top-0 z-40 shadow-lg">
+<nav id="site-nav" class="nav-bg text-white sticky top-0 z-40 shadow-lg">
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex items-center justify-between">
     <div class="flex items-center gap-3">
       <a href="../" class="flex items-center gap-2 font-bold">
@@ -151,10 +157,10 @@
 </nav>
 
 <div class="max-w-4xl mx-auto px-4 py-6">
-  <h1 class="text-2xl font-bold text-green-900 mb-6">My Account</h1>
+  <h1 id="page-title" class="text-2xl font-bold text-green-900 mb-6">My Account</h1>
 
   <!-- TABS -->
-  <div class="flex border border-green-200 rounded-xl overflow-hidden mb-6">
+  <div id="tabs-bar" class="flex border border-green-200 rounded-xl overflow-hidden mb-6">
     <button onclick="switchTab('cart')" id="tab-cart" class="tab-btn flex-1 py-2.5 text-sm font-semibold bg-white text-green-700 transition">🛒 Cart</button>
     <button onclick="switchTab('orders')" id="tab-orders" class="tab-btn active flex-1 py-2.5 text-sm font-semibold transition">📦 Orders</button>
     <button onclick="switchTab('profile')" id="tab-profile" class="tab-btn flex-1 py-2.5 text-sm font-semibold bg-white text-green-700 transition">👤 Profile</button>
@@ -162,7 +168,10 @@
 
   <!-- CART TAB -->
   <div id="panel-cart" class="hidden">
-    <h2 class="text-xl font-bold text-green-900 mb-4">🛒 Your Cart</h2>
+    <div class="flex items-center justify-between mb-5">
+      <h2 class="text-2xl font-bold text-green-900">🛒 Your Cart</h2>
+      <a id="cart-close-btn" href="../marketplace/" class="hidden text-gray-400 hover:text-gray-700 text-3xl leading-none font-light">&times;</a>
+    </div>
     <div id="cart-list" class="space-y-3 mb-4">
       <p class="text-gray-400 text-sm text-center py-8">Loading cart…</p>
     </div>
@@ -377,6 +386,10 @@
   async function initBuyerApp() {
     const openCart = new URLSearchParams(window.location.search).get('cart') === 'open';
     history.replaceState({}, '', window.location.pathname);
+    if (openCart) {
+      document.body.classList.add('checkout-mode');
+      document.getElementById('cart-close-btn').classList.remove('hidden');
+    }
     switchTab(openCart ? 'cart' : 'orders');
     updateCartBadge();
   }
@@ -613,7 +626,9 @@
     btn.disabled = false; btn.textContent = 'Place Order';
 
     updateCartBadge();
-    showToast('Order placed! Open the Orders tab to pay the seller and send your slip.', 'success');
+    showToast('Order placed! Check your Orders tab to pay the seller.', 'success');
+    document.body.classList.remove('checkout-mode');
+    document.getElementById('cart-close-btn').classList.add('hidden');
     switchTab('orders');
   }
 
