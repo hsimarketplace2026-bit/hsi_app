@@ -78,6 +78,12 @@ alter table public.shared_profiles add column if not exists farm_size      text;
 alter table public.shared_profiles add column if not exists farming_since  integer;
 alter table public.shared_profiles add column if not exists certifications text;
 alter table public.shared_profiles add column if not exists story          text;
+-- Seller payment details (buyers pay each seller directly)
+alter table public.shared_profiles add column if not exists whatsapp          text;
+alter table public.shared_profiles add column if not exists bank_name         text;
+alter table public.shared_profiles add column if not exists bank_account_name text;
+alter table public.shared_profiles add column if not exists bank_account_no   text;
+alter table public.shared_profiles add column if not exists bank_qr_url       text;
 
 create table if not exists public.mkt_products (
   id           uuid primary key default gen_random_uuid(),
@@ -191,11 +197,14 @@ drop policy if exists "Admins update all profiles"     on public.shared_profiles
 drop policy if exists "Admins can view all profiles"   on public.shared_profiles;
 drop policy if exists "Admins can update all profiles" on public.shared_profiles;
 drop policy if exists "Users insert own profile"       on public.shared_profiles;
+drop policy if exists "Anyone view seller profiles"     on public.shared_profiles;
 create policy "Users view own profile"     on public.shared_profiles for select using (auth.uid() = id);
 create policy "Users insert own profile"   on public.shared_profiles for insert with check (auth.uid() = id);
 create policy "Users update own profile"   on public.shared_profiles for update using (auth.uid() = id);
 create policy "Admins view all profiles"   on public.shared_profiles for select using (public.is_admin(auth.uid()));
 create policy "Admins update all profiles" on public.shared_profiles for update using (public.is_admin(auth.uid()));
+-- Seller storefront profiles (incl. payment details) are public so buyers can view & pay them
+create policy "Anyone view seller profiles" on public.shared_profiles for select using (role = 'seller');
 
 drop policy if exists "Anyone views active products"    on public.mkt_products;
 drop policy if exists "Anyone can view active products" on public.mkt_products;
