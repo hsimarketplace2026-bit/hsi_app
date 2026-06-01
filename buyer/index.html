@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Buyer Dashboard — HSI Marketplace</title>
+  <title>My Account — HSI Marketplace</title>
   <meta name="theme-color" content="#14532d" />
   <link rel="manifest" href="../manifest.json" />
   <link rel="apple-touch-icon" href="../icon-192.png" />
@@ -71,32 +71,41 @@
 
 <!-- NAV -->
 <nav class="nav-bg text-white sticky top-0 z-40 shadow-lg">
-  <div class="max-w-4xl mx-auto px-4 py-3 flex items-center justify-between">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex items-center justify-between">
     <a href="../" class="flex items-center gap-2 font-bold">
       <img src="../applogo.png" alt="HSI" class="w-7 h-7 rounded" onerror="this.style.display='none'" />
       <span>HSI Marketplace</span>
     </a>
-    <div class="flex items-center gap-3">
-      <a href="../marketplace/" class="text-green-200 hover:text-white text-sm">Browse</a>
-      <span id="user-name" class="text-green-200 text-sm hidden sm:inline"></span>
+    <div class="flex items-center gap-2 sm:gap-3">
+      <a href="../marketplace/" class="btn-primary text-white text-xs font-semibold px-3 py-1.5 rounded-full hidden sm:inline transition">SHOP</a>
+      <span id="user-name" class="text-green-200 text-sm hidden md:inline"></span>
+      <button onclick="toggleCart()" class="relative btn-primary p-2 rounded-full" aria-label="Cart" title="Cart">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-1.5 6h13M10 19a1 1 0 100 2 1 1 0 000-2zm7 0a1 1 0 100 2 1 1 0 000-2z"/></svg>
+        <span id="cart-badge" class="hidden absolute -top-1 -right-1 bg-red-500 text-white text-xs font-bold w-5 h-5 rounded-full flex items-center justify-center">0</span>
+      </button>
       <button onclick="doLogout()" class="bg-green-800 hover:bg-green-700 text-sm px-3 py-1.5 rounded-full transition">Logout</button>
     </div>
   </div>
 </nav>
 
 <div class="max-w-4xl mx-auto px-4 py-6">
-  <h1 class="text-2xl font-bold text-green-900 mb-6">Buyer Dashboard</h1>
+  <h1 class="text-2xl font-bold text-green-900 mb-6">My Account</h1>
 
   <!-- TABS -->
   <div class="flex border border-green-200 rounded-xl overflow-hidden mb-6">
-    <button onclick="switchTab('cart')" id="tab-cart" class="tab-btn active flex-1 py-2.5 text-sm font-semibold transition">🛒 Cart</button>
-    <button onclick="switchTab('orders')" id="tab-orders" class="tab-btn flex-1 py-2.5 text-sm font-semibold bg-white text-green-700 transition">📦 Orders</button>
+    <button onclick="switchTab('orders')" id="tab-orders" class="tab-btn active flex-1 py-2.5 text-sm font-semibold transition">📦 Orders</button>
     <button onclick="switchTab('rewards')" id="tab-rewards" class="tab-btn flex-1 py-2.5 text-sm font-semibold bg-white text-green-700 transition">⭐ Rewards</button>
     <button onclick="switchTab('profile')" id="tab-profile" class="tab-btn flex-1 py-2.5 text-sm font-semibold bg-white text-green-700 transition">👤 Profile</button>
   </div>
 
-  <!-- CART TAB -->
-  <div id="panel-cart">
+  <!-- CART DRAWER (opened from the nav cart button) -->
+  <div id="cart-overlay" class="hidden fixed inset-0 bg-black bg-opacity-40 z-40" onclick="toggleCart()"></div>
+  <div id="cart-drawer" class="fixed top-0 right-0 h-full w-full max-w-md bg-green-50 z-50 shadow-2xl transform translate-x-full transition-transform overflow-y-auto">
+   <div class="p-5">
+    <div class="flex items-center justify-between mb-4">
+      <h3 class="text-xl font-bold text-green-900">🛒 Your Cart</h3>
+      <button onclick="toggleCart()" class="text-gray-400 hover:text-gray-600 text-2xl leading-none">&times;</button>
+    </div>
     <div id="cart-list" class="space-y-3 mb-4">
       <p class="text-gray-400 text-sm text-center py-8">Loading cart…</p>
     </div>
@@ -138,6 +147,7 @@
       </div>
       <button onclick="placeOrder()" id="place-order-btn" class="w-full btn-primary text-white font-semibold py-3 rounded-xl transition">Place Order</button>
     </div>
+   </div>
   </div>
 
   <!-- ORDERS TAB -->
@@ -298,20 +308,34 @@
   const rm = n => 'RM ' + (Number(n) || 0).toFixed(2);
 
   function switchTab(tab) {
-    ['cart','orders','rewards','profile'].forEach(t => {
+    ['orders','rewards','profile'].forEach(t => {
       document.getElementById(`panel-${t}`).classList.toggle('hidden', t !== tab);
       const btn = document.getElementById(`tab-${t}`);
       btn.classList.toggle('active', t === tab);
       btn.classList.toggle('bg-white', t !== tab);
       btn.classList.toggle('text-green-700', t !== tab);
     });
-    if (tab === 'cart') loadCart();
     if (tab === 'orders') loadOrders();
     if (tab === 'rewards') loadRewards();
     if (tab === 'profile') { loadProfile(); loadBilling(); }
   }
 
-  async function initBuyerApp() { loadCart(); }
+  // ---------- CART DRAWER ----------
+  let cartOpen = false;
+  function toggleCart() {
+    cartOpen = !cartOpen;
+    document.getElementById('cart-drawer').classList.toggle('translate-x-full', !cartOpen);
+    document.getElementById('cart-overlay').classList.toggle('hidden', !cartOpen);
+    if (cartOpen) loadCart();
+  }
+  async function updateCartBadge() {
+    const { count } = await sb.from('mkt_cart_items').select('id', { count: 'exact', head: true }).eq('buyer_id', currentUser.id);
+    const badge = document.getElementById('cart-badge');
+    if (count && count > 0) { badge.textContent = count; badge.classList.remove('hidden'); }
+    else badge.classList.add('hidden');
+  }
+
+  async function initBuyerApp() { switchTab('orders'); updateCartBadge(); }
 
   // ---------- CART / CHECKOUT ----------
   async function loadCart() {
@@ -324,6 +348,7 @@
     if (!items || items.length === 0) {
       listEl.innerHTML = '<div class="text-center py-8"><p class="text-gray-400 text-sm mb-3">Your cart is empty.</p><a href="../marketplace/" class="btn-primary text-white text-sm px-5 py-2 rounded-full transition inline-block">Browse Products</a></div>';
       summaryEl.classList.add('hidden');
+      updateCartBadge();
       return;
     }
     CART = items.map(i => ({
@@ -380,6 +405,7 @@
     }
     summaryEl.classList.remove('hidden');
     recalcTotals();
+    updateCartBadge();
   }
 
   function cartSubtotal() { return CART.reduce((s,i)=> s + (i.qty*i.price - i.promo), 0); }
@@ -509,7 +535,9 @@
       await startOnlinePayment(firstOrderId, grandTotal);
       return;
     }
-    showToast('Order placed! Upload your payment proof.', 'success');
+    if (cartOpen) toggleCart();
+    updateCartBadge();
+    showToast('Order placed! Open the Orders tab to upload your payment proof.', 'success');
     switchTab('orders');
   }
 

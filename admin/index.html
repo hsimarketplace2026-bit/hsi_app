@@ -57,7 +57,7 @@
     currentUser = { ...session.user, ...profile };
     document.getElementById('admin-name').textContent = profile.full_name || session.user.email;
     try { await sb.rpc('mkt_release_abandoned_orders'); } catch (_) {}
-    switchTab('orders');
+    initAdminAccess();
   })();
 </script>
 
@@ -85,6 +85,7 @@
         <button onclick="switchTab('customers')" id="tab-customers" class="side-btn"><span>🧑</span><span>Customers</span></button>
         <button onclick="switchTab('sellers')"   id="tab-sellers"   class="side-btn"><span>🌾</span><span>Sellers &amp; Products</span></button>
         <button onclick="switchTab('settings')"  id="tab-settings"  class="side-btn"><span>⚙️</span><span>Settings</span></button>
+        <button onclick="switchTab('staff')"     id="tab-staff"     class="side-btn hidden"><span>🛡️</span><span>User Access</span></button>
 
         <div class="side-section-label">More modules · coming soon 🔒</div>
         <button onclick="switchTab('payments')"      id="tab-payments"      class="side-btn side-locked"><span>💰</span><span>Payments</span><span class="ml-auto text-[10px] bg-gray-100 text-gray-500 px-1.5 py-0.5 rounded-full">unlock</span></button>
@@ -215,7 +216,42 @@
       <button onclick="saveNotifConfig()" class="mt-4 btn-primary text-white font-semibold px-5 py-2 rounded-lg text-sm transition">Save Notifications</button>
     </div>
   </div>
+
+  <!-- STAFF / USER ACCESS -->
+  <div id="panel-staff" class="hidden space-y-4">
+    <div class="bg-white rounded-xl p-5 shadow border border-green-100">
+      <h3 class="font-bold text-green-900 mb-1">Add staff member</h3>
+      <p class="text-xs text-gray-500 mb-3">Enter the email of an existing registered user to give them admin-panel access. You choose which tabs they can see.</p>
+      <div class="flex gap-2">
+        <input id="staff-email" type="email" placeholder="person@example.com" class="flex-1 border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-green-500" />
+        <button onclick="addStaff()" class="btn-primary text-white text-sm font-semibold px-4 rounded-lg">Add as Staff</button>
+      </div>
+      <p id="staff-add-msg" class="text-xs mt-2"></p>
+    </div>
+    <div id="staff-list" class="space-y-3"><p class="text-gray-400 text-sm text-center py-8">Loading staff…</p></div>
+  </div>
     </main>
+  </div>
+</div>
+
+<!-- STAFF ACCESS MODAL -->
+<div id="staff-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4">
+  <div class="absolute inset-0 bg-black bg-opacity-50" onclick="closeStaffModal()"></div>
+  <div class="relative bg-white rounded-2xl w-full max-w-md max-h-screen overflow-y-auto p-6 shadow-2xl">
+    <button onclick="closeStaffModal()" class="absolute top-3 right-4 text-gray-400 hover:text-gray-600 text-2xl">&times;</button>
+    <h3 class="text-xl font-bold text-green-900 mb-1">Edit Access</h3>
+    <p id="staff-modal-name" class="text-sm text-gray-500 mb-4"></p>
+    <input type="hidden" id="staff-user-id" />
+    <div class="flex gap-4 text-sm mb-3">
+      <label class="flex items-center gap-2"><input type="radio" name="staff-level" value="admin" onchange="toggleStaffTabs()" class="accent-green-600" /> Full admin</label>
+      <label class="flex items-center gap-2"><input type="radio" name="staff-level" value="staff" onchange="toggleStaffTabs()" class="accent-green-600" /> Staff (limited)</label>
+    </div>
+    <div id="staff-tabs-box" class="hidden border border-green-100 rounded-lg p-3 mb-4">
+      <p class="text-xs text-gray-500 mb-2">Tabs this staff can access:</p>
+      <div id="staff-tabs-checks" class="grid grid-cols-2 gap-2 text-sm"></div>
+    </div>
+    <button onclick="saveStaffAccess()" class="w-full btn-primary text-white font-semibold py-2.5 rounded-xl transition mb-2">Save Access</button>
+    <button onclick="removeStaff()" class="w-full bg-red-50 text-red-600 font-medium py-2 rounded-xl text-sm">Remove admin access</button>
   </div>
 </div>
 
@@ -320,8 +356,16 @@
     t.className = `toast ${type === 'error' ? 'bg-red-600' : type === 'warning' ? 'bg-amber-500' : 'bg-green-700'}`;
     t.textContent = msg; c.appendChild(t); setTimeout(() => t.remove(), 3500);
   }
-  const TABS = ['sellers','orders','payments','customers','coupons','promotions','announcements','settings'];
-  const TAB_LABELS = { orders:'📦 Orders', customers:'🧑 Customers', sellers:'🌾 Sellers & Products', settings:'⚙️ Settings', payments:'💰 Payments', coupons:'🎟️ Coupons', promotions:'🏷️ Promotions', announcements:'📢 Announcements' };
+  const TABS = ['sellers','orders','payments','customers','coupons','promotions','announcements','settings','staff'];
+  const TAB_LABELS = { orders:'📦 Orders', customers:'🧑 Customers', sellers:'🌾 Sellers & Products', settings:'⚙️ Settings', staff:'🛡️ User Access', payments:'💰 Payments', coupons:'🎟️ Coupons', promotions:'🏷️ Promotions', announcements:'📢 Announcements' };
+  const MANAGEABLE_TABS = [
+    ['orders','📦 Orders'],['customers','🧑 Customers'],['sellers','🌾 Sellers & Products'],
+    ['settings','⚙️ Settings'],['payments','💰 Payments'],['coupons','🎟️ Coupons'],
+    ['promotions','🏷️ Promotions'],['announcements','📢 Announcements']
+  ];
+  const SUPER_ADMIN_EMAIL = 'fushun92@gmail.com';
+  let myAccess = null;                              // null => full admin
+  function isFull() { return !myAccess || myAccess.level === 'admin'; }
   function switchTab(tab) {
     TABS.forEach(t => {
       document.getElementById(`panel-${t}`).classList.toggle('hidden', t !== tab);
@@ -337,8 +381,97 @@
     if (tab === 'promotions') loadPromotions();
     if (tab === 'announcements') loadAnnouncements();
     if (tab === 'settings') loadSettings();
+    if (tab === 'staff') loadStaff();
   }
   function toggleSidebar(){ document.getElementById('sidebar').classList.toggle('hidden'); }
+
+  // ---------- STAFF / USER ACCESS ----------
+  async function initAdminAccess() {
+    const { data } = await sb.from('mkt_admin_access').select('*').eq('user_id', currentUser.id).maybeSingle();
+    myAccess = (data && data.level === 'staff') ? data : null;
+    const full = isFull();
+    document.getElementById('tab-staff').classList.toggle('hidden', !full);
+    const allowed = full ? MANAGEABLE_TABS.map(t => t[0]) : (myAccess.tabs || []);
+    MANAGEABLE_TABS.forEach(([k]) => {
+      const btn = document.getElementById('tab-' + k);
+      if (btn) btn.classList.toggle('hidden', !allowed.includes(k));
+    });
+    const first = full ? 'orders' : (allowed[0] || null);
+    if (first) switchTab(first);
+    else showToast('No sections have been assigned to your account. Contact the administrator.', 'warning');
+  }
+
+  async function loadStaff() {
+    const { data: admins } = await sb.from('shared_profiles').select('id,full_name,email,created_at').eq('role','admin').order('created_at',{ascending:true});
+    const { data: access } = await sb.from('mkt_admin_access').select('*');
+    const map = {}; (access||[]).forEach(a => map[a.user_id] = a);
+    const el = document.getElementById('staff-list');
+    if (!admins || !admins.length) { el.innerHTML = '<p class="text-gray-400 text-sm text-center py-8">No admins yet.</p>'; return; }
+    el.innerHTML = admins.map(a => {
+      const acc = map[a.id];
+      const level = (acc && acc.level === 'staff') ? 'staff' : 'admin';
+      const tabs = level === 'staff' ? (acc.tabs || []) : [];
+      const locked = a.id === currentUser.id || (a.email||'').toLowerCase() === SUPER_ADMIN_EMAIL;
+      return `
+      <div class="bg-white rounded-xl p-4 shadow border border-green-100 flex items-center gap-3 flex-wrap">
+        <div class="flex-1 min-w-0">
+          <p class="font-semibold text-sm">${a.full_name || 'Unnamed'} ${a.id===currentUser.id?'<span class="text-xs text-gray-400">(you)</span>':''}</p>
+          <p class="text-xs text-gray-500">${a.email}</p>
+          ${level==='staff'?`<p class="text-xs text-gray-400 mt-0.5">Tabs: ${tabs.length? tabs.join(', '):'none assigned'}</p>`:''}
+        </div>
+        <span class="text-xs px-2 py-1 rounded-full ${level==='admin'?'bg-green-100 text-green-700':'bg-blue-100 text-blue-700'}">${level==='admin'?'Full admin':'Staff'}</span>
+        ${locked ? '<span class="text-xs text-gray-400 px-2">protected</span>' : `<button onclick="openStaffModal('${a.id}')" class="bg-green-50 text-green-700 text-xs px-3 py-1.5 rounded-full">Edit</button>`}
+      </div>`;
+    }).join('');
+  }
+
+  async function addStaff() {
+    const email = document.getElementById('staff-email').value.trim().toLowerCase();
+    const msg = document.getElementById('staff-add-msg');
+    if (!email) return;
+    const { data: u } = await sb.from('shared_profiles').select('id,role,email').ilike('email', email).maybeSingle();
+    if (!u) { msg.className='text-xs mt-2 text-red-600'; msg.textContent='No registered user with that email. Ask them to sign up first.'; return; }
+    await sb.from('shared_profiles').update({ role: 'admin' }).eq('id', u.id);
+    const { error } = await sb.from('mkt_admin_access').upsert({ user_id: u.id, level: 'staff', tabs: [], updated_at: new Date().toISOString() });
+    if (error) { msg.className='text-xs mt-2 text-red-600'; msg.textContent='Failed: '+error.message; return; }
+    msg.className='text-xs mt-2 text-green-600'; msg.textContent='Added as staff — click Edit to choose their tabs.';
+    document.getElementById('staff-email').value='';
+    loadStaff();
+  }
+
+  async function openStaffModal(userId) {
+    const { data: u } = await sb.from('shared_profiles').select('full_name,email').eq('id', userId).single();
+    const { data: acc } = await sb.from('mkt_admin_access').select('*').eq('user_id', userId).maybeSingle();
+    document.getElementById('staff-user-id').value = userId;
+    document.getElementById('staff-modal-name').textContent = (u?.full_name || '') + ' · ' + (u?.email || '');
+    const level = (acc && acc.level === 'staff') ? 'staff' : 'admin';
+    document.querySelector(`input[name="staff-level"][value="${level}"]`).checked = true;
+    const tabs = level === 'staff' ? (acc.tabs || []) : [];
+    document.getElementById('staff-tabs-checks').innerHTML = MANAGEABLE_TABS.map(([k,label]) =>
+      `<label class="flex items-center gap-2"><input type="checkbox" value="${k}" ${tabs.includes(k)?'checked':''} class="accent-green-600 staff-tab-cb" /> ${label}</label>`).join('');
+    toggleStaffTabs();
+    document.getElementById('staff-modal').classList.remove('hidden');
+  }
+  function toggleStaffTabs() {
+    const lvl = (document.querySelector('input[name="staff-level"]:checked')||{}).value;
+    document.getElementById('staff-tabs-box').classList.toggle('hidden', lvl !== 'staff');
+  }
+  function closeStaffModal() { document.getElementById('staff-modal').classList.add('hidden'); }
+  async function saveStaffAccess() {
+    const userId = document.getElementById('staff-user-id').value;
+    const lvl = (document.querySelector('input[name="staff-level"]:checked')||{}).value || 'staff';
+    const tabs = lvl === 'staff' ? [...document.querySelectorAll('.staff-tab-cb:checked')].map(c => c.value) : [];
+    const { error } = await sb.from('mkt_admin_access').upsert({ user_id: userId, level: lvl, tabs, updated_at: new Date().toISOString() });
+    if (error) { showToast('Save failed: ' + error.message, 'error'); return; }
+    showToast('Access updated'); closeStaffModal(); loadStaff();
+  }
+  async function removeStaff() {
+    const userId = document.getElementById('staff-user-id').value;
+    if (!confirm("Remove this person's admin access? They will become a normal buyer.")) return;
+    await sb.from('mkt_admin_access').delete().eq('user_id', userId);
+    await sb.from('shared_profiles').update({ role: 'buyer' }).eq('id', userId);
+    showToast('Admin access removed'); closeStaffModal(); loadStaff();
+  }
 
   // ---------- SELLERS ----------
   let sellersFilter = 'pending';
