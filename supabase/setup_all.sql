@@ -350,6 +350,19 @@ create trigger trg_mkt_order_rating
   after insert or update of rating or delete on public.mkt_orders
   for each row execute function public.mkt_order_rating_trigger();
 
+-- Public list of a seller's buyer ratings (anon-safe; orders table stays private)
+create or replace function public.mkt_seller_reviews(p_seller uuid)
+returns table(rating integer, rating_comment text, created_at timestamptz, buyer_name text)
+language sql security definer set search_path = public as $$
+  select o.rating, o.rating_comment, o.created_at,
+         coalesce(nullif(split_part(coalesce(b.full_name,''),' ',1),''),'Buyer')
+  from public.mkt_orders o
+  left join public.shared_profiles b on b.id = o.buyer_id
+  where o.seller_id = p_seller and o.rating is not null
+  order by o.created_at desc;
+$$;
+grant execute on function public.mkt_seller_reviews(uuid) to anon, authenticated;
+
 -- ---- B2. Shared app settings -----------------------------------
 create table if not exists public.shared_app_settings (
   key text primary key, value jsonb not null default '{}'::jsonb, updated_at timestamptz default now()

@@ -169,6 +169,21 @@
   </div>
 </div>
 
+<!-- REVIEWS MODAL -->
+<div id="reviews-modal" class="hidden fixed inset-0 z-[70] flex items-center justify-center p-4">
+  <div class="absolute inset-0 bg-black bg-opacity-60" onclick="closeReviewsModal()"></div>
+  <div class="relative bg-white rounded-2xl w-full max-w-md max-h-[85vh] overflow-y-auto shadow-2xl">
+    <div class="sticky top-0 bg-white border-b border-green-100 px-5 py-4 flex items-center justify-between">
+      <h3 class="text-lg font-bold text-green-900">Buyer Ratings</h3>
+      <button onclick="closeReviewsModal()" class="text-gray-400 hover:text-gray-600 text-3xl leading-none">&times;</button>
+    </div>
+    <div id="reviews-summary" class="px-5 pt-4"></div>
+    <div id="reviews-list" class="px-5 pb-5 pt-3 space-y-3">
+      <p class="text-gray-400 text-sm text-center py-8">Loading…</p>
+    </div>
+  </div>
+</div>
+
 <!-- CART SIDEBAR -->
 <div id="cart-overlay" class="hidden fixed inset-0 bg-black bg-opacity-30 z-40" onclick="toggleCart()"></div>
 <div id="cart-sidebar" class="fixed top-0 right-0 h-full w-full max-w-sm bg-white z-50 shadow-2xl transform translate-x-full transition-transform overflow-y-auto">
@@ -311,6 +326,32 @@
       + `</span> <span class="text-gray-500 align-middle">${a.toFixed(1)} (${c})</span>`;
   }
 
+  function closeReviewsModal() { document.getElementById('reviews-modal').classList.add('hidden'); }
+  async function openReviewsModal(sellerId, avg, count) {
+    if (!sellerId) return;
+    document.getElementById('reviews-summary').innerHTML =
+      `<div class="flex items-center gap-2 text-sm">${ratingStarsHTML(avg, count)}</div>`;
+    const listEl = document.getElementById('reviews-list');
+    listEl.innerHTML = '<p class="text-gray-400 text-sm text-center py-8">Loading…</p>';
+    document.getElementById('reviews-modal').classList.remove('hidden');
+    const { data, error } = await sb.rpc('mkt_seller_reviews', { p_seller: sellerId });
+    if (error) { listEl.innerHTML = '<p class="text-red-500 text-sm text-center py-8">Could not load ratings.</p>'; return; }
+    if (!data || data.length === 0) { listEl.innerHTML = '<p class="text-gray-400 text-sm text-center py-8">No ratings yet.</p>'; return; }
+    listEl.innerHTML = data.map(r => {
+      const stars = '★'.repeat(r.rating) + '☆'.repeat(5 - r.rating);
+      const date = r.created_at ? new Date(r.created_at).toLocaleDateString() : '';
+      return `
+        <div class="border border-green-100 rounded-xl p-3">
+          <div class="flex items-center justify-between mb-1">
+            <span class="font-medium text-gray-800 text-sm">${r.buyer_name || 'Buyer'}</span>
+            <span class="text-xs text-gray-400">${date}</span>
+          </div>
+          <div class="text-amber-500 text-sm leading-none mb-1">${stars}</div>
+          ${r.rating_comment ? `<p class="text-sm text-gray-600">${r.rating_comment.replace(/</g,'&lt;')}</p>` : ''}
+        </div>`;
+    }).join('');
+  }
+
   function openModal(id) {
     currentProduct = allProducts.find(p => p.id === id);
     if (!currentProduct) return;
@@ -333,8 +374,12 @@
     document.getElementById('modal-seller-name').textContent = sellerName;
 
     const ratingEl = document.getElementById('modal-seller-rating');
-    ratingEl.innerHTML = ratingStarsHTML(seller.rating_avg, seller.rating_count);
-    ratingEl.classList.toggle('hidden', !(seller.rating_count > 0));
+    const hasRatings = seller.rating_count > 0;
+    ratingEl.innerHTML = ratingStarsHTML(seller.rating_avg, seller.rating_count)
+      + (hasRatings ? ' <span class="text-green-600 underline">see ratings</span>' : '');
+    ratingEl.classList.toggle('hidden', !hasRatings);
+    ratingEl.classList.toggle('cursor-pointer', hasRatings);
+    ratingEl.onclick = hasRatings ? () => openReviewsModal(seller.id, seller.rating_avg, seller.rating_count) : null;
 
     const meta = [
       seller.farm_location,
@@ -378,8 +423,12 @@
     farmEl.textContent = s.farm_name || '';
     farmEl.classList.toggle('hidden', !s.farm_name);
     const ratingEl = document.getElementById('farmer-rating');
-    ratingEl.innerHTML = ratingStarsHTML(s.rating_avg, s.rating_count);
-    ratingEl.classList.toggle('hidden', !(s.rating_count > 0));
+    const hasRatings = s.rating_count > 0;
+    ratingEl.innerHTML = ratingStarsHTML(s.rating_avg, s.rating_count)
+      + (hasRatings ? ' <span class="text-green-600 underline">see ratings</span>' : '');
+    ratingEl.classList.toggle('hidden', !hasRatings);
+    ratingEl.classList.toggle('cursor-pointer', hasRatings);
+    ratingEl.onclick = hasRatings ? () => openReviewsModal(s.id, s.rating_avg, s.rating_count) : null;
     const locEl = document.getElementById('farmer-location');
     locEl.textContent = s.farm_location ? `📍 ${s.farm_location}` : '';
     locEl.classList.toggle('hidden', !s.farm_location);
