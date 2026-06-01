@@ -527,7 +527,22 @@
     loadOrders();
   }
 
+  async function updateOrderBadges() {
+    const { data: rows } = await sb.from('mkt_orders')
+      .select('status')
+      .eq('seller_id', currentUser.id);
+    const counts = { pending:0, payment_uploaded:0, processing:0, completed:0 };
+    (rows || []).forEach(o => { if (counts[o.status] !== undefined) counts[o.status]++; });
+    ['pending','payment_uploaded','processing'].forEach(k => {
+      const b = document.getElementById('badge-' + k);
+      if (!b) return;
+      if (counts[k] > 0) { b.textContent = counts[k]; b.classList.remove('hidden'); }
+      else b.classList.add('hidden');
+    });
+  }
+
   async function loadOrders() {
+    updateOrderBadges();
     const { data: orders } = await sb.from('mkt_orders')
       .select('*, profiles:shared_profiles!buyer_id(full_name, phone), order_items:mkt_order_items(*, products:mkt_products(name, unit)), payments:mkt_payments(*)')
       .eq('seller_id', currentUser.id)
