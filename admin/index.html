@@ -55,7 +55,7 @@
     const { data: profile } = await sb.from('shared_profiles').select('*').eq('id', session.user.id).single();
     if (!profile || profile.role !== 'admin') { window.location.href = '../'; return; }
     currentUser = { ...session.user, ...profile };
-    document.getElementById('admin-name').textContent = profile.full_name || session.user.email;
+    document.getElementById('admin-name').textContent = 'Hi, ' + (profile.full_name || session.user.email);
     try { await sb.rpc('mkt_release_abandoned_orders'); } catch (_) {}
     initAdminAccess();
   })();
@@ -65,10 +65,10 @@
   <div class="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
     <a href="../" class="flex items-center gap-2 font-bold">
       <img src="../applogo.png" alt="HSI" class="w-7 h-7 rounded" onerror="this.style.display='none'" />
-      <span>HSI Admin</span>
+      <span class="text-sm sm:text-base">HSI Marketplace Admin Portal</span>
     </a>
     <div class="flex items-center gap-3">
-      <span id="admin-name" class="text-green-200 text-sm hidden sm:inline"></span>
+      <span id="admin-name" class="text-green-100 text-sm font-medium hidden sm:inline"></span>
       <button onclick="doLogout()" class="bg-green-800 hover:bg-green-700 text-sm px-3 py-1.5 rounded-full transition">Logout</button>
     </div>
   </div>
@@ -84,6 +84,7 @@
         <button onclick="switchTab('orders')"    id="tab-orders"    class="side-btn active"><span>📦</span><span>Orders</span></button>
         <button onclick="switchTab('customers')" id="tab-customers" class="side-btn"><span>🧑</span><span>Customers</span></button>
         <button onclick="switchTab('sellers')"   id="tab-sellers"   class="side-btn"><span>🌾</span><span>Sellers &amp; Products</span></button>
+        <button onclick="switchTab('points')"    id="tab-points"    class="side-btn"><span>💎</span><span>Points &amp; Membership</span></button>
         <button onclick="switchTab('settings')"  id="tab-settings"  class="side-btn"><span>⚙️</span><span>Settings</span></button>
         <button onclick="switchTab('staff')"     id="tab-staff"     class="side-btn hidden"><span>🛡️</span><span>User Access</span></button>
 
@@ -101,6 +102,10 @@
 
   <!-- SELLERS -->
   <div id="panel-sellers" class="hidden">
+    <div class="flex justify-between items-center mb-4 gap-2 flex-wrap">
+      <h2 class="text-lg font-bold text-green-900">Sellers &amp; Products</h2>
+      <button onclick="openAddSeller()" class="btn-primary text-white text-sm px-4 py-2 rounded-full transition">+ Add Seller</button>
+    </div>
     <div class="flex gap-2 mb-4 flex-wrap">
       <button onclick="setSellersFilter('pending')"   id="sf-pending"   class="filter-btn active text-sm px-4 py-1.5 rounded-full border border-green-200 transition">Pending</button>
       <button onclick="setSellersFilter('active')"    id="sf-active"    class="filter-btn text-sm px-4 py-1.5 rounded-full border border-green-200 bg-white text-green-700 transition">Active</button>
@@ -111,6 +116,10 @@
 
   <!-- ORDERS -->
   <div id="panel-orders">
+    <div class="flex justify-between items-center mb-4 gap-2 flex-wrap">
+      <h2 class="text-lg font-bold text-green-900">Orders</h2>
+      <button onclick="openAddOrder()" class="btn-primary text-white text-sm px-5 py-2 rounded-full transition">+ Add Order</button>
+    </div>
     <div class="flex gap-2 mb-4 flex-wrap">
       <button onclick="setOrdersFilter('all')"       id="of-all"       class="filter-btn active text-sm px-4 py-1.5 rounded-full border border-green-200 transition">All</button>
       <button onclick="setOrdersFilter('pending')"   id="of-pending"   class="filter-btn text-sm px-4 py-1.5 rounded-full border border-green-200 bg-white text-green-700 transition">Pending</button>
@@ -125,13 +134,17 @@
   </div>
 
   <!-- CUSTOMERS -->
-  <div id="panel-customers" class="hidden space-y-6">
-    <div>
-      <input id="cust-search" oninput="renderCustomers()" placeholder="Search customers…" class="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm mb-4 focus:outline-none focus:border-green-500" />
-      <div id="customers-list" class="space-y-3"><p class="text-gray-400 text-sm text-center py-8">Loading customers…</p></div>
+  <div id="panel-customers" class="hidden">
+    <div class="flex justify-between items-center mb-4 gap-2 flex-wrap">
+      <h2 class="text-lg font-bold text-green-900">Customers</h2>
+      <button onclick="openAddCustomer()" class="btn-primary text-white text-sm px-5 py-2 rounded-full transition">+ Add Customer</button>
     </div>
+    <input id="cust-search" oninput="renderCustomers()" placeholder="Search customers…" class="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm mb-4 focus:outline-none focus:border-green-500" />
+    <div id="customers-list" class="space-y-3"><p class="text-gray-400 text-sm text-center py-8">Loading customers…</p></div>
+  </div>
 
-    <!-- LOYALTY POINTS (moved from Settings) -->
+  <!-- POINTS & MEMBERSHIP -->
+  <div id="panel-points" class="hidden space-y-6">
     <div class="bg-white rounded-xl p-6 shadow border border-green-100">
       <h3 class="text-lg font-bold text-green-900 mb-4">Loyalty Points</h3>
       <div class="grid sm:grid-cols-2 gap-4 text-sm">
@@ -146,7 +159,6 @@
       <button onclick="savePointsConfig()" class="mt-4 btn-primary text-white font-semibold px-5 py-2 rounded-lg text-sm transition">Save Loyalty</button>
     </div>
 
-    <!-- MEMBER TIERS (moved from Settings) -->
     <div class="bg-white rounded-xl p-6 shadow border border-green-100">
       <div class="flex items-center justify-between mb-3">
         <h3 class="text-lg font-bold text-green-900">Membership Tiers</h3>
@@ -386,6 +398,114 @@
   </div>
 </div>
 
+<!-- ADD CUSTOMER MODAL -->
+<div id="addcust-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4">
+  <div class="absolute inset-0 bg-black bg-opacity-50" onclick="closeAdd('addcust')"></div>
+  <div class="relative bg-white rounded-2xl w-full max-w-md p-6 shadow-2xl max-h-screen overflow-y-auto">
+    <button onclick="closeAdd('addcust')" class="absolute top-3 right-4 text-gray-400 hover:text-gray-600 text-2xl">&times;</button>
+    <h3 class="text-xl font-bold text-green-900 mb-4">Add Customer</h3>
+    <form onsubmit="saveNewCustomer(event)" class="space-y-3 text-sm">
+      <input id="nc-name" required placeholder="Full name" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:border-green-500" />
+      <input id="nc-email" type="email" required placeholder="Email" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:border-green-500" />
+      <input id="nc-phone" placeholder="Phone" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:border-green-500" />
+      <div class="flex gap-2">
+        <input id="nc-pw" required minlength="6" placeholder="Temp password (min 6)" class="flex-1 border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:border-green-500" />
+        <button type="button" onclick="document.getElementById('nc-pw').value=genPw()" class="bg-green-100 text-green-700 px-3 rounded-lg text-xs font-semibold">Generate</button>
+      </div>
+      <p class="text-xs text-gray-400">Share the temp password with the customer; they can change it after logging in.</p>
+      <button type="submit" id="nc-btn" class="w-full btn-primary text-white font-semibold py-2.5 rounded-xl transition">Create Customer</button>
+      <p id="nc-msg" class="text-xs"></p>
+    </form>
+  </div>
+</div>
+
+<!-- ADD SELLER MODAL -->
+<div id="addseller-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4">
+  <div class="absolute inset-0 bg-black bg-opacity-50" onclick="closeAdd('addseller')"></div>
+  <div class="relative bg-white rounded-2xl w-full max-w-md p-6 shadow-2xl max-h-screen overflow-y-auto">
+    <button onclick="closeAdd('addseller')" class="absolute top-3 right-4 text-gray-400 hover:text-gray-600 text-2xl">&times;</button>
+    <h3 class="text-xl font-bold text-green-900 mb-4">Add Seller</h3>
+    <form onsubmit="saveNewSeller(event)" class="space-y-3 text-sm">
+      <input id="ns-name" required placeholder="Full name" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:border-green-500" />
+      <input id="ns-email" type="email" required placeholder="Email" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:border-green-500" />
+      <input id="ns-phone" placeholder="Phone" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:border-green-500" />
+      <input id="ns-farm" placeholder="Farm name" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:border-green-500" />
+      <input id="ns-loc" placeholder="Farm location" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:border-green-500" />
+      <div class="flex gap-2">
+        <input id="ns-pw" required minlength="6" placeholder="Temp password (min 6)" class="flex-1 border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:border-green-500" />
+        <button type="button" onclick="document.getElementById('ns-pw').value=genPw()" class="bg-green-100 text-green-700 px-3 rounded-lg text-xs font-semibold">Generate</button>
+      </div>
+      <select id="ns-status" class="w-full border border-gray-300 rounded-lg px-3 py-2">
+        <option value="active">Active (approved)</option>
+        <option value="pending">Pending approval</option>
+      </select>
+      <button type="submit" id="ns-btn" class="w-full btn-primary text-white font-semibold py-2.5 rounded-xl transition">Create Seller</button>
+      <p id="ns-msg" class="text-xs"></p>
+    </form>
+  </div>
+</div>
+
+<!-- ADD PRODUCT MODAL -->
+<div id="addprod-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4">
+  <div class="absolute inset-0 bg-black bg-opacity-50" onclick="closeAdd('addprod')"></div>
+  <div class="relative bg-white rounded-2xl w-full max-w-md p-6 shadow-2xl max-h-screen overflow-y-auto">
+    <button onclick="closeAdd('addprod')" class="absolute top-3 right-4 text-gray-400 hover:text-gray-600 text-2xl">&times;</button>
+    <h3 class="text-xl font-bold text-green-900 mb-4">Add Product</h3>
+    <form onsubmit="saveNewProduct(event)" class="space-y-3 text-sm">
+      <div><label class="block text-gray-600 text-xs mb-1">Seller</label><select id="np-seller" class="w-full border border-gray-300 rounded-lg px-3 py-2"></select></div>
+      <input id="np-name" required placeholder="Product name" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:border-green-500" />
+      <div class="grid grid-cols-2 gap-2">
+        <select id="np-category" class="border border-gray-300 rounded-lg px-3 py-2"><option>Vegetables</option><option>Fruits</option><option>Herbs</option><option>Other</option></select>
+        <input id="np-unit" placeholder="Unit (kg/bundle)" class="border border-gray-300 rounded-lg px-3 py-2" />
+      </div>
+      <div class="grid grid-cols-2 gap-2">
+        <input id="np-price" type="number" step="0.01" min="0" required placeholder="Price (RM)" class="border border-gray-300 rounded-lg px-3 py-2" />
+        <input id="np-qty" type="number" min="0" required placeholder="Quantity" class="border border-gray-300 rounded-lg px-3 py-2" />
+      </div>
+      <input id="np-harvest" type="date" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-gray-600" />
+      <textarea id="np-desc" rows="2" placeholder="Description (optional)" class="w-full border border-gray-300 rounded-lg px-3 py-2"></textarea>
+      <button type="submit" class="w-full btn-primary text-white font-semibold py-2.5 rounded-xl transition">Create Product</button>
+      <p id="np-msg" class="text-xs"></p>
+    </form>
+  </div>
+</div>
+
+<!-- ADD ORDER MODAL -->
+<div id="addorder-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4">
+  <div class="absolute inset-0 bg-black bg-opacity-50" onclick="closeAdd('addorder')"></div>
+  <div class="relative bg-white rounded-2xl w-full max-w-lg p-6 shadow-2xl max-h-screen overflow-y-auto">
+    <button onclick="closeAdd('addorder')" class="absolute top-3 right-4 text-gray-400 hover:text-gray-600 text-2xl">&times;</button>
+    <h3 class="text-xl font-bold text-green-900 mb-4">Add Order</h3>
+    <form onsubmit="saveNewOrder(event)" class="space-y-3 text-sm">
+      <div class="grid grid-cols-2 gap-2">
+        <div><label class="block text-gray-600 text-xs mb-1">Buyer</label><select id="no-buyer" class="w-full border border-gray-300 rounded-lg px-3 py-2"></select></div>
+        <div><label class="block text-gray-600 text-xs mb-1">Seller</label><select id="no-seller" onchange="onOrderSellerChange()" class="w-full border border-gray-300 rounded-lg px-3 py-2"></select></div>
+      </div>
+      <div>
+        <div class="flex items-center justify-between mb-1">
+          <label class="block text-gray-600 text-xs">Items</label>
+          <button type="button" onclick="addOrderItem()" class="text-green-600 text-xs hover:underline">+ Add item</button>
+        </div>
+        <div id="no-items" class="space-y-2"></div>
+      </div>
+      <div class="grid grid-cols-2 gap-2">
+        <div><label class="block text-gray-600 text-xs mb-1">Status</label>
+          <select id="no-status" class="w-full border border-gray-300 rounded-lg px-3 py-2">
+            <option value="pending">Pending payment</option>
+            <option value="payment_verified">Paid</option>
+            <option value="processing">Processing</option>
+            <option value="completed">Completed</option>
+          </select>
+        </div>
+        <div class="flex items-end justify-end"><p class="font-bold text-green-700 text-lg">Total: <span id="no-total">RM 0.00</span></p></div>
+      </div>
+      <textarea id="no-notes" rows="2" placeholder="Delivery / notes (optional)" class="w-full border border-gray-300 rounded-lg px-3 py-2"></textarea>
+      <button type="submit" id="no-btn" class="w-full btn-primary text-white font-semibold py-2.5 rounded-xl transition">Create Order</button>
+      <p id="no-msg" class="text-xs"></p>
+    </form>
+  </div>
+</div>
+
 <script>
   function showToast(msg, type = 'success') {
     const c = document.getElementById('toast-container');
@@ -393,12 +513,12 @@
     t.className = `toast ${type === 'error' ? 'bg-red-600' : type === 'warning' ? 'bg-amber-500' : 'bg-green-700'}`;
     t.textContent = msg; c.appendChild(t); setTimeout(() => t.remove(), 3500);
   }
-  const TABS = ['sellers','orders','payments','customers','coupons','promotions','announcements','settings','staff'];
-  const TAB_LABELS = { orders:'📦 Orders', customers:'🧑 Customers', sellers:'🌾 Sellers & Products', settings:'⚙️ Settings', staff:'🛡️ User Access', payments:'💰 Payments', coupons:'🎟️ Coupons', promotions:'🏷️ Promotions', announcements:'📢 Announcements' };
+  const TABS = ['sellers','orders','payments','customers','points','coupons','promotions','announcements','settings','staff'];
+  const TAB_LABELS = { orders:'📦 Orders', customers:'🧑 Customers', sellers:'🌾 Sellers & Products', points:'💎 Points & Membership', settings:'⚙️ Settings', staff:'🛡️ User Access', payments:'💰 Payments', coupons:'🎟️ Coupons', promotions:'🏷️ Promotions', announcements:'📢 Announcements' };
   const MANAGEABLE_TABS = [
     ['orders','📦 Orders'],['customers','🧑 Customers'],['sellers','🌾 Sellers & Products'],
-    ['settings','⚙️ Settings'],['payments','💰 Payments'],['coupons','🎟️ Coupons'],
-    ['promotions','🏷️ Promotions'],['announcements','📢 Announcements']
+    ['points','💎 Points & Membership'],['settings','⚙️ Settings'],['payments','💰 Payments'],
+    ['coupons','🎟️ Coupons'],['promotions','🏷️ Promotions'],['announcements','📢 Announcements']
   ];
   const SUPER_ADMIN_EMAIL = 'hsimarketplace2026@gmail.com';
   let myAccess = null;                              // null => full admin
@@ -413,7 +533,8 @@
     if (tab === 'sellers') loadSellers();
     if (tab === 'orders') loadAllOrders();
     if (tab === 'payments') loadAllPayments();
-    if (tab === 'customers') { loadCustomers(); loadSettings(); }
+    if (tab === 'customers') loadCustomers();
+    if (tab === 'points') loadSettings();
     if (tab === 'coupons') loadCoupons();
     if (tab === 'promotions') loadPromotions();
     if (tab === 'announcements') loadAnnouncements();
@@ -540,6 +661,7 @@
             <p class="text-xs text-gray-500">${s.farm_name || 'No farm name'} — ${s.farm_location || 'No location'}</p>
           </div>
           <div class="flex gap-2 flex-wrap">
+            <button onclick="openAddProduct('${s.id}','${(s.farm_name||s.full_name||'Seller').replace(/'/g,'’')}')" class="bg-green-700 hover:bg-green-800 text-white text-xs px-3 py-1.5 rounded-full transition">+ Product</button>
             ${s.status === 'pending' ? `<button onclick="updateSellerStatus('${s.id}','active')" class="btn-primary text-white text-xs px-3 py-1.5 rounded-full transition">Approve</button><button onclick="updateSellerStatus('${s.id}','suspended')" class="bg-red-50 text-red-600 text-xs px-3 py-1.5 rounded-full transition">Reject</button>` : ''}
             ${s.status === 'active' ? `<button onclick="updateSellerStatus('${s.id}','suspended')" class="bg-red-50 text-red-600 text-xs px-3 py-1.5 rounded-full transition">Suspend</button>` : ''}
             ${s.status === 'suspended' ? `<button onclick="updateSellerStatus('${s.id}','active')" class="btn-primary text-white text-xs px-3 py-1.5 rounded-full transition">Reinstate</button>` : ''}
@@ -992,6 +1114,166 @@
   }
 
   getSetting('member_tiers', []).then(t => window.MEMBER_TIERS = t);
+
+  // ================= ADD-DATA (manual entry) =================
+  function genPw() { const a='ABCDEFGHJKLMNPQRSTUVWXYZabcdefghijkmnpqrstuvwxyz23456789'; let s=''; for (let i=0;i<10;i++) s+=a[Math.floor(Math.random()*a.length)]; return s; }
+  function openAdd(p) { document.getElementById(p+'-modal').classList.remove('hidden'); }
+  function closeAdd(p) { document.getElementById(p+'-modal').classList.add('hidden'); }
+
+  // Create an auth account without disturbing the admin's own session
+  // (uses a throwaway client that doesn't persist the new session).
+  async function createAccount(email, password, meta) {
+    const tmp = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY, { auth: { persistSession: false, autoRefreshToken: false } });
+    const { data, error } = await tmp.auth.signUp({ email, password, options: { data: meta } });
+    if (error) return { error: error.message };
+    if (data.user && Array.isArray(data.user.identities) && data.user.identities.length === 0) return { error: 'This email is already registered.' };
+    return { user: data.user };
+  }
+
+  // ---- Add Customer ----
+  function openAddCustomer() {
+    ['nc-name','nc-email','nc-phone','nc-pw'].forEach(id=>document.getElementById(id).value='');
+    document.getElementById('nc-msg').textContent='';
+    openAdd('addcust');
+  }
+  async function saveNewCustomer(e) {
+    e.preventDefault();
+    const btn=document.getElementById('nc-btn'), msg=document.getElementById('nc-msg');
+    btn.disabled=true; btn.textContent='Creating…'; msg.textContent='';
+    const r = await createAccount(document.getElementById('nc-email').value.trim(), document.getElementById('nc-pw').value, {
+      full_name: document.getElementById('nc-name').value.trim(), role:'buyer', phone: document.getElementById('nc-phone').value.trim()
+    });
+    btn.disabled=false; btn.textContent='Create Customer';
+    if (r.error) { msg.className='text-xs text-red-600'; msg.textContent=r.error; return; }
+    showToast('Customer created'); closeAdd('addcust'); loadCustomers();
+  }
+
+  // ---- Add Seller ----
+  function openAddSeller() {
+    ['ns-name','ns-email','ns-phone','ns-farm','ns-loc','ns-pw'].forEach(id=>document.getElementById(id).value='');
+    document.getElementById('ns-status').value='active'; document.getElementById('ns-msg').textContent='';
+    openAdd('addseller');
+  }
+  async function saveNewSeller(e) {
+    e.preventDefault();
+    const btn=document.getElementById('ns-btn'), msg=document.getElementById('ns-msg');
+    btn.disabled=true; btn.textContent='Creating…'; msg.textContent='';
+    const r = await createAccount(document.getElementById('ns-email').value.trim(), document.getElementById('ns-pw').value, {
+      full_name: document.getElementById('ns-name').value.trim(), role:'seller',
+      phone: document.getElementById('ns-phone').value.trim(),
+      farm_name: document.getElementById('ns-farm').value.trim() || null,
+      farm_location: document.getElementById('ns-loc').value.trim() || null
+    });
+    if (!r.error && r.user) {
+      await sb.from('shared_profiles').update({ status: document.getElementById('ns-status').value }).eq('id', r.user.id);
+    }
+    btn.disabled=false; btn.textContent='Create Seller';
+    if (r.error) { msg.className='text-xs text-red-600'; msg.textContent=r.error; return; }
+    showToast('Seller created'); closeAdd('addseller'); loadSellers();
+  }
+
+  // ---- Add Product ----
+  async function openAddProduct(sellerId, sellerName) {
+    const sel = document.getElementById('np-seller');
+    if (sellerId) {
+      sel.innerHTML = `<option value="${sellerId}">${sellerName || sellerId}</option>`;
+      sel.value = sellerId; sel.disabled = true;
+    } else {
+      const { data: sellers } = await sb.from('shared_profiles').select('id,full_name,farm_name').eq('role','seller').eq('status','active').order('created_at');
+      sel.disabled = false;
+      sel.innerHTML = (sellers && sellers.length) ? sellers.map(s=>`<option value="${s.id}">${s.farm_name||s.full_name||s.id}</option>`).join('') : '<option value="">No active sellers — add one first</option>';
+    }
+    ['np-name','np-price','np-qty','np-harvest','np-desc'].forEach(id=>document.getElementById(id).value='');
+    document.getElementById('np-unit').value='kg'; document.getElementById('np-msg').textContent='';
+    openAdd('addprod');
+  }
+  async function saveNewProduct(e) {
+    e.preventDefault();
+    const msg=document.getElementById('np-msg');
+    const seller_id=document.getElementById('np-seller').value;
+    if (!seller_id) { msg.className='text-xs text-red-600'; msg.textContent='Select a seller.'; return; }
+    const { error } = await sb.from('mkt_products').insert({
+      seller_id, name: document.getElementById('np-name').value.trim(),
+      category: document.getElementById('np-category').value,
+      description: document.getElementById('np-desc').value.trim() || null,
+      price: parseFloat(document.getElementById('np-price').value)||0,
+      unit: document.getElementById('np-unit').value.trim()||'kg',
+      quantity: parseInt(document.getElementById('np-qty').value)||0,
+      harvest_date: document.getElementById('np-harvest').value || null
+    });
+    if (error) { msg.className='text-xs text-red-600'; msg.textContent='Failed: '+error.message; return; }
+    showToast('Product added'); closeAdd('addprod'); loadSellers();
+  }
+
+  // ---- Add Order ----
+  let ORDER_PRODUCTS = [];
+  async function openAddOrder() {
+    const [{ data: buyers }, { data: sellers }, { data: prods }] = await Promise.all([
+      sb.from('shared_profiles').select('id,full_name,email').eq('role','buyer').order('created_at'),
+      sb.from('shared_profiles').select('id,full_name,farm_name').eq('role','seller').eq('status','active').order('created_at'),
+      sb.from('mkt_products').select('id,name,price,unit,seller_id').eq('status','active')
+    ]);
+    ORDER_PRODUCTS = prods || [];
+    document.getElementById('no-buyer').innerHTML = (buyers||[]).map(b=>`<option value="${b.id}">${b.full_name||b.email}</option>`).join('') || '<option value="">No buyers</option>';
+    document.getElementById('no-seller').innerHTML = (sellers||[]).map(s=>`<option value="${s.id}">${s.farm_name||s.full_name}</option>`).join('') || '<option value="">No sellers</option>';
+    document.getElementById('no-items').innerHTML='';
+    document.getElementById('no-status').value='pending';
+    document.getElementById('no-notes').value=''; document.getElementById('no-msg').textContent='';
+    addOrderItem();
+    openAdd('addorder');
+  }
+  function sellerProductOptions() {
+    const sid=document.getElementById('no-seller').value;
+    const list=ORDER_PRODUCTS.filter(p=>p.seller_id===sid);
+    return list.length ? list.map(p=>`<option value="${p.id}">${p.name} — ${rm(p.price)}/${p.unit}</option>`).join('') : '<option value="">No products for this seller</option>';
+  }
+  function addOrderItem() {
+    const div=document.createElement('div');
+    div.className='no-item-row flex gap-2 items-center';
+    div.innerHTML=`<select class="no-item-prod flex-1 border border-gray-300 rounded-lg px-2 py-1.5 text-sm" onchange="calcOrderTotal()">${sellerProductOptions()}</select>
+      <input type="number" min="1" value="1" class="no-item-qty w-16 border border-gray-300 rounded-lg px-2 py-1.5 text-sm" oninput="calcOrderTotal()" />
+      <button type="button" onclick="this.closest('.no-item-row').remove();calcOrderTotal()" class="text-red-500 text-lg px-1">×</button>`;
+    document.getElementById('no-items').appendChild(div);
+    calcOrderTotal();
+  }
+  function onOrderSellerChange() {
+    document.querySelectorAll('.no-item-prod').forEach(sel => sel.innerHTML = sellerProductOptions());
+    calcOrderTotal();
+  }
+  function calcOrderTotal() {
+    let total=0;
+    document.querySelectorAll('.no-item-row').forEach(r=>{
+      const pid=r.querySelector('.no-item-prod').value; const qty=parseInt(r.querySelector('.no-item-qty').value)||0;
+      const p=ORDER_PRODUCTS.find(x=>x.id===pid); if (p) total+=parseFloat(p.price)*qty;
+    });
+    document.getElementById('no-total').textContent=rm(total);
+  }
+  async function saveNewOrder(e) {
+    e.preventDefault();
+    const msg=document.getElementById('no-msg'), btn=document.getElementById('no-btn');
+    const buyerId=document.getElementById('no-buyer').value, sellerId=document.getElementById('no-seller').value;
+    const items=[...document.querySelectorAll('.no-item-row')].map(r=>{
+      const pid=r.querySelector('.no-item-prod').value, qty=parseInt(r.querySelector('.no-item-qty').value)||0;
+      const p=ORDER_PRODUCTS.find(x=>x.id===pid); return (p&&qty>0)?{id:pid,name:p.name,price:parseFloat(p.price),qty}:null;
+    }).filter(Boolean);
+    if (!buyerId||!sellerId||!items.length) { msg.className='text-xs text-red-600'; msg.textContent='Pick a buyer, seller and at least one item.'; return; }
+    btn.disabled=true; btn.textContent='Creating…';
+    const sub=items.reduce((s,i)=>s+i.price*i.qty,0);
+    const status=document.getElementById('no-status').value;
+    let orderNumber=null; try { const { data: on } = await sb.rpc('mkt_next_order_number'); orderNumber=on; } catch(_){}
+    const paid=['payment_verified','processing','completed'].includes(status);
+    const { data: order, error } = await sb.from('mkt_orders').insert({
+      buyer_id:buyerId, seller_id:sellerId, order_number:orderNumber, subtotal:sub, total_amount:sub,
+      status, channel:'admin_panel', payment_method:'offline',
+      amount_paid: paid?sub:0, amount_paid_at: paid?new Date().toISOString():null,
+      delivery_notes: document.getElementById('no-notes').value.trim()||null
+    }).select().single();
+    if (error) { btn.disabled=false; btn.textContent='Create Order'; msg.className='text-xs text-red-600'; msg.textContent='Failed: '+error.message; return; }
+    await sb.from('mkt_order_items').insert(items.map(i=>({ order_id:order.id, product_id:i.id, product_name:i.name, quantity:i.qty, unit_price:i.price })));
+    if (paid) { try { await sb.rpc('mkt_award_order_points', { p_order_id: order.id }); } catch(_){} }
+    btn.disabled=false; btn.textContent='Create Order';
+    showToast('Order created'); closeAdd('addorder'); loadAllOrders();
+  }
 
   async function doLogout(){ await sb.auth.signOut(); window.location.href='../'; }
   if ('serviceWorker' in navigator) navigator.serviceWorker.register('../sw.js').catch(()=>{});
