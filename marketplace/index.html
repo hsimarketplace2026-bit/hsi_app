@@ -94,17 +94,55 @@
       <div id="modal-seller-card" class="hidden bg-green-50 rounded-xl p-4 border border-green-100">
         <p class="text-xs font-semibold text-green-700 uppercase tracking-wide mb-3">About the Farmer</p>
         <div class="flex items-start gap-3">
-          <div class="w-14 h-14 rounded-full bg-green-200 overflow-hidden shrink-0 flex items-center justify-center">
+          <button type="button" onclick="openFarmerModal()" title="View farmer profile" class="w-14 h-14 rounded-full bg-green-200 overflow-hidden shrink-0 flex items-center justify-center ring-2 ring-transparent hover:ring-green-400 transition cursor-pointer">
             <span id="modal-seller-placeholder" class="text-2xl">🧑‍🌾</span>
             <img id="modal-seller-photo" src="" alt="" class="hidden w-full h-full object-cover" />
-          </div>
+          </button>
           <div class="flex-1 min-w-0">
-            <p id="modal-seller-name" class="font-semibold text-gray-800 text-sm"></p>
+            <button type="button" onclick="openFarmerModal()" class="font-semibold text-gray-800 text-sm hover:text-green-700 transition text-left"><span id="modal-seller-name"></span></button>
             <p id="modal-seller-meta" class="text-xs text-gray-500 mt-0.5"></p>
             <div id="modal-seller-badges" class="flex flex-wrap gap-1 mt-1.5"></div>
+            <button type="button" onclick="openFarmerModal()" class="text-xs text-green-600 hover:text-green-800 font-medium mt-1.5">View farmer profile →</button>
           </div>
         </div>
         <p id="modal-seller-story" class="hidden text-xs text-gray-600 mt-3 italic leading-relaxed border-t border-green-100 pt-3"></p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- FARMER PROFILE MODAL -->
+<div id="farmer-modal" class="hidden fixed inset-0 z-[60] flex items-center justify-center p-4">
+  <div class="absolute inset-0 bg-black bg-opacity-60" onclick="closeFarmerModal()"></div>
+  <div class="relative bg-white rounded-2xl w-full max-w-md max-h-screen overflow-y-auto shadow-2xl">
+    <button onclick="closeFarmerModal()" class="absolute top-3 right-3 text-white hover:text-gray-200 text-3xl z-10 leading-none">&times;</button>
+    <!-- Header -->
+    <div class="bg-gradient-to-br from-green-800 to-green-600 px-6 pt-8 pb-12 text-center">
+      <div class="w-28 h-28 mx-auto rounded-full bg-green-200 overflow-hidden flex items-center justify-center ring-4 ring-white/40 shadow-lg">
+        <span id="farmer-placeholder" class="text-5xl">🧑‍🌾</span>
+        <img id="farmer-photo" src="" alt="" class="hidden w-full h-full object-cover" />
+      </div>
+    </div>
+    <div class="px-6 pb-6 -mt-6">
+      <div class="bg-white rounded-xl text-center mb-4">
+        <h2 id="farmer-name" class="text-xl font-bold text-green-900"></h2>
+        <p id="farmer-farm" class="text-sm text-green-600 font-medium"></p>
+        <p id="farmer-location" class="text-xs text-gray-500 mt-0.5"></p>
+      </div>
+
+      <!-- Stat chips -->
+      <div id="farmer-stats" class="grid grid-cols-3 gap-2 mb-4"></div>
+
+      <!-- Certifications -->
+      <div id="farmer-certs-wrap" class="hidden mb-4">
+        <p class="text-xs font-semibold text-green-700 uppercase tracking-wide mb-2">Certifications & Awards</p>
+        <div id="farmer-certs" class="flex flex-wrap gap-1.5"></div>
+      </div>
+
+      <!-- Story -->
+      <div id="farmer-story-wrap" class="hidden">
+        <p class="text-xs font-semibold text-green-700 uppercase tracking-wide mb-2">My Farming Story</p>
+        <p id="farmer-story" class="text-sm text-gray-600 leading-relaxed italic"></p>
       </div>
     </div>
   </div>
@@ -281,6 +319,55 @@
   function closeModal() {
     document.getElementById('product-modal').classList.add('hidden');
     currentProduct = null;
+  }
+
+  function openFarmerModal() {
+    const s = (currentProduct && currentProduct.profiles) || {};
+    document.getElementById('farmer-name').textContent = s.full_name || s.farm_name || 'HSI Farmer';
+    const farmEl = document.getElementById('farmer-farm');
+    farmEl.textContent = s.farm_name || '';
+    farmEl.classList.toggle('hidden', !s.farm_name);
+    const locEl = document.getElementById('farmer-location');
+    locEl.textContent = s.farm_location ? `📍 ${s.farm_location}` : '';
+    locEl.classList.toggle('hidden', !s.farm_location);
+
+    // photo
+    const photo = document.getElementById('farmer-photo');
+    const ph = document.getElementById('farmer-placeholder');
+    if (s.photo_url) { photo.src = s.photo_url; photo.classList.remove('hidden'); ph.classList.add('hidden'); }
+    else { photo.classList.add('hidden'); ph.classList.remove('hidden'); }
+
+    // stat chips
+    const exp = s.farming_since ? Math.max(0, (new Date().getFullYear() - s.farming_since)) : null;
+    const stats = [
+      s.age ? { label: 'Age', value: s.age } : null,
+      s.ethnicity ? { label: 'Ethnicity', value: s.ethnicity } : null,
+      exp !== null ? { label: 'Experience', value: exp + (exp === 1 ? ' yr' : ' yrs') } : null,
+      s.farming_since ? { label: 'Since', value: s.farming_since } : null,
+      s.farm_size ? { label: 'Farm Size', value: s.farm_size } : null,
+    ].filter(Boolean);
+    document.getElementById('farmer-stats').innerHTML = stats.map(st => `
+      <div class="bg-green-50 rounded-lg py-2 px-1 text-center border border-green-100">
+        <p class="text-sm font-bold text-green-800 leading-tight">${st.value}</p>
+        <p class="text-[10px] text-gray-500 uppercase tracking-wide">${st.label}</p>
+      </div>`).join('');
+
+    // certifications
+    const certs = s.certifications ? s.certifications.split(',').map(x => x.trim()).filter(Boolean) : [];
+    document.getElementById('farmer-certs-wrap').classList.toggle('hidden', certs.length === 0);
+    document.getElementById('farmer-certs').innerHTML = certs.map(c =>
+      `<span class="bg-green-100 text-green-700 text-xs px-2.5 py-1 rounded-full font-medium">🏅 ${c}</span>`).join('');
+
+    // story
+    const storyWrap = document.getElementById('farmer-story-wrap');
+    if (s.story) { document.getElementById('farmer-story').textContent = `"${s.story}"`; storyWrap.classList.remove('hidden'); }
+    else storyWrap.classList.add('hidden');
+
+    document.getElementById('farmer-modal').classList.remove('hidden');
+  }
+
+  function closeFarmerModal() {
+    document.getElementById('farmer-modal').classList.add('hidden');
   }
 
   function changeQty(delta) {
