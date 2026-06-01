@@ -317,6 +317,37 @@ alter table public.mkt_order_items add column if not exists promotion_discount n
 alter table public.mkt_payments add column if not exists amount    numeric(10,2);
 alter table public.mkt_payments add column if not exists reference text;
 
+-- Seller aggregate rating (shown publicly on the marketplace farmer card)
+alter table public.shared_profiles add column if not exists rating_avg   numeric(3,2) default 0;
+alter table public.shared_profiles add column if not exists rating_count integer      default 0;
+
+create or replace function public.mkt_recompute_seller_rating(p_seller uuid)
+returns void language sql as $$
+  update public.shared_profiles sp set
+    rating_avg = coalesce((select round(avg(o.rating)::numeric,2) from public.mkt_orders o
+                           where o.seller_id = p_seller and o.rating is not null), 0),
+    rating_count = coalesce((select count(*) from public.mkt_orders o
+                             where o.seller_id = p_seller and o.rating is not null), 0)
+  where sp.id = p_seller;
+$$;
+
+create or replace function public.mkt_order_rating_trigger()
+returns trigger language plpgsql as $$
+begin
+  if (tg_op = 'DELETE') then
+    perform public.mkt_recompute_seller_rating(old.seller_id);
+    return old;
+  end if;
+  perform public.mkt_recompute_seller_rating(new.seller_id);
+  return new;
+end;
+$$;
+
+drop trigger if exists trg_mkt_order_rating on public.mkt_orders;
+create trigger trg_mkt_order_rating
+  after insert or update of rating or delete on public.mkt_orders
+  for each row execute function public.mkt_order_rating_trigger();
+
 -- ---- B2. Shared app settings -----------------------------------
 create table if not exists public.shared_app_settings (
   key text primary key, value jsonb not null default '{}'::jsonb, updated_at timestamptz default now()

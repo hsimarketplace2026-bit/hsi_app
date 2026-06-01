@@ -119,6 +119,7 @@
           </button>
           <div class="flex-1 min-w-0">
             <button type="button" onclick="openFarmerModal()" class="font-semibold text-gray-800 text-sm hover:text-green-700 transition text-left"><span id="modal-seller-name"></span></button>
+            <p id="modal-seller-rating" class="hidden text-xs mt-0.5"></p>
             <p id="modal-seller-meta" class="text-xs text-gray-500 mt-0.5"></p>
             <div id="modal-seller-badges" class="flex flex-wrap gap-1 mt-1.5"></div>
             <button type="button" onclick="openFarmerModal()" class="text-xs text-green-600 hover:text-green-800 font-medium mt-1.5">View farmer profile →</button>
@@ -146,6 +147,7 @@
       <div class="bg-white rounded-xl text-center mb-4">
         <h2 id="farmer-name" class="text-xl font-bold text-green-900"></h2>
         <p id="farmer-farm" class="text-sm text-green-600 font-medium"></p>
+        <p id="farmer-rating" class="hidden text-sm mt-1"></p>
         <p id="farmer-location" class="text-xs text-gray-500 mt-0.5"></p>
       </div>
 
@@ -222,7 +224,7 @@
     const sellerIds = [...new Set(allProducts.map(p => p.seller_id).filter(Boolean))];
     if (sellerIds.length) {
       const { data: profilesData } = await sb.from('shared_profiles')
-        .select('id, full_name, farm_name, photo_url, farm_location, age, ethnicity, farming_since, farm_size, certifications, story')
+        .select('id, full_name, farm_name, photo_url, farm_location, age, ethnicity, farming_since, farm_size, certifications, story, rating_avg, rating_count')
         .in('id', sellerIds);
       if (profilesData) {
         const profileMap = {};
@@ -298,6 +300,15 @@
     `).join('');
   }
 
+  function ratingStarsHTML(avg, count) {
+    const a = Number(avg) || 0;
+    const c = Number(count) || 0;
+    if (c < 1) return '<span class="text-gray-400">No ratings yet</span>';
+    const full = Math.round(a);
+    const stars = '★'.repeat(full) + '☆'.repeat(5 - full);
+    return `<span class="text-amber-500">${stars}</span> <span class="text-gray-500">${a.toFixed(1)} (${c})</span>`;
+  }
+
   function openModal(id) {
     currentProduct = allProducts.find(p => p.id === id);
     if (!currentProduct) return;
@@ -318,6 +329,10 @@
     const card = document.getElementById('modal-seller-card');
     const sellerName = seller.farm_name || seller.full_name || 'HSI Farmer';
     document.getElementById('modal-seller-name').textContent = sellerName;
+
+    const ratingEl = document.getElementById('modal-seller-rating');
+    ratingEl.innerHTML = ratingStarsHTML(seller.rating_avg, seller.rating_count);
+    ratingEl.classList.toggle('hidden', !(seller.rating_count > 0));
 
     const meta = [
       seller.farm_location,
@@ -360,6 +375,9 @@
     const farmEl = document.getElementById('farmer-farm');
     farmEl.textContent = s.farm_name || '';
     farmEl.classList.toggle('hidden', !s.farm_name);
+    const ratingEl = document.getElementById('farmer-rating');
+    ratingEl.innerHTML = ratingStarsHTML(s.rating_avg, s.rating_count);
+    ratingEl.classList.toggle('hidden', !(s.rating_count > 0));
     const locEl = document.getElementById('farmer-location');
     locEl.textContent = s.farm_location ? `📍 ${s.farm_location}` : '';
     locEl.classList.toggle('hidden', !s.farm_location);
