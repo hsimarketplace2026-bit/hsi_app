@@ -101,6 +101,12 @@
 
   <!-- ORDERS TAB -->
   <div id="panel-orders" class="hidden">
+    <div class="flex gap-2 mb-4">
+      <button onclick="setOrderView('active')" id="ordview-active"
+        class="flex-1 py-2 text-sm font-semibold rounded-lg bg-green-600 text-white transition">Active Orders</button>
+      <button onclick="setOrderView('sales')" id="ordview-sales"
+        class="flex-1 py-2 text-sm font-semibold rounded-lg bg-white border border-green-200 text-green-700 transition">Sales Records</button>
+    </div>
     <div id="orders-list" class="space-y-4">
       <p class="text-gray-400 text-sm text-center py-8">Loading orders…</p>
     </div>
@@ -469,62 +475,124 @@
   }
 
   // ---- ORDERS ----
+  let orderView = 'active'; // 'active' | 'sales'
+
+  function setOrderView(v) {
+    orderView = v;
+    document.getElementById('ordview-active').className = `flex-1 py-2 text-sm font-semibold rounded-lg transition ${v==='active' ? 'bg-green-600 text-white' : 'bg-white border border-green-200 text-green-700'}`;
+    document.getElementById('ordview-sales').className  = `flex-1 py-2 text-sm font-semibold rounded-lg transition ${v==='sales'  ? 'bg-green-600 text-white' : 'bg-white border border-green-200 text-green-700'}`;
+    loadOrders();
+  }
+
   async function loadOrders() {
-    const { data: orders } = await sb.from('mkt_orders')
+    const activeStatuses = ['pending','payment_uploaded','processing'];
+    let query = sb.from('mkt_orders')
       .select('*, profiles:shared_profiles!buyer_id(full_name, phone), order_items:mkt_order_items(*, products:mkt_products(name, unit)), payments:mkt_payments(*)')
       .eq('seller_id', currentUser.id)
       .order('created_at', { ascending: false });
+    if (orderView === 'active') query = query.in('status', activeStatuses);
+    else query = query.eq('status', 'completed');
+
+    const { data: orders } = await query;
     const el = document.getElementById('orders-list');
     if (!orders || orders.length === 0) {
-      el.innerHTML = '<p class="text-gray-400 text-sm text-center py-8">No orders yet.</p>';
+      el.innerHTML = `<p class="text-gray-400 text-sm text-center py-8">${orderView === 'sales' ? 'No sales records yet.' : 'No active orders.'}</p>`;
       return;
     }
+
+    if (orderView === 'sales') {
+      el.innerHTML = orders.map(o => `
+        <div class="bg-white rounded-xl p-5 shadow border border-green-100">
+          <div class="flex items-start justify-between mb-2">
+            <div>
+              <p class="font-semibold text-green-900">${o.profiles?.full_name || 'Buyer'}</p>
+              <p class="text-xs text-gray-400">${new Date(o.created_at).toLocaleString()}${o.order_number ? ' · ' + o.order_number : ''}</p>
+            </div>
+            <span class="text-xs font-semibold px-2 py-1 rounded-full status-completed">DELIVERED</span>
+          </div>
+          <div class="space-y-0.5 mb-3">
+            ${(o.order_items || []).map(i => `
+              <div class="flex justify-between text-sm text-gray-600">
+                <span>${i.products?.name} × ${i.quantity}</span>
+                <span>RM ${(i.quantity * i.unit_price).toFixed(2)}</span>
+              </div>`).join('')}
+          </div>
+          <div class="flex items-center justify-between border-t border-green-50 pt-3">
+            <span class="text-xs text-gray-400">${o.fulfillment_type === 'delivery' ? '🚚 Delivered' : '🏡 Picked up'}</span>
+            <span class="font-bold text-green-700">RM ${parseFloat(o.total_amount).toFixed(2)}</span>
+          </div>
+        </div>`).join('');
+      return;
+    }
+
     el.innerHTML = orders.map(o => {
       const payment = o.payments?.[0];
+      const statusLabels = { processing:'PROCEED ORDER', payment_uploaded:'SLIP UPLOADED', pending:'PENDING' };
       const statusClass = `status-${o.status}`;
       return `
         <div class="bg-white rounded-xl p-5 shadow border border-green-100">
           <div class="flex items-start justify-between mb-3">
             <div>
               <p class="font-semibold text-green-900">${o.profiles?.full_name || 'Buyer'}</p>
-              <p class="text-xs text-gray-400">${new Date(o.created_at).toLocaleString()}</p>
+              <p class="text-xs text-gray-400">${new Date(o.created_at).toLocaleString()}${o.order_number ? ' · ' + o.order_number : ''}</p>
             </div>
-            <span class="text-xs font-semibold px-2 py-1 rounded-full ${statusClass}">${({'processing':'PROCEED ORDER','payment_verified':'PAYMENT VERIFIED','payment_uploaded':'PAYMENT UPLOADED','pending':'PENDING','completed':'COMPLETED','cancelled':'CANCELLED'}[o.status] || o.status.replace(/_/g,' ').toUpperCase())}</span>
+            <span class="text-xs font-semibold px-2 py-1 rounded-full ${statusClass}">${statusLabels[o.status] || o.status.replace(/_/g,' ').toUpperCase()}</span>
           </div>
           <div class="space-y-1 mb-3">
             ${(o.order_items || []).map(i => `
               <div class="flex justify-between text-sm text-gray-600">
                 <span>${i.products?.name} × ${i.quantity}</span>
                 <span>RM ${(i.quantity * i.unit_price).toFixed(2)}</span>
-              </div>
-            `).join('')}
+              </div>`).join('')}
           </div>
           <div class="flex gap-2 mb-2 flex-wrap">
             ${o.fulfillment_type === 'delivery'
-              ? `<span class="text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full font-medium">🚚 Delivery${o.delivery_fee > 0 ? ` (+RM ${parseFloat(o.delivery_fee).toFixed(2)})` : ''}</span>`
+              ? `<span class="text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full font-medium">🚚 Delivery${o.delivery_fee > 0 ? ` +RM ${parseFloat(o.delivery_fee).toFixed(2)}` : ''}</span>`
               : `<span class="text-xs bg-gray-100 text-gray-600 px-2 py-0.5 rounded-full font-medium">🏡 Pickup</span>`}
           </div>
-          ${o.delivery_address ? `<p class="text-xs text-gray-500 mb-2">📍 ${o.delivery_address}</p>` : ''}
+          ${o.delivery_address ? `<p class="text-xs text-gray-500 mb-1">📍 ${o.delivery_address}</p>` : ''}
           ${o.delivery_notes ? `<p class="text-xs text-gray-500 italic mb-2">Note: ${o.delivery_notes}</p>` : ''}
+
           ${payment?.proof_url ? `
-            <div class="mb-3">
-              <p class="text-xs text-gray-500 mb-1">Payment Proof (${payment.method}):</p>
-              <a href="${payment.proof_url}" target="_blank">
-                <img src="${payment.proof_url}" alt="proof" class="h-24 rounded-lg object-cover border border-green-100" />
-              </a>
-            </div>` : ''}
+            <div class="mb-3 p-3 bg-gray-50 rounded-xl border border-gray-100">
+              <p class="text-xs font-medium text-gray-600 mb-2">Payment Slip</p>
+              <div class="flex items-start gap-3">
+                <a href="${payment.proof_url}" target="_blank" class="shrink-0">
+                  <img src="${payment.proof_url}" alt="slip" class="h-24 w-24 rounded-lg object-cover border border-gray-200" />
+                </a>
+                ${o.status === 'payment_uploaded' ? `
+                <div class="flex-1">
+                  <label class="text-xs text-gray-500 block mb-1">Verify this payment:</label>
+                  <select onchange="handlePaymentAction(this,'${payment.id}','${o.id}')"
+                    class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-green-500 bg-white">
+                    <option value="">— Select action —</option>
+                    <option value="verified">✅ Verified — Proceed Order</option>
+                    <option value="rejected">❌ Rejected — Reset to Pending</option>
+                  </select>
+                </div>` : ''}
+              </div>
+            </div>` : (o.status === 'payment_uploaded' ? `<p class="text-xs text-amber-600 mb-3">⚠ Slip not uploaded yet</p>` : '')}
+
           <div class="flex items-center justify-between border-t border-green-50 pt-3 flex-wrap gap-2">
             <span class="font-bold text-green-700">RM ${parseFloat(o.total_amount).toFixed(2)}</span>
-            <div class="flex gap-2 flex-wrap">
-              ${o.status === 'payment_uploaded' && payment ? `
-                <button onclick="verifyPayment('${payment.id}','${o.id}')" class="btn-primary text-white text-xs px-3 py-1.5 rounded-full transition">✓ Verify &amp; Proceed</button>
-                <button onclick="rejectPayment('${payment.id}','${o.id}')" class="bg-red-50 text-red-600 text-xs px-3 py-1.5 rounded-full transition">Reject</button>` : ''}
-              ${o.status === 'processing' ? `<button onclick="updateOrderStatus('${o.id}','completed')" class="bg-green-700 text-white text-xs px-3 py-1.5 rounded-full transition">Mark Completed</button>` : ''}
-            </div>
+            ${o.status === 'processing' ? `
+              <button onclick="markDelivered('${o.id}')"
+                class="bg-green-700 hover:bg-green-800 text-white text-sm font-semibold px-5 py-2 rounded-full transition">
+                📦 Order Delivered
+              </button>` : ''}
           </div>
-        </div>
-      `;
+        </div>`;
     }).join('');
+  }
+
+  async function handlePaymentAction(select, paymentId, orderId) {
+    const action = select.value;
+    if (!action) return;
+    select.disabled = true;
+    if (action === 'verified') await verifyPayment(paymentId, orderId);
+    else if (action === 'rejected') await rejectPayment(paymentId, orderId);
+    select.disabled = false;
+    select.value = '';
   }
 
   async function verifyPayment(paymentId, orderId) {
@@ -536,7 +604,7 @@
       amount_paid_at: new Date().toISOString()
     }).eq('id', orderId);
     try { await sb.rpc('mkt_award_order_points', { p_order_id: orderId }); } catch (_) {}
-    showToast('Payment verified — order set to Proceed!');
+    showToast('Payment verified — order is now Proceed Order!');
     loadOrders();
   }
 
@@ -547,9 +615,9 @@
     loadOrders();
   }
 
-  async function updateOrderStatus(orderId, status) {
-    await sb.from('mkt_orders').update({ status }).eq('id', orderId);
-    showToast(`Order marked as ${status}`);
+  async function markDelivered(orderId) {
+    await sb.from('mkt_orders').update({ status: 'completed' }).eq('id', orderId);
+    showToast('Order delivered! Moved to Sales Records.');
     loadOrders();
   }
 
