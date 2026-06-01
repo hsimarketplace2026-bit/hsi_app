@@ -27,6 +27,8 @@
     .side-btn.active { background:#16a34a; color:#fff; box-shadow:0 1px 4px rgba(22,163,74,.35); }
     .side-locked { opacity:.45; }
     .side-locked:hover { opacity:.9; }
+    /* Subscribe-only modules: viewable but not interactive */
+    .panel-locked > *:not(#preview-banner) { opacity:.6; pointer-events:none; }
     .side-section-label { font-size:.65rem; text-transform:uppercase; letter-spacing:.06em; color:#9ca3af; padding:.7rem .85rem .3rem; }
     .status-pending { background:#fef3c7;color:#92400e; }
     .status-payment_uploaded { background:#dbeafe;color:#1e40af; }
@@ -600,6 +602,34 @@
     if (tab === 'announcements') loadAnnouncements();
     if (tab === 'settings') loadSettings();
     if (tab === 'staff') loadStaff();
+    applyPreviewLock(tab);
+  }
+
+  // Subscribe-only modules — show the page for preview but disable all
+  // interaction (no saving/changing). Reuses the side-locked tab list.
+  const LOCKED_TABS = ['reports','points','payments','coupons','promotions','announcements'];
+  function previewBanner() {
+    let b = document.getElementById('preview-banner');
+    if (!b) {
+      b = document.createElement('div');
+      b.id = 'preview-banner';
+      b.className = 'mb-4 flex items-center gap-3 bg-amber-50 border border-amber-200 text-amber-800 rounded-xl px-4 py-3';
+      b.innerHTML = '<span class="text-lg">🔒</span><div>'
+        + '<p class="font-semibold text-sm">Preview only — this module requires a subscription.</p>'
+        + '<p class="text-xs text-amber-700">You can view it here, but saving and changes are disabled. Contact your sales representative to unlock.</p></div>';
+    }
+    return b;
+  }
+  function applyPreviewLock(tab) {
+    TABS.forEach(t => document.getElementById(`panel-${t}`)?.classList.remove('panel-locked'));
+    const banner = previewBanner();
+    if (LOCKED_TABS.includes(tab)) {
+      const panel = document.getElementById(`panel-${tab}`);
+      panel.classList.add('panel-locked');
+      panel.insertBefore(banner, panel.firstChild);
+    } else if (banner.parentNode) {
+      banner.parentNode.removeChild(banner);
+    }
   }
   function toggleSidebar(){ document.getElementById('sidebar').classList.toggle('hidden'); }
 
