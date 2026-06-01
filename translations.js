@@ -5,6 +5,7 @@
       // Nav
       'nav.browse': 'Browse',
       'nav.shop': 'SHOP',
+      'nav.home': 'Home',
       'nav.login_register': 'Login / Register',
       'nav.dashboard': 'My Dashboard',
       'nav.greeting': 'Hi',
@@ -116,6 +117,7 @@
       // Nav
       'nav.browse': 'Lihat',
       'nav.shop': 'BELI',
+      'nav.home': 'Laman Utama',
       'nav.login_register': 'Log Masuk / Daftar',
       'nav.dashboard': 'Papan Pemuka',
       'nav.greeting': 'Hai',
