@@ -4,6 +4,7 @@
     en: {
       // Nav
       'nav.browse': 'Browse',
+      'nav.shop': 'SHOP',
       'nav.login_register': 'Login / Register',
       'nav.dashboard': 'My Dashboard',
       'nav.logout': 'Logout',
@@ -111,6 +112,7 @@
     bm: {
       // Nav
       'nav.browse': 'Lihat',
+      'nav.shop': 'BELI',
       'nav.login_register': 'Log Masuk / Daftar',
       'nav.dashboard': 'Papan Pemuka',
       'nav.logout': 'Log Keluar',

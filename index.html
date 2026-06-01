@@ -99,12 +99,14 @@
 <!-- NAV -->
 <nav class="nav-bg text-white sticky top-0 z-40 shadow-lg">
   <div class="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
-    <a href="./" class="flex items-center gap-2 font-bold text-lg tracking-wide">
-      <img src="applogo.png" alt="HSI" class="w-8 h-8 rounded" onerror="this.style.display='none'" />
-      <span>HSI Marketplace</span>
-    </a>
+    <div class="flex items-center gap-4">
+      <a href="./" class="flex items-center gap-2 font-bold text-lg tracking-wide">
+        <img src="applogo.png" alt="HSI" class="w-8 h-8 rounded" onerror="this.style.display='none'" />
+        <span>HSI Marketplace</span>
+      </a>
+      <a href="marketplace/" class="btn-primary text-white text-sm px-4 py-1.5 rounded-full font-semibold tracking-wide transition" data-i18n="nav.shop">SHOP</a>
+    </div>
     <div class="flex items-center gap-3">
-      <a href="marketplace/" class="text-green-200 hover:text-white text-sm transition" data-i18n="nav.browse">Browse</a>
       <button id="lang-toggle" onclick="toggleLang()" class="text-green-200 hover:text-white border border-green-700 hover:border-green-400 text-xs px-2.5 py-1 rounded-full font-semibold transition">BM</button>
       <button id="nav-auth-btn" onclick="openAuth()" class="btn-primary text-white text-sm px-4 py-1.5 rounded-full font-medium transition" data-i18n="nav.login_register">Login / Register</button>
       <button id="nav-dashboard-btn" onclick="goToDashboard()" class="hidden btn-primary text-white text-sm px-4 py-1.5 rounded-full font-medium transition" data-i18n="nav.dashboard">My Dashboard</button>
