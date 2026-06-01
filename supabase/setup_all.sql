@@ -321,8 +321,10 @@ alter table public.mkt_payments add column if not exists reference text;
 alter table public.shared_profiles add column if not exists rating_avg   numeric(3,2) default 0;
 alter table public.shared_profiles add column if not exists rating_count integer      default 0;
 
+-- SECURITY DEFINER so the buyer's rating UPDATE can recompute the *seller's*
+-- aggregate row despite RLS (which only lets a user update their own profile).
 create or replace function public.mkt_recompute_seller_rating(p_seller uuid)
-returns void language sql as $$
+returns void language sql security definer set search_path = public as $$
   update public.shared_profiles sp set
     rating_avg = coalesce((select round(avg(o.rating)::numeric,2) from public.mkt_orders o
                            where o.seller_id = p_seller and o.rating is not null), 0),
@@ -332,7 +334,7 @@ returns void language sql as $$
 $$;
 
 create or replace function public.mkt_order_rating_trigger()
-returns trigger language plpgsql as $$
+returns trigger language plpgsql security definer set search_path = public as $$
 begin
   if (tg_op = 'DELETE') then
     perform public.mkt_recompute_seller_rating(old.seller_id);
