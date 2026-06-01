@@ -23,7 +23,7 @@
     @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
     .tab-btn.active { background-color: #16a34a; color: white; }
     .status-pending { background:#fef3c7;color:#92400e; }
-    .status-payment_uploaded { background:#dbeafe;color:#1e40af; }
+    .status-payment_uploaded { background:#cffafe;color:#0e7490; }
     .status-payment_verified { background:#e0e7ff;color:#3730a3; }
     .status-processing { background:#e0f2fe;color:#0369a1; }
     .status-completed { background:#dcfce7;color:#166534; }
@@ -542,7 +542,7 @@
 
     el.innerHTML = orders.map(o => {
       const payment = o.payments?.[0];
-      const statusLabels = { pending:'TO PAY', payment_uploaded:'PAID', processing:'IN DELIVERY', completed:'COMPLETED', cancelled:'CANCELLED' };
+      const statusLabels = { pending:'PENDING PAYMENT', payment_uploaded:'SLIP UPLOADED', processing:'IN DELIVERY', completed:'COMPLETED', cancelled:'CANCELLED' };
       const statusClass = `status-${o.status}`;
       return `
         <div class="bg-white rounded-xl p-5 shadow border border-green-100">
