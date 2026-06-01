@@ -98,7 +98,6 @@
 
     <!-- MAIN CONTENT -->
     <main class="flex-1 min-w-0">
-  <h1 class="text-2xl font-bold text-green-900 mb-6">Admin Panel</h1>
 
   <!-- SELLERS -->
   <div id="panel-sellers" class="hidden">
@@ -200,10 +199,53 @@
   <div id="panel-settings" class="hidden space-y-6">
     <div class="bg-white rounded-xl p-6 shadow border border-green-100">
       <h3 class="text-lg font-bold text-green-900 mb-4">Payment Methods</h3>
-      <div class="bg-green-50 text-green-800 text-sm rounded-lg p-4">
+      <div class="bg-green-50 text-green-800 text-sm rounded-lg p-4 mb-4">
         <p class="font-semibold mb-1">💳 Direct seller payments</p>
-        <p class="text-xs text-gray-600">Buyers pay each seller directly. Sellers set up their own bank/DuitNow QR code and WhatsApp number in their <strong>Seller Dashboard → Profile → Payment Details</strong>. Buyers scan the QR and send their payment slip via WhatsApp.</p>
+        <p class="text-xs text-gray-600">Buyers pay each seller directly. Sellers set up their own bank/DuitNow QR code and WhatsApp number in their <strong>Seller Dashboard → Profile → Payment Details</strong>; buyers scan the QR and send their payment slip via WhatsApp. The settings below are an optional marketplace-wide fallback.</p>
       </div>
+      <div class="space-y-3">
+
+        <!-- OFFLINE ACCORDION -->
+        <div class="border border-green-100 rounded-xl overflow-hidden">
+          <button type="button" onclick="togglePaySection('offline')" class="w-full flex items-center justify-between px-4 py-3 bg-green-50 hover:bg-green-100 transition text-left">
+            <span class="font-semibold text-sm text-green-900">🏦 Offline — Bank Transfer</span>
+            <svg id="pay-offline-chevron" class="w-5 h-5 text-green-700 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+          </button>
+          <div id="pay-offline-body" class="hidden px-4 py-4 space-y-4 text-sm">
+            <label class="flex items-center gap-2"><input type="checkbox" id="set-offline-enabled" class="accent-green-600" /> Enable offline bank transfer (buyers upload payment proof)</label>
+            <div>
+              <h4 class="font-bold text-green-900 mb-3">Bank Details</h4>
+              <div class="grid sm:grid-cols-2 gap-3">
+                <div><label class="block text-gray-600 mb-1">Account holder name</label><input id="set-bank-holder" class="w-full border border-gray-300 rounded-lg px-3 py-2" /></div>
+                <div><label class="block text-gray-600 mb-1">Account number</label><input id="set-bank-account" class="w-full border border-gray-300 rounded-lg px-3 py-2" /></div>
+                <div><label class="block text-gray-600 mb-1">Bank name</label><input id="set-bank-name" class="w-full border border-gray-300 rounded-lg px-3 py-2" /></div>
+                <div>
+                  <label class="block text-gray-600 mb-1">DuitNow QR</label>
+                  <input type="file" accept="image/*" id="set-duitnow-file" onchange="uploadDuitnowQr(event)" class="w-full text-xs file:mr-3 file:py-1.5 file:px-3 file:rounded-lg file:border-0 file:bg-green-100 file:text-green-700 file:font-semibold" />
+                  <input type="hidden" id="set-duitnow" />
+                  <div id="duitnow-preview" class="mt-2"></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- ONLINE ACCORDION -->
+        <div class="border border-green-100 rounded-xl overflow-hidden">
+          <button type="button" onclick="togglePaySection('online')" class="w-full flex items-center justify-between px-4 py-3 bg-green-50 hover:bg-green-100 transition text-left">
+            <span class="font-semibold text-sm text-green-900">💳 Online Payment</span>
+            <svg id="pay-online-chevron" class="w-5 h-5 text-green-700 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
+          </button>
+          <div id="pay-online-body" class="hidden px-4 py-4 space-y-3 text-sm">
+            <div class="bg-gray-50 border border-gray-200 text-gray-600 rounded-lg p-4 text-center">
+              <p class="font-semibold text-gray-700 mb-1">This service is not subscribed yet.</p>
+              <p class="text-xs">If you need this service, please contact your sales representative.</p>
+            </div>
+          </div>
+        </div>
+
+      </div>
+      <button onclick="savePaymentConfig()" class="mt-4 btn-primary text-white font-semibold px-5 py-2 rounded-lg text-sm transition">Save</button>
     </div>
     <div class="bg-white rounded-xl p-6 shadow border border-green-100">
       <h3 class="text-lg font-bold text-green-900 mb-4">Email Notifications</h3>
@@ -969,6 +1011,13 @@
     document.getElementById('set-redeem-rm').value = pts.redeem_rm;
     updatePtsSummary();
     const tiers = await getSetting('member_tiers', []); window.MEMBER_TIERS = tiers; renderTierRows(tiers);
+    const pay = await getSetting('payment_config', { online_enabled:false, offline_enabled:true });
+    document.getElementById('set-offline-enabled').checked = pay.offline_enabled !== false;
+    document.getElementById('set-bank-name').value = pay.bank_name||'';
+    document.getElementById('set-bank-holder').value = pay.account_holder||'';
+    document.getElementById('set-bank-account').value = pay.bank_account||'';
+    document.getElementById('set-duitnow').value = pay.duitnow_qr_url||'';
+    renderDuitnowPreview(pay.duitnow_qr_url||'');
     const notif = await getSetting('notification_config', { from_name:'HSI Marketplace', from_email:'', admin_emails:[] });
     document.getElementById('set-from-name').value = notif.from_name||'';
     document.getElementById('set-from-email').value = notif.from_email||'';
@@ -1006,6 +1055,42 @@
   function addTierRow(){ const t=collectTiers(); t.push({name:'',min_points:0}); window.MEMBER_TIERS=t; renderTierRows(t); }
   function removeTierRow(i){ const t=collectTiers(); t.splice(i,1); window.MEMBER_TIERS=t; renderTierRows(t); }
   async function saveTiers(){ const t=collectTiers(); window.MEMBER_TIERS=t; const err=await setSetting('member_tiers', t); showToast(err?'Save failed':'Tiers saved', err?'error':'success'); }
+  function togglePaySection(key) {
+    const body = document.getElementById(`pay-${key}-body`);
+    const chevron = document.getElementById(`pay-${key}-chevron`);
+    const open = body.classList.toggle('hidden');
+    if (chevron) chevron.style.transform = open ? '' : 'rotate(180deg)';
+  }
+  function renderDuitnowPreview(url) {
+    const el = document.getElementById('duitnow-preview');
+    el.innerHTML = url
+      ? `<a href="${url}" target="_blank"><img src="${url}" class="h-24 rounded-lg border border-green-100 object-contain bg-white" /></a>`
+      : '<p class="text-xs text-gray-400">No DuitNow QR uploaded yet.</p>';
+  }
+  async function uploadDuitnowQr(e) {
+    const file = e.target.files[0];
+    if (!file) return;
+    const ext = (file.name.split('.').pop() || 'png').toLowerCase();
+    const path = `duitnow/qr-${Date.now()}.${ext}`;
+    showToast('Uploading DuitNow QR…');
+    const { error: upErr } = await sb.storage.from('mkt-product-images').upload(path, file, { upsert: true });
+    if (upErr) { showToast('Upload failed: ' + upErr.message, 'error'); return; }
+    const { data: { publicUrl } } = sb.storage.from('mkt-product-images').getPublicUrl(path);
+    document.getElementById('set-duitnow').value = publicUrl;
+    renderDuitnowPreview(publicUrl);
+    showToast('QR uploaded — remember to Save');
+  }
+  async function savePaymentConfig() {
+    const err = await setSetting('payment_config', {
+      offline_enabled: document.getElementById('set-offline-enabled').checked,
+      online_enabled: false,
+      bank_name: document.getElementById('set-bank-name').value.trim(),
+      account_holder: document.getElementById('set-bank-holder').value.trim(),
+      bank_account: document.getElementById('set-bank-account').value.trim(),
+      duitnow_qr_url: document.getElementById('set-duitnow').value.trim()
+    });
+    showToast(err?'Save failed':'Payment settings saved', err?'error':'success');
+  }
   async function saveNotifConfig() {
     const err = await setSetting('notification_config', {
       from_name: document.getElementById('set-from-name').value.trim(),
