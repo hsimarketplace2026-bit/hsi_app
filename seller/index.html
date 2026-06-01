@@ -101,11 +101,23 @@
 
   <!-- ORDERS TAB -->
   <div id="panel-orders" class="hidden">
-    <div class="flex gap-2 mb-4">
-      <button onclick="setOrderView('active')" id="ordview-active"
-        class="flex-1 py-2 text-sm font-semibold rounded-lg bg-green-600 text-white transition">Active Orders</button>
-      <button onclick="setOrderView('sales')" id="ordview-sales"
-        class="flex-1 py-2 text-sm font-semibold rounded-lg bg-white border border-green-200 text-green-700 transition">Sales Records</button>
+    <div class="grid grid-cols-4 gap-1.5 mb-4">
+      <button onclick="setOrderView('pending')" id="ordview-pending"
+        class="py-2 px-1 text-xs font-semibold rounded-lg bg-green-600 text-white transition text-center">
+        💰 To Pay<span id="badge-pending" class="ml-1 hidden bg-white text-green-700 text-xs font-bold rounded-full px-1.5 py-0.5"></span>
+      </button>
+      <button onclick="setOrderView('payment_uploaded')" id="ordview-payment_uploaded"
+        class="py-2 px-1 text-xs font-semibold rounded-lg bg-white border border-green-200 text-green-700 transition text-center">
+        💳 Paid<span id="badge-payment_uploaded" class="ml-1 hidden bg-teal-100 text-teal-700 text-xs font-bold rounded-full px-1.5 py-0.5"></span>
+      </button>
+      <button onclick="setOrderView('processing')" id="ordview-processing"
+        class="py-2 px-1 text-xs font-semibold rounded-lg bg-white border border-green-200 text-green-700 transition text-center">
+        🚚 In Delivery<span id="badge-processing" class="ml-1 hidden bg-sky-100 text-sky-700 text-xs font-bold rounded-full px-1.5 py-0.5"></span>
+      </button>
+      <button onclick="setOrderView('completed')" id="ordview-completed"
+        class="py-2 px-1 text-xs font-semibold rounded-lg bg-white border border-green-200 text-green-700 transition text-center">
+        ✅ Completed
+      </button>
     </div>
     <div id="orders-list" class="space-y-4">
       <p class="text-gray-400 text-sm text-center py-8">Loading orders…</p>
@@ -499,59 +511,44 @@
   }
 
   // ---- ORDERS ----
-  let orderView = 'active'; // 'active' | 'sales'
+  let orderView = 'pending';
 
   function setOrderView(v) {
     orderView = v;
-    document.getElementById('ordview-active').className = `flex-1 py-2 text-sm font-semibold rounded-lg transition ${v==='active' ? 'bg-green-600 text-white' : 'bg-white border border-green-200 text-green-700'}`;
-    document.getElementById('ordview-sales').className  = `flex-1 py-2 text-sm font-semibold rounded-lg transition ${v==='sales'  ? 'bg-green-600 text-white' : 'bg-white border border-green-200 text-green-700'}`;
+    ['pending','payment_uploaded','processing','completed'].forEach(s => {
+      const btn = document.getElementById('ordview-' + s);
+      if (!btn) return;
+      btn.className = `py-2 px-1 text-xs font-semibold rounded-lg transition text-center ${
+        s === v
+          ? 'bg-green-600 text-white'
+          : 'bg-white border border-green-200 text-green-700'
+      }`;
+    });
     loadOrders();
   }
 
   async function loadOrders() {
-    const activeStatuses = ['pending','payment_uploaded','processing'];
-    let query = sb.from('mkt_orders')
+    const { data: orders } = await sb.from('mkt_orders')
       .select('*, profiles:shared_profiles!buyer_id(full_name, phone), order_items:mkt_order_items(*, products:mkt_products(name, unit)), payments:mkt_payments(*)')
       .eq('seller_id', currentUser.id)
+      .eq('status', orderView)
       .order('created_at', { ascending: false });
-    if (orderView === 'active') query = query.in('status', activeStatuses);
-    else query = query.eq('status', 'completed');
 
-    const { data: orders } = await query;
     const el = document.getElementById('orders-list');
+    const emptyMsgs = {
+      pending: 'No orders awaiting payment.',
+      payment_uploaded: 'No payment slips to verify.',
+      processing: 'No orders in delivery.',
+      completed: 'No completed orders yet.'
+    };
     if (!orders || orders.length === 0) {
-      el.innerHTML = `<p class="text-gray-400 text-sm text-center py-8">${orderView === 'sales' ? 'No sales records yet.' : 'No active orders.'}</p>`;
-      return;
-    }
-
-    if (orderView === 'sales') {
-      el.innerHTML = orders.map(o => `
-        <div class="bg-white rounded-xl p-5 shadow border border-green-100">
-          <div class="flex items-start justify-between mb-2">
-            <div>
-              <p class="font-semibold text-green-900">${o.profiles?.full_name || 'Buyer'}</p>
-              <p class="text-xs text-gray-400">${new Date(o.created_at).toLocaleString()}${o.order_number ? ' · ' + o.order_number : ''}</p>
-            </div>
-            <span class="text-xs font-semibold px-2 py-1 rounded-full status-completed">COMPLETED</span>
-          </div>
-          <div class="space-y-0.5 mb-3">
-            ${(o.order_items || []).map(i => `
-              <div class="flex justify-between text-sm text-gray-600">
-                <span>${i.products?.name} × ${i.quantity}</span>
-                <span>RM ${(i.quantity * i.unit_price).toFixed(2)}</span>
-              </div>`).join('')}
-          </div>
-          <div class="flex items-center justify-between border-t border-green-50 pt-3">
-            <span class="text-xs text-gray-400">${o.fulfillment_type === 'delivery' ? '🚚 Delivered' : '🏡 Picked up'}</span>
-            <span class="font-bold text-green-700">RM ${parseFloat(o.total_amount).toFixed(2)}</span>
-          </div>
-        </div>`).join('');
+      el.innerHTML = `<p class="text-gray-400 text-sm text-center py-8">${emptyMsgs[orderView] || 'No orders.'}</p>`;
       return;
     }
 
     el.innerHTML = orders.map(o => {
       const payment = o.payments?.[0];
-      const statusLabels = { pending:'PENDING PAYMENT', payment_uploaded:'SLIP UPLOADED', processing:'IN DELIVERY', completed:'COMPLETED', cancelled:'CANCELLED' };
+      const statusLabels = { pending:'TO PAY', payment_uploaded:'PAID', processing:'IN DELIVERY', completed:'COMPLETED', cancelled:'CANCELLED' };
       const statusClass = `status-${o.status}`;
       return `
         <div class="bg-white rounded-xl p-5 shadow border border-green-100">
@@ -577,27 +574,35 @@
           ${o.delivery_address ? `<p class="text-xs text-gray-500 mb-1">📍 ${o.delivery_address}</p>` : ''}
           ${o.delivery_notes ? `<p class="text-xs text-gray-500 italic mb-2">Note: ${o.delivery_notes}</p>` : ''}
 
-          ${o.status === 'pending' ? `<p class="text-xs text-amber-600 mb-3">⏳ Waiting for buyer to upload payment slip</p>` : ''}
+          ${o.status === 'pending' ? `<p class="text-xs text-amber-600 mb-3">⏳ Waiting for buyer to upload payment slip.</p>` : ''}
 
-          ${payment?.proof_url ? `
+          ${o.status === 'payment_uploaded' ? `
             <div class="mb-3 p-3 bg-gray-50 rounded-xl border border-gray-100">
               <p class="text-xs font-medium text-gray-600 mb-2">Payment Slip</p>
               <div class="flex items-start gap-3">
-                <a href="${payment.proof_url}" target="_blank" class="shrink-0">
-                  <img src="${payment.proof_url}" alt="slip" class="h-24 w-24 rounded-lg object-cover border border-gray-200" />
-                </a>
-                ${o.status === 'payment_uploaded' ? `
+                ${payment?.proof_url ? `
+                  <a href="${payment.proof_url}" target="_blank" class="shrink-0">
+                    <img src="${payment.proof_url}" alt="slip" class="h-24 w-24 rounded-lg object-cover border border-gray-200" />
+                  </a>` : `<p class="text-xs text-amber-600">⚠ Slip image unavailable.</p>`}
                 <div class="flex-1">
                   <label class="text-xs font-medium text-gray-700 block mb-1">Verify Payment Slip:</label>
-                  <select onchange="handlePaymentAction(this,'${payment.id}','${o.id}')"
+                  <select onchange="handlePaymentAction(this,'${payment?.id || ''}','${o.id}')"
                     class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-green-500 bg-white">
                     <option value="">— Select action —</option>
                     <option value="verified">✅ Verified</option>
                     <option value="rejected">❌ Rejected</option>
                   </select>
-                </div>` : ''}
+                </div>
               </div>
-            </div>` : (o.status === 'payment_uploaded' ? `<p class="text-xs text-amber-600 mb-3">⚠ Slip not yet uploaded by buyer</p>` : '')}
+            </div>` : ''}
+
+          ${o.status === 'processing' && payment?.proof_url ? `
+            <div class="mb-3 p-3 bg-gray-50 rounded-xl border border-gray-100">
+              <p class="text-xs font-medium text-gray-600 mb-1">Payment Slip</p>
+              <a href="${payment.proof_url}" target="_blank">
+                <img src="${payment.proof_url}" alt="slip" class="h-20 w-20 rounded-lg object-cover border border-gray-200" />
+              </a>
+            </div>` : ''}
 
           <div class="flex items-center justify-between border-t border-green-50 pt-3 flex-wrap gap-2">
             <span class="font-bold text-green-700">RM ${parseFloat(o.total_amount).toFixed(2)}</span>
