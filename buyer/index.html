@@ -44,10 +44,12 @@
   const sb = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
   let currentUser = null;
   let APP = { points: { earn_rm:10, earn_pts:1, redeem_pts:100, redeem_rm:1, enabled:true }, tiers: [], payment: { online_enabled:false, offline_enabled:true } };
-  let CART = [];        // [{id, name, price, unit, quantity(stock), seller_id, category, qty, promo}]
+  let CART = [];
   let POINTS = { balance:0, lifetime_earned:0 };
-  let appliedCoupon = null; // {code, discount}
+  let appliedCoupon = null;
   let redeemPoints = 0;
+  let sellerProfiles = {};   // seller_id → {full_name, farm_name, delivery_fee}
+  let deliveryChoice = 'pickup'; // 'pickup' | 'delivery'
 
   (async () => {
     const { data: { session } } = await sb.auth.getSession();
@@ -187,9 +189,26 @@
           <span id="points-redeem-label" class="text-sm font-semibold text-green-700 w-28 text-right">0 pts</span>
         </div>
       </div>
-      <!-- Delivery notes -->
+      <!-- Fulfillment method -->
       <div>
-        <label class="block text-sm font-medium text-gray-700 mb-1">Delivery / pickup notes (optional)</label>
+        <label class="block text-sm font-medium text-gray-700 mb-2">Fulfillment Method</label>
+        <div class="grid grid-cols-2 gap-2">
+          <label class="flex items-center gap-2 cursor-pointer border rounded-lg p-3 border-green-500 bg-green-50" id="lbl-pickup">
+            <input type="radio" name="fulfillment" value="pickup" checked onchange="setFulfillment('pickup')" class="accent-green-600" />
+            <span class="text-sm font-medium">🏡 Pickup</span>
+          </label>
+          <label class="flex items-center gap-2 cursor-pointer border rounded-lg p-3 border-gray-200" id="lbl-delivery">
+            <input type="radio" name="fulfillment" value="delivery" onchange="setFulfillment('delivery')" class="accent-green-600" />
+            <span class="text-sm font-medium">🚚 Delivery</span>
+          </label>
+        </div>
+        <div id="delivery-address-wrap" class="hidden mt-2">
+          <textarea id="delivery-address" rows="2" placeholder="Enter your full delivery address…" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-green-500"></textarea>
+        </div>
+      </div>
+      <!-- Notes -->
+      <div>
+        <label class="block text-sm font-medium text-gray-700 mb-1">Notes (optional)</label>
         <textarea id="delivery-notes" rows="2" placeholder="Any special instructions…" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-green-500"></textarea>
       </div>
       <!-- Payment method -->
@@ -203,6 +222,7 @@
         <div id="sum-promo-row" class="flex justify-between text-green-600 hidden"><span>Promotions</span><span id="sum-promo">- RM 0.00</span></div>
         <div id="sum-coupon-row" class="flex justify-between text-green-600 hidden"><span>Coupon</span><span id="sum-coupon">- RM 0.00</span></div>
         <div id="sum-points-row" class="flex justify-between text-green-600 hidden"><span>Points</span><span id="sum-points">- RM 0.00</span></div>
+        <div id="sum-delivery-row" class="flex justify-between text-blue-600 hidden"><span>Delivery fee</span><span id="sum-delivery">RM 0.00</span></div>
         <div class="flex justify-between font-bold text-green-900 text-lg pt-1"><span>Total</span><span id="sum-total">RM 0.00</span></div>
       </div>
       <button onclick="placeOrder()" id="place-order-btn" class="w-full btn-primary text-white font-semibold py-3 rounded-xl transition">Place Order</button>
@@ -417,6 +437,13 @@
       unit: i.products.unit, stock: i.products.quantity, seller_id: i.products.seller_id,
       category: i.products.category, qty: i.quantity, promo: 0
     }));
+    // fetch seller delivery fees
+    const sellerIds = [...new Set(CART.map(c => c.seller_id).filter(Boolean))];
+    if (sellerIds.length) {
+      const { data: sps } = await sb.from('shared_profiles').select('id, full_name, farm_name, delivery_fee').in('id', sellerIds);
+      sellerProfiles = {};
+      (sps || []).forEach(sp => { sellerProfiles[sp.id] = sp; });
+    }
     // promotions
     try {
       const payload = CART.map(c => ({ product_id: c.id, category: c.category, qty: c.qty, price: c.price }));
@@ -461,6 +488,39 @@
   function cartSubtotal() { return CART.reduce((s,i)=> s + (i.qty*i.price - i.promo), 0); }
   function promoTotal()  { return CART.reduce((s,i)=> s + i.promo, 0); }
   function pointsDiscount() { return Math.floor(redeemPoints / (APP.points.redeem_pts||100)) * (APP.points.redeem_rm||1); }
+  function deliveryFeeTotal() {
+    if (deliveryChoice !== 'delivery') return 0;
+    const sellerIds = [...new Set(CART.map(c => c.seller_id).filter(Boolean))];
+    return sellerIds.reduce((s, sid) => s + (parseFloat(sellerProfiles[sid]?.delivery_fee) || 0), 0);
+  }
+
+  function setFulfillment(choice) {
+    deliveryChoice = choice;
+    document.getElementById('lbl-pickup').classList.toggle('border-green-500', choice === 'pickup');
+    document.getElementById('lbl-pickup').classList.toggle('bg-green-50', choice === 'pickup');
+    document.getElementById('lbl-pickup').classList.toggle('border-gray-200', choice !== 'pickup');
+    document.getElementById('lbl-delivery').classList.toggle('border-green-500', choice === 'delivery');
+    document.getElementById('lbl-delivery').classList.toggle('bg-green-50', choice === 'delivery');
+    document.getElementById('lbl-delivery').classList.toggle('border-gray-200', choice !== 'delivery');
+    document.getElementById('delivery-address-wrap').classList.toggle('hidden', choice !== 'delivery');
+    recalcTotals();
+  }
+
+  async function downloadQr(url) {
+    try {
+      const resp = await fetch(url);
+      const blob = await resp.blob();
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = 'payment-qr.png';
+      a.click();
+      URL.revokeObjectURL(a.href);
+    } catch(_) { window.open(url, '_blank'); }
+  }
+
+  function copyText(text) {
+    navigator.clipboard.writeText(text).then(() => showToast('Copied!')).catch(() => showToast('Copy failed', 'warning'));
+  }
 
   function onPointsSlide() {
     redeemPoints = parseInt(document.getElementById('points-slider').value) || 0;
@@ -472,11 +532,15 @@
     const sub = cartSubtotal();
     const coup = appliedCoupon ? Math.min(appliedCoupon.discount, sub) : 0;
     const pts = Math.min(pointsDiscount(), Math.max(0, sub - coup));
-    const total = Math.max(0, sub - coup - pts);
+    const delFee = deliveryFeeTotal();
+    const total = Math.max(0, sub - coup - pts + delFee);
     document.getElementById('sum-subtotal').textContent = rm(sub);
     toggleRow('sum-promo-row','sum-promo', promoTotal(), true);
     toggleRow('sum-coupon-row','sum-coupon', coup, false);
     toggleRow('sum-points-row','sum-points', pts, false);
+    const delRow = document.getElementById('sum-delivery-row');
+    delRow.classList.toggle('hidden', delFee <= 0);
+    document.getElementById('sum-delivery').textContent = rm(delFee);
     document.getElementById('sum-total').textContent = rm(total);
   }
   function toggleRow(rowId, valId, val, isPromo) {
@@ -516,6 +580,7 @@
     btn.disabled = true; btn.textContent = 'Placing order…';
     const payChoice = 'offline';
     const notes = document.getElementById('delivery-notes').value.trim();
+    const delivAddress = deliveryChoice === 'delivery' ? (document.getElementById('delivery-address').value.trim()) : null;
 
     const sub = cartSubtotal();
     const coup = appliedCoupon ? Math.min(appliedCoupon.discount, sub) : 0;
@@ -535,7 +600,8 @@
         const sellerDiscount = +(totalDiscount * share).toFixed(2);
         const sellerPtsRedeemed = Math.round((redeemPoints||0) * share);
         const sellerPtsRm = +((pts) * share).toFixed(2);
-        const sellerTotal = Math.max(0, +(sellerSub - sellerDiscount).toFixed(2));
+        const sellerDelFee = deliveryChoice === 'delivery' ? (parseFloat(sellerProfiles[sellerId]?.delivery_fee) || 0) : 0;
+        const sellerTotal = Math.max(0, +(sellerSub - sellerDiscount + sellerDelFee).toFixed(2));
 
         // unique order number
         let orderNumber = null;
@@ -551,7 +617,11 @@
           points_redeemed: sellerPtsRedeemed,
           points_discount_rm: sellerPtsRm,
           payment_method: payChoice,
-          delivery_notes: notes, status: 'pending'
+          delivery_notes: notes,
+          fulfillment_type: deliveryChoice,
+          delivery_fee: sellerDelFee,
+          delivery_address: delivAddress,
+          status: 'pending'
         }).select().single();
         if (oErr) throw oErr;
         if (!firstOrderId) firstOrderId = order.id;
@@ -588,7 +658,7 @@
   // ---------- ORDERS ----------
   async function loadOrders() {
     const { data: orders } = await sb.from('mkt_orders')
-      .select('*, profiles:shared_profiles!seller_id(full_name, farm_name, whatsapp, bank_name, bank_account_no, bank_account_name, bank_qr_url), order_items:mkt_order_items(*, products:mkt_products(name, unit))')
+      .select('*, profiles:shared_profiles!seller_id(full_name, farm_name, whatsapp, bank_name, bank_account_no, bank_account_name, bank_qr_url, delivery_fee), order_items:mkt_order_items(*, products:mkt_products(name, unit))')
       .eq('buyer_id', currentUser.id)
       .order('created_at', { ascending: false });
     const listEl = document.getElementById('orders-list');
@@ -607,15 +677,17 @@
             <p class="text-sm font-semibold text-green-800 mb-2">Pay ${sellerName} — ${rm(o.total_amount)}</p>
             <div class="flex items-start gap-3">
               ${s.bank_qr_url ? `
-                <a href="${s.bank_qr_url}" target="_blank" class="shrink-0">
-                  <img src="${s.bank_qr_url}" alt="Pay QR" class="w-28 h-28 object-contain rounded-lg border border-green-200 bg-white" />
-                  <span class="block text-center text-xs text-green-600 mt-1">Tap to enlarge</span>
-                </a>` : ''}
-              <div class="text-xs text-gray-600 space-y-0.5">
+                <div class="shrink-0 flex flex-col items-center gap-1">
+                  <a href="${s.bank_qr_url}" target="_blank">
+                    <img src="${s.bank_qr_url}" alt="Pay QR" class="w-28 h-28 object-contain rounded-lg border border-green-200 bg-white" />
+                  </a>
+                  <button onclick="downloadQr('${s.bank_qr_url}')" class="text-xs text-green-700 hover:underline">⬇ Download QR</button>
+                </div>` : ''}
+              <div class="text-xs text-gray-600 space-y-1">
                 ${hasBank ? `
                   ${s.bank_name?`<p><span class="text-gray-400">Bank:</span> <span class="font-medium text-gray-800">${s.bank_name}</span></p>`:''}
                   ${s.bank_account_name?`<p><span class="text-gray-400">Name:</span> <span class="font-medium text-gray-800">${s.bank_account_name}</span></p>`:''}
-                  ${s.bank_account_no?`<p><span class="text-gray-400">Acc:</span> <span class="font-medium text-gray-800 select-all">${s.bank_account_no}</span></p>`:''}
+                  ${s.bank_account_no?`<div class="flex items-center gap-1"><span class="text-gray-400">Acc:</span> <span class="font-medium text-gray-800">${s.bank_account_no}</span><button onclick="copyText('${s.bank_account_no}')" class="text-green-600 hover:text-green-800 ml-1" title="Copy">📋</button></div>`:''}
                 ` : (s.bank_qr_url ? '<p>Scan the QR code to pay.</p>' : '<p class="text-amber-600">Seller has not set up payment details yet. Please contact them.</p>')}
               </div>
             </div>
@@ -633,7 +705,13 @@
               <p class="font-semibold text-green-900">${sellerName}</p>
               <p class="text-xs text-gray-400">${o.order_number ? o.order_number+' · ' : ''}${new Date(o.created_at).toLocaleString()}</p>
             </div>
-            <span class="text-xs font-semibold px-2 py-1 rounded-full status-${o.status}">${o.status.replace(/_/g,' ').toUpperCase()}</span>
+            <span class="text-xs font-semibold px-2 py-1 rounded-full status-${o.status}">${({'processing':'PROCEED ORDER','payment_verified':'PAYMENT VERIFIED','payment_uploaded':'SLIP UPLOADED','pending':'PENDING','completed':'COMPLETED','cancelled':'CANCELLED'}[o.status] || o.status.replace(/_/g,' ').toUpperCase())}</span>
+          </div>
+          <div class="flex gap-2 mb-2 flex-wrap">
+            ${o.fulfillment_type === 'delivery'
+              ? `<span class="text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full">🚚 Delivery${o.delivery_fee > 0 ? ` +RM ${parseFloat(o.delivery_fee).toFixed(2)}` : ''}</span>`
+              : `<span class="text-xs bg-gray-100 text-gray-600 px-2 py-0.5 rounded-full">🏡 Pickup</span>`}
+            ${o.delivery_address ? `<span class="text-xs text-gray-500">📍 ${o.delivery_address}</span>` : ''}
           </div>
           <div class="space-y-1 mb-3">
             ${(o.order_items || []).map(i => `

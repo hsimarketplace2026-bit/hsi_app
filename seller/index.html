@@ -243,6 +243,12 @@
             <input type="text" id="profile-bank-account-no" placeholder="e.g. 1234 5678 9012"
               class="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-green-500" />
           </div>
+          <div class="mt-4">
+            <label class="block text-sm font-medium text-gray-700 mb-1">Delivery Fee (RM)</label>
+            <input type="number" id="profile-delivery-fee" min="0" step="0.50" placeholder="e.g. 5.00"
+              class="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-green-500" />
+            <p class="text-xs text-gray-400 mt-1">Added to order total when buyer chooses delivery. Set 0 for free delivery.</p>
+          </div>
         </div>
 
         <button type="submit" class="btn-primary text-white font-semibold px-6 py-2.5 rounded-lg transition">Save Profile</button>
@@ -483,7 +489,7 @@
               <p class="font-semibold text-green-900">${o.profiles?.full_name || 'Buyer'}</p>
               <p class="text-xs text-gray-400">${new Date(o.created_at).toLocaleString()}</p>
             </div>
-            <span class="text-xs font-semibold px-2 py-1 rounded-full ${statusClass}">${o.status.replace(/_/g,' ').toUpperCase()}</span>
+            <span class="text-xs font-semibold px-2 py-1 rounded-full ${statusClass}">${({'processing':'PROCEED ORDER','payment_verified':'PAYMENT VERIFIED','payment_uploaded':'PAYMENT UPLOADED','pending':'PENDING','completed':'COMPLETED','cancelled':'CANCELLED'}[o.status] || o.status.replace(/_/g,' ').toUpperCase())}</span>
           </div>
           <div class="space-y-1 mb-3">
             ${(o.order_items || []).map(i => `
@@ -493,6 +499,12 @@
               </div>
             `).join('')}
           </div>
+          <div class="flex gap-2 mb-2 flex-wrap">
+            ${o.fulfillment_type === 'delivery'
+              ? `<span class="text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full font-medium">🚚 Delivery${o.delivery_fee > 0 ? ` (+RM ${parseFloat(o.delivery_fee).toFixed(2)})` : ''}</span>`
+              : `<span class="text-xs bg-gray-100 text-gray-600 px-2 py-0.5 rounded-full font-medium">🏡 Pickup</span>`}
+          </div>
+          ${o.delivery_address ? `<p class="text-xs text-gray-500 mb-2">📍 ${o.delivery_address}</p>` : ''}
           ${o.delivery_notes ? `<p class="text-xs text-gray-500 italic mb-2">Note: ${o.delivery_notes}</p>` : ''}
           ${payment?.proof_url ? `
             <div class="mb-3">
@@ -505,9 +517,8 @@
             <span class="font-bold text-green-700">RM ${parseFloat(o.total_amount).toFixed(2)}</span>
             <div class="flex gap-2 flex-wrap">
               ${o.status === 'payment_uploaded' && payment ? `
-                <button onclick="verifyPayment('${payment.id}','${o.id}')" class="btn-primary text-white text-xs px-3 py-1.5 rounded-full transition">Verify Payment</button>
+                <button onclick="verifyPayment('${payment.id}','${o.id}')" class="btn-primary text-white text-xs px-3 py-1.5 rounded-full transition">✓ Verify &amp; Proceed</button>
                 <button onclick="rejectPayment('${payment.id}','${o.id}')" class="bg-red-50 text-red-600 text-xs px-3 py-1.5 rounded-full transition">Reject</button>` : ''}
-              ${o.status === 'payment_verified' ? `<button onclick="updateOrderStatus('${o.id}','processing')" class="btn-primary text-white text-xs px-3 py-1.5 rounded-full transition">Mark Processing</button>` : ''}
               ${o.status === 'processing' ? `<button onclick="updateOrderStatus('${o.id}','completed')" class="bg-green-700 text-white text-xs px-3 py-1.5 rounded-full transition">Mark Completed</button>` : ''}
             </div>
           </div>
@@ -520,12 +531,12 @@
     await sb.from('mkt_payments').update({ status: 'verified' }).eq('id', paymentId);
     const { data: ord } = await sb.from('mkt_orders').select('total_amount').eq('id', orderId).single();
     await sb.from('mkt_orders').update({
-      status: 'payment_verified',
+      status: 'processing',
       amount_paid: ord ? ord.total_amount : undefined,
       amount_paid_at: new Date().toISOString()
     }).eq('id', orderId);
     try { await sb.rpc('mkt_award_order_points', { p_order_id: orderId }); } catch (_) {}
-    showToast('Payment verified — points awarded to buyer!');
+    showToast('Payment verified — order set to Proceed!');
     loadOrders();
   }
 
@@ -634,6 +645,7 @@
     document.getElementById('profile-bank-name').value = p.bank_name || '';
     document.getElementById('profile-bank-account-name').value = p.bank_account_name || '';
     document.getElementById('profile-bank-account-no').value = p.bank_account_no || '';
+    document.getElementById('profile-delivery-fee').value = p.delivery_fee != null ? p.delivery_fee : '';
     if (p.photo_url) {
       document.getElementById('profile-photo-preview').src = p.photo_url;
       document.getElementById('profile-photo-preview').classList.remove('hidden');
@@ -686,6 +698,7 @@
       bank_name: document.getElementById('profile-bank-name').value.trim() || null,
       bank_account_name: document.getElementById('profile-bank-account-name').value.trim() || null,
       bank_account_no: document.getElementById('profile-bank-account-no').value.trim() || null,
+      delivery_fee: parseFloat(document.getElementById('profile-delivery-fee').value) || 0,
     };
     if (photoUrl) payload.photo_url = photoUrl;
     if (qrUrl) payload.bank_qr_url = qrUrl;
