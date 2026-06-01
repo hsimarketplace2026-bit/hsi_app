@@ -644,7 +644,7 @@
   // ---------- ORDERS ----------
   async function loadOrders() {
     const { data: orders } = await sb.from('mkt_orders')
-      .select('*, profiles:shared_profiles!seller_id(full_name, farm_name, whatsapp, bank_name, bank_account_no, bank_account_name, bank_qr_url, delivery_fee), order_items:mkt_order_items(*, products:mkt_products(name, unit))')
+      .select('*, profiles:shared_profiles!seller_id(full_name, farm_name, whatsapp, bank_name, bank_account_no, bank_account_name, bank_qr_url, delivery_fee), order_items:mkt_order_items(*, products:mkt_products(name, unit)), payments:mkt_payments(*)')
       .eq('buyer_id', currentUser.id)
       .order('created_at', { ascending: false });
     const listEl = document.getElementById('orders-list');
@@ -660,6 +660,9 @@
       cancelled:        'CANCELLED'
     };
     listEl.innerHTML = orders.map(o => {
+      // If DB status is still pending but slip already uploaded, treat as payment_uploaded
+      const hasSlip = (o.payments || []).some(p => p.proof_url);
+      if (o.status === 'pending' && hasSlip) o.status = 'payment_uploaded';
       const needsPayment = o.status === 'pending';
       const canRate = o.status === 'completed' && !o.rating;
       const s = o.profiles || {};
