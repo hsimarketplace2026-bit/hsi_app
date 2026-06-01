@@ -98,7 +98,6 @@
 
     <!-- MAIN CONTENT -->
     <main class="flex-1 min-w-0">
-  <h1 class="text-2xl font-bold text-green-900 mb-6">Admin Panel</h1>
 
   <!-- SELLERS -->
   <div id="panel-sellers" class="hidden">
@@ -234,25 +233,15 @@
             <svg id="pay-online-chevron" class="w-5 h-5 text-green-700 transition-transform" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 9l-7 7-7-7"/></svg>
           </button>
           <div id="pay-online-body" class="hidden px-4 py-4 space-y-3 text-sm">
-            <p class="text-xs text-gray-500">These online services are integrated but not active yet.</p>
-            <label class="flex items-center justify-between gap-2 border border-gray-100 rounded-lg px-3 py-2.5 opacity-70">
-              <span class="flex items-center gap-2"><input type="checkbox" id="set-fpx-enabled" disabled class="accent-green-600" /> FPX Transfer</span>
-              <span class="text-[10px] bg-gray-100 text-gray-500 px-2 py-0.5 rounded-full">not active yet</span>
-            </label>
-            <label class="flex items-center justify-between gap-2 border border-gray-100 rounded-lg px-3 py-2.5 opacity-70">
-              <span class="flex items-center gap-2"><input type="checkbox" id="set-card-enabled" disabled class="accent-green-600" /> Debit / Credit Card</span>
-              <span class="text-[10px] bg-gray-100 text-gray-500 px-2 py-0.5 rounded-full">not active yet</span>
-            </label>
-            <div class="bg-amber-50 text-amber-800 text-xs rounded-lg p-3">
-              Online payments use Billplz. Deploy the edge functions in <code>supabase/functions/</code> and set your
-              Billplz secrets (<code>BILLPLZ_API_KEY</code>, <code>BILLPLZ_COLLECTION_ID</code>, <code>BILLPLZ_X_SIGNATURE_KEY</code>)
-              for <strong>your own Billplz account</strong>. See README.
+            <div class="bg-gray-50 border border-gray-200 text-gray-600 rounded-lg p-4 text-center">
+              <p class="font-semibold text-gray-700 mb-1">This service is not subscribed yet.</p>
+              <p class="text-xs">If you need this service, please contact your sales representative.</p>
             </div>
           </div>
         </div>
 
       </div>
-      <button onclick="savePaymentConfig()" class="mt-4 btn-primary text-white font-semibold px-5 py-2 rounded-lg text-sm transition">Save Payment</button>
+      <button onclick="savePaymentConfig()" class="mt-4 btn-primary text-white font-semibold px-5 py-2 rounded-lg text-sm transition">Save</button>
     </div>
     <div class="bg-white rounded-xl p-6 shadow border border-green-100">
       <h3 class="text-lg font-bold text-green-900 mb-4">Email Notifications</h3>
@@ -1020,8 +1009,6 @@
     const tiers = await getSetting('member_tiers', []); window.MEMBER_TIERS = tiers; renderTierRows(tiers);
     const pay = await getSetting('payment_config', { online_enabled:false, offline_enabled:true });
     document.getElementById('set-offline-enabled').checked = pay.offline_enabled !== false;
-    document.getElementById('set-fpx-enabled').checked = !!pay.fpx_enabled;
-    document.getElementById('set-card-enabled').checked = !!pay.card_enabled;
     document.getElementById('set-bank-name').value = pay.bank_name||'';
     document.getElementById('set-bank-holder').value = pay.account_holder||'';
     document.getElementById('set-bank-account').value = pay.bank_account||'';
@@ -1087,16 +1074,12 @@
     const { data: { publicUrl } } = sb.storage.from('mkt-product-images').getPublicUrl(path);
     document.getElementById('set-duitnow').value = publicUrl;
     renderDuitnowPreview(publicUrl);
-    showToast('QR uploaded — remember to Save Payment');
+    showToast('QR uploaded — remember to Save');
   }
   async function savePaymentConfig() {
-    const fpx = document.getElementById('set-fpx-enabled').checked;
-    const card = document.getElementById('set-card-enabled').checked;
     const err = await setSetting('payment_config', {
       offline_enabled: document.getElementById('set-offline-enabled').checked,
-      online_enabled: fpx || card,
-      fpx_enabled: fpx,
-      card_enabled: card,
+      online_enabled: false,
       bank_name: document.getElementById('set-bank-name').value.trim(),
       account_holder: document.getElementById('set-bank-holder').value.trim(),
       bank_account: document.getElementById('set-bank-account').value.trim(),
