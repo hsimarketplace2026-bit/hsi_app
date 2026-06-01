@@ -617,7 +617,10 @@
     const span = document.getElementById('nav-user-greeting');
     if (!span) return;
     const first = currentUserName.split(' ')[0] || currentUserName || '';
-    span.textContent = first ? `${t('nav.greeting')}, ${first}` : t('nav.greeting');
+    let hi = (typeof t === 'function') ? t('nav.greeting') : '';
+    // Fallback if translations.js is missing/stale (t() would return the raw key)
+    if (!hi || hi === 'nav.greeting') hi = (typeof getLang === 'function' && getLang() === 'bm') ? 'Hai' : 'Hi';
+    span.textContent = first ? `${hi}, ${first}` : hi;
   }
 
   function toggleUserMenu() {
