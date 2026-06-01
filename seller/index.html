@@ -25,7 +25,7 @@
     .status-pending { background:#fef3c7;color:#92400e; }
     .status-payment_uploaded { background:#dbeafe;color:#1e40af; }
     .status-payment_verified { background:#e0e7ff;color:#3730a3; }
-    .status-processing { background:#ffedd5;color:#9a3412; }
+    .status-processing { background:#e0f2fe;color:#0369a1; }
     .status-completed { background:#dcfce7;color:#166534; }
     .status-cancelled { background:#fee2e2;color:#991b1b; }
   </style>
@@ -261,6 +261,21 @@
       </form>
       <hr class="my-6 border-green-100" />
       <button onclick="doLogout()" class="w-full bg-red-50 text-red-600 hover:bg-red-100 font-medium py-2.5 rounded-lg transition text-sm">Logout</button>
+    </div>
+  </div>
+</div>
+
+<!-- DELIVERY CONFIRM MODAL -->
+<div id="delivery-confirm-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4">
+  <div class="absolute inset-0 bg-black bg-opacity-50" onclick="closeDeliveryConfirm()"></div>
+  <div class="relative bg-white rounded-2xl w-full max-w-sm p-6 shadow-2xl text-center">
+    <input type="hidden" id="delivery-confirm-order-id" />
+    <div class="text-5xl mb-3">📦</div>
+    <h3 class="text-lg font-bold text-green-900 mb-2">Confirm Delivery</h3>
+    <p class="text-sm text-gray-600 mb-6">Has this order been delivered to the buyer?</p>
+    <div class="flex gap-3">
+      <button onclick="closeDeliveryConfirm()" class="flex-1 border border-gray-300 text-gray-700 font-semibold py-2.5 rounded-xl transition hover:bg-gray-50">Cancel</button>
+      <button onclick="doDeliveryCompleted()" class="flex-1 bg-green-700 hover:bg-green-800 text-white font-semibold py-2.5 rounded-xl transition">Yes, Delivered</button>
     </div>
   </div>
 </div>
@@ -517,7 +532,7 @@
               <p class="font-semibold text-green-900">${o.profiles?.full_name || 'Buyer'}</p>
               <p class="text-xs text-gray-400">${new Date(o.created_at).toLocaleString()}${o.order_number ? ' · ' + o.order_number : ''}</p>
             </div>
-            <span class="text-xs font-semibold px-2 py-1 rounded-full status-completed">DELIVERED</span>
+            <span class="text-xs font-semibold px-2 py-1 rounded-full status-completed">COMPLETED</span>
           </div>
           <div class="space-y-0.5 mb-3">
             ${(o.order_items || []).map(i => `
@@ -536,7 +551,7 @@
 
     el.innerHTML = orders.map(o => {
       const payment = o.payments?.[0];
-      const statusLabels = { processing:'PROCEED ORDER', payment_uploaded:'SLIP UPLOADED', pending:'PENDING' };
+      const statusLabels = { pending:'TO PAY', payment_uploaded:'PAID', processing:'IN DELIVERY', completed:'COMPLETED', cancelled:'CANCELLED' };
       const statusClass = `status-${o.status}`;
       return `
         <div class="bg-white rounded-xl p-5 shadow border border-green-100">
@@ -562,6 +577,8 @@
           ${o.delivery_address ? `<p class="text-xs text-gray-500 mb-1">📍 ${o.delivery_address}</p>` : ''}
           ${o.delivery_notes ? `<p class="text-xs text-gray-500 italic mb-2">Note: ${o.delivery_notes}</p>` : ''}
 
+          ${o.status === 'pending' ? `<p class="text-xs text-amber-600 mb-3">⏳ Waiting for buyer to upload payment slip</p>` : ''}
+
           ${payment?.proof_url ? `
             <div class="mb-3 p-3 bg-gray-50 rounded-xl border border-gray-100">
               <p class="text-xs font-medium text-gray-600 mb-2">Payment Slip</p>
@@ -571,25 +588,25 @@
                 </a>
                 ${o.status === 'payment_uploaded' ? `
                 <div class="flex-1">
-                  <label class="text-xs text-gray-500 block mb-1">Verify this payment:</label>
+                  <label class="text-xs font-medium text-gray-700 block mb-1">Verify Payment Slip:</label>
                   <select onchange="handlePaymentAction(this,'${payment.id}','${o.id}')"
                     class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-green-500 bg-white">
                     <option value="">— Select action —</option>
-                    <option value="verified">✅ Verified — Proceed Order</option>
-                    <option value="rejected">❌ Rejected — Reset to Pending</option>
+                    <option value="verified">✅ Verified</option>
+                    <option value="rejected">❌ Rejected</option>
                   </select>
                 </div>` : ''}
               </div>
-            </div>` : (o.status === 'payment_uploaded' ? `<p class="text-xs text-amber-600 mb-3">⚠ Slip not uploaded yet</p>` : '')}
+            </div>` : (o.status === 'payment_uploaded' ? `<p class="text-xs text-amber-600 mb-3">⚠ Slip not yet uploaded by buyer</p>` : '')}
 
           <div class="flex items-center justify-between border-t border-green-50 pt-3 flex-wrap gap-2">
             <span class="font-bold text-green-700">RM ${parseFloat(o.total_amount).toFixed(2)}</span>
             <div class="flex gap-2 flex-wrap items-center">
               <button onclick="openOrderDetail('${o.id}')" class="bg-green-50 text-green-700 text-xs px-3 py-1.5 rounded-full transition">View details</button>
               ${o.status === 'processing' ? `
-                <button onclick="markDelivered('${o.id}')"
+                <button onclick="confirmDelivery('${o.id}')"
                   class="bg-green-700 hover:bg-green-800 text-white text-sm font-semibold px-5 py-2 rounded-full transition">
-                  📦 Order Delivered
+                  ✅ Delivery Completed
                 </button>` : ''}
             </div>
           </div>
@@ -665,7 +682,7 @@
       amount_paid_at: new Date().toISOString()
     }).eq('id', orderId);
     try { await sb.rpc('mkt_award_order_points', { p_order_id: orderId }); } catch (_) {}
-    showToast('Payment verified — order is now Proceed Order!');
+    showToast('Payment verified — order is now In Delivery!');
     loadOrders();
   }
 
@@ -676,9 +693,19 @@
     loadOrders();
   }
 
-  async function markDelivered(orderId) {
+  function confirmDelivery(orderId) {
+    const modal = document.getElementById('delivery-confirm-modal');
+    document.getElementById('delivery-confirm-order-id').value = orderId;
+    modal.classList.remove('hidden');
+  }
+  function closeDeliveryConfirm() {
+    document.getElementById('delivery-confirm-modal').classList.add('hidden');
+  }
+  async function doDeliveryCompleted() {
+    const orderId = document.getElementById('delivery-confirm-order-id').value;
+    closeDeliveryConfirm();
     await sb.from('mkt_orders').update({ status: 'completed' }).eq('id', orderId);
-    showToast('Order delivered! Moved to Sales Records.');
+    showToast('Delivery completed! Order moved to Sales Records.');
     loadOrders();
   }
 

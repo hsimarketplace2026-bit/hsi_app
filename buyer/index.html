@@ -26,7 +26,7 @@
     .status-pending { background:#fef3c7;color:#92400e; }
     .status-payment_uploaded { background:#dbeafe;color:#1e40af; }
     .status-payment_verified { background:#e0e7ff;color:#3730a3; }
-    .status-processing { background:#ffedd5;color:#9a3412; }
+    .status-processing { background:#e0f2fe;color:#0369a1; }
     .status-completed { background:#dcfce7;color:#166534; }
     .status-cancelled { background:#fee2e2;color:#991b1b; }
     .star { cursor:pointer; font-size:1.75rem; line-height:1; }
@@ -652,8 +652,9 @@
       listEl.innerHTML = '<p class="text-gray-400 text-sm text-center py-8">No orders yet.</p>';
       return;
     }
+    const STATUS_LABEL = { pending:'TO PAY', payment_uploaded:'PAID', processing:'IN DELIVERY', completed:'COMPLETED', cancelled:'CANCELLED' };
     listEl.innerHTML = orders.map(o => {
-      const needsPayment = ['pending','payment_uploaded'].includes(o.status);
+      const needsPayment = o.status === 'pending';
       const canRate = o.status === 'completed' && !o.rating;
       const s = o.profiles || {};
       const sellerName = s.farm_name || s.full_name || 'Seller';
@@ -691,7 +692,7 @@
               <p class="font-semibold text-green-900">${sellerName}</p>
               <p class="text-xs text-gray-400">${o.order_number ? o.order_number+' · ' : ''}${new Date(o.created_at).toLocaleString()}</p>
             </div>
-            <span class="text-xs font-semibold px-2 py-1 rounded-full status-${o.status}">${({'processing':'PROCEED ORDER','payment_verified':'PAYMENT VERIFIED','payment_uploaded':'SLIP UPLOADED','pending':'PENDING','completed':'COMPLETED','cancelled':'CANCELLED'}[o.status] || o.status.replace(/_/g,' ').toUpperCase())}</span>
+            <span class="text-xs font-semibold px-2 py-1 rounded-full status-${o.status}">${STATUS_LABEL[o.status] || o.status.replace(/_/g,' ').toUpperCase()}</span>
           </div>
           <div class="flex gap-2 mb-2 flex-wrap">
             ${o.fulfillment_type === 'delivery'
@@ -706,7 +707,9 @@
                 <span>${rm(i.quantity * i.unit_price)}</span>
               </div>`).join('')}
           </div>
-          ${o.discount_amount>0?`<p class="text-xs text-green-600 mb-1">Discount applied: -${rm(o.discount_amount)}</p>`:''}
+          ${o.discount_amount>0?`<p class="text-xs text-green-600 mb-1">Discount: -${rm(o.discount_amount)}</p>`:''}
+          ${o.status==='payment_uploaded'?`<div class="flex items-center gap-2 bg-blue-50 border border-blue-100 rounded-lg px-3 py-2 mb-3"><span class="text-blue-600 text-sm">💳 Payment slip uploaded — awaiting seller verification</span></div>`:''}
+          ${o.status==='processing'?`<div class="flex items-center gap-2 bg-sky-50 border border-sky-100 rounded-lg px-3 py-2 mb-3"><span class="text-sky-700 text-sm">🚚 Your order is on the way!</span></div>`:''}
           ${o.rating?`<p class="text-xs text-amber-500 mb-1">${'★'.repeat(o.rating)}${'☆'.repeat(5-o.rating)}</p>`:''}
           <div class="flex items-center justify-between border-t border-green-50 pt-3 flex-wrap gap-2">
             <span class="font-bold text-green-700">${rm(o.total_amount)}</span>
