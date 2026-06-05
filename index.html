@@ -42,6 +42,16 @@
     #toast-container { position: fixed; bottom: 1.5rem; right: 1rem; z-index: 9999; display: flex; flex-direction: column; gap: 0.5rem; }
     .toast { padding: 0.75rem 1.25rem; border-radius: 0.5rem; color: white; font-size: 0.875rem; max-width: 320px; animation: slideIn 0.3s ease; }
     @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
+    /* ── Section tab bar (About · Partners · Activities · Shop) ── */
+    #landing-tabs { position: sticky; z-index: 30; }
+    .landing-tab-btn { white-space: nowrap; padding: 0.9rem 1.1rem; font-weight: 600; font-size: 0.95rem; color: #64748b; border-bottom: 3px solid transparent; transition: color .15s, border-color .15s; display: inline-flex; align-items: center; gap: .4rem; }
+    .landing-tab-btn:hover { color: var(--blue-dark); }
+    .landing-tab-btn.active { color: var(--blue-dark); border-bottom-color: var(--blue); }
+    .landing-panel { display: none; }
+    .landing-panel.active { display: block; animation: fadeIn .25s ease; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
+    .no-scrollbar::-webkit-scrollbar { display: none; }
+    .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
   </style>
 </head>
 <body class="text-gray-800 font-sans">
@@ -111,7 +121,7 @@
 </div>
 
 <!-- NAV (white, brand logo, blue + green action buttons) -->
-<nav class="nav-bg sticky top-0 z-40 shadow-md border-b-2 border-[#1b8fc4]">
+<nav id="main-nav" class="nav-bg sticky top-0 z-40 shadow-md border-b-2 border-[#1b8fc4]">
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-2.5 flex items-center justify-between">
     <div class="flex items-center gap-4">
       <a href="./" class="flex items-center gap-2.5">
@@ -179,7 +189,7 @@
 
 <!-- HERO -->
 <section class="hero-gradient text-white">
-  <div class="max-w-6xl mx-auto px-4 py-20 md:py-24 text-center">
+  <div class="max-w-6xl mx-auto px-4 py-16 md:py-20 text-center">
     <img src="assets/hsi-logo.png" alt="Hydro Sprout Initiative" class="h-24 md:h-28 w-auto mx-auto mb-6 bg-white/90 rounded-2xl p-3 shadow-lg" onerror="this.style.display='none'" />
     <div class="inline-block bg-white/15 text-white text-xs font-semibold px-3 py-1 rounded-full mb-4 uppercase tracking-widest" data-i18n="hero.tag">Hydro Sprout Initiative</div>
     <h1 class="text-4xl md:text-6xl font-extrabold mb-4 leading-tight" data-i18n="hero.title">Fresh Hydroponic Produce<br class="hidden md:block" /> From Your Community</h1>
@@ -192,306 +202,347 @@
   </div>
 </section>
 
-<!-- INTRODUCTION / ABOUT HSI -->
-<section class="py-16 bg-white">
-  <div class="max-w-5xl mx-auto px-4">
-    <div class="text-center mb-8">
-      <span class="text-xs font-semibold uppercase tracking-widest text-[#56be45]">About the Program</span>
-      <h2 class="text-3xl font-bold text-brand mt-2">The Hydro Sprout Initiative</h2>
-    </div>
-    <div class="space-y-4 text-gray-600 leading-relaxed text-center max-w-3xl mx-auto">
-      <p>The <strong class="text-brand">Hydro Sprout Initiative (HSI)</strong> is a groundbreaking hydroponic community development program aimed at fostering sustainable agriculture, improving food security, and empowering local communities in Bintulu through modern farming practices.</p>
-      <p>It is driven by a multi-stakeholder partnership — with <strong>PTTEP</strong> as the main sponsor, the <strong>Bintulu Development Authority (BDA)</strong> as land contributor and collaborator, <strong>Universiti Putra Malaysia</strong> providing technical expertise and project coordination, and the <strong>Lions Club of Bintulu Kidurong</strong> acting as financial steward and implementer.</p>
-      <p>By leveraging hydroponic technology, the program addresses local food-supply challenges, creates entrepreneurship opportunities, and uplifts low-income communities — contributing to the socio-economic well-being of Bintulu.</p>
+<!-- SECTION TAB BAR (About · Partners · Activities · Shop) -->
+<div id="landing-tabs" class="bg-white/95 backdrop-blur border-b border-sky-100 shadow-sm">
+  <div class="max-w-6xl mx-auto px-2">
+    <div class="flex gap-1 overflow-x-auto no-scrollbar justify-start sm:justify-center">
+      <button onclick="showLandingTab('about')"      data-tab="about"      class="landing-tab-btn"><span>🌱</span><span>About</span></button>
+      <button onclick="showLandingTab('partners')"   data-tab="partners"   class="landing-tab-btn"><span>🤝</span><span>Partners</span></button>
+      <button onclick="showLandingTab('activities')" data-tab="activities" class="landing-tab-btn"><span>📸</span><span>Activities</span></button>
+      <button onclick="showLandingTab('shop')"        data-tab="shop"       class="landing-tab-btn"><span>🛒</span><span>Shop</span></button>
     </div>
   </div>
-</section>
+</div>
 
-<!-- MOTTO BAND -->
-<section class="brand-band text-white py-12">
-  <div class="max-w-4xl mx-auto px-4 text-center">
-    <p class="text-xs font-semibold uppercase tracking-widest text-white/80 mb-3">Our Motto</p>
-    <p class="text-2xl md:text-3xl font-bold leading-snug">“Sprouting Sustainable Farming and the Seeds of Entrepreneurship”</p>
-  </div>
-</section>
+<!-- ===================== ABOUT ===================== -->
+<div id="panel-about" class="landing-panel">
 
-<!-- OBJECTIVES -->
-<section class="py-16 section-blue">
-  <div class="max-w-6xl mx-auto px-4">
-    <div class="text-center mb-10">
-      <h2 class="text-3xl font-bold text-brand mb-3">Our Objectives</h2>
-      <p class="text-gray-600 max-w-2xl mx-auto">Three goals at the heart of the Hydro Sprout Initiative.</p>
-    </div>
-    <div class="grid md:grid-cols-3 gap-8">
-      <div class="card-hover bg-white rounded-2xl p-8 border-t-4 border-[#1b8fc4] shadow-sm">
-        <div class="text-4xl mb-4">🌱</div>
-        <h3 class="text-lg font-bold text-brand mb-2">Empower the Community</h3>
-        <p class="text-gray-600 text-sm">Train participants in advanced farming techniques such as hydroponics, improving agricultural skills and knowledge in the community.</p>
+  <!-- INTRODUCTION / ABOUT HSI -->
+  <section class="py-16 bg-white">
+    <div class="max-w-5xl mx-auto px-4">
+      <div class="text-center mb-8">
+        <span class="text-xs font-semibold uppercase tracking-widest text-[#56be45]">About the Program</span>
+        <h2 class="text-3xl font-bold text-brand mt-2">The Hydro Sprout Initiative</h2>
       </div>
-      <div class="card-hover bg-white rounded-2xl p-8 border-t-4 border-[#56be45] shadow-sm">
-        <div class="text-4xl mb-4">💚</div>
-        <h3 class="text-lg font-bold text-brand mb-2">Uplift Livelihoods</h3>
-        <p class="text-gray-600 text-sm">Provide opportunities for low-income participants to generate income by selling their hydroponically-grown crops.</p>
-      </div>
-      <div class="card-hover bg-white rounded-2xl p-8 border-t-4 border-[#c4d92e] shadow-sm">
-        <div class="text-4xl mb-4">🚀</div>
-        <h3 class="text-lg font-bold text-brand mb-2">Foster Entrepreneurship</h3>
-        <p class="text-gray-600 text-sm">Encourage entrepreneurship through technical training, mentorship, and business &amp; marketing skill development.</p>
+      <div class="space-y-4 text-gray-600 leading-relaxed text-center max-w-3xl mx-auto">
+        <p>The <strong class="text-brand">Hydro Sprout Initiative (HSI)</strong> is a groundbreaking hydroponic community development program aimed at fostering sustainable agriculture, improving food security, and empowering local communities in Bintulu through modern farming practices.</p>
+        <p>It is driven by a multi-stakeholder partnership — with <strong>PTTEP</strong> as the main sponsor, the <strong>Bintulu Development Authority (BDA)</strong> as land contributor and collaborator, <strong>Universiti Putra Malaysia</strong> providing technical expertise and project coordination, and the <strong>Lions Club of Bintulu Kidurong</strong> acting as financial steward and implementer.</p>
+        <p>By leveraging hydroponic technology, the program addresses local food-supply challenges, creates entrepreneurship opportunities, and uplifts low-income communities — contributing to the socio-economic well-being of Bintulu.</p>
       </div>
     </div>
-  </div>
-</section>
+  </section>
 
-<!-- SPONSORS & CONTRIBUTORS (highlighted) -->
-<section class="py-16 bg-white">
-  <div class="max-w-6xl mx-auto px-4">
-    <div class="text-center mb-10">
-      <span class="text-xs font-semibold uppercase tracking-widest text-[#56be45]">With the Support Of</span>
-      <h2 class="text-3xl font-bold text-brand mt-2 mb-3">Sponsors &amp; Contributors</h2>
-      <p class="text-gray-600 max-w-2xl mx-auto">The Hydro Sprout Initiative is made possible by the generous support and collaboration of these partners.</p>
+  <!-- MOTTO BAND -->
+  <section class="brand-band text-white py-12">
+    <div class="max-w-4xl mx-auto px-4 text-center">
+      <p class="text-xs font-semibold uppercase tracking-widest text-white/80 mb-3">Our Motto</p>
+      <p class="text-2xl md:text-3xl font-bold leading-snug">“Sprouting Sustainable Farming and the Seeds of Entrepreneurship”</p>
     </div>
-    <div class="grid sm:grid-cols-3 gap-8">
-      <!-- PTTEP -->
-      <div class="card-hover bg-white rounded-2xl p-8 border border-sky-100 shadow-sm text-center flex flex-col items-center">
-        <div class="h-28 flex items-center justify-center mb-4">
-          <img src="assets/sponsor-pttep.png" alt="PTTEP" class="max-h-28 max-w-full object-contain" onerror="this.style.display='none'" />
+  </section>
+
+  <!-- OBJECTIVES -->
+  <section class="py-16 section-blue">
+    <div class="max-w-6xl mx-auto px-4">
+      <div class="text-center mb-10">
+        <h2 class="text-3xl font-bold text-brand mb-3">Our Objectives</h2>
+        <p class="text-gray-600 max-w-2xl mx-auto">Three goals at the heart of the Hydro Sprout Initiative.</p>
+      </div>
+      <div class="grid md:grid-cols-3 gap-8">
+        <div class="card-hover bg-white rounded-2xl p-8 border-t-4 border-[#1b8fc4] shadow-sm">
+          <div class="text-4xl mb-4">🌱</div>
+          <h3 class="text-lg font-bold text-brand mb-2">Empower the Community</h3>
+          <p class="text-gray-600 text-sm">Train participants in advanced farming techniques such as hydroponics, improving agricultural skills and knowledge in the community.</p>
         </div>
-        <span class="inline-block bg-sky-100 text-[#13658f] text-xs font-semibold px-3 py-1 rounded-full mb-2">Main Sponsor</span>
-        <h3 class="font-bold text-brand text-sm mb-1">PTTEP</h3>
-        <p class="text-gray-500 text-xs">PTT Exploration and Production Public Company Limited — providing financial and strategic support for the program.</p>
-      </div>
-      <!-- BDA -->
-      <div class="card-hover bg-white rounded-2xl p-8 border border-green-100 shadow-sm text-center flex flex-col items-center">
-        <div class="h-28 flex items-center justify-center mb-4">
-          <img src="assets/sponsor-bda.png" alt="Bintulu Development Authority" class="max-h-28 max-w-full object-contain" onerror="this.style.display='none'" />
+        <div class="card-hover bg-white rounded-2xl p-8 border-t-4 border-[#56be45] shadow-sm">
+          <div class="text-4xl mb-4">💚</div>
+          <h3 class="text-lg font-bold text-brand mb-2">Uplift Livelihoods</h3>
+          <p class="text-gray-600 text-sm">Provide opportunities for low-income participants to generate income by selling their hydroponically-grown crops.</p>
         </div>
-        <span class="inline-block bg-green-100 text-[#3a9e30] text-xs font-semibold px-3 py-1 rounded-full mb-2">Collaborator &amp; Land Contributor</span>
-        <h3 class="font-bold text-brand text-sm mb-1">Bintulu Development Authority (BDA)</h3>
-        <p class="text-gray-500 text-xs">Making the necessary land available and collaborating to bring the project to life.</p>
-      </div>
-      <!-- LIONS CLUB -->
-      <div class="card-hover bg-white rounded-2xl p-8 border border-amber-100 shadow-sm text-center flex flex-col items-center">
-        <div class="h-28 flex items-center justify-center mb-4">
-          <img src="assets/sponsor-lions.png" alt="Lions Club International" class="max-h-28 max-w-full object-contain" onerror="this.style.display='none'" />
+        <div class="card-hover bg-white rounded-2xl p-8 border-t-4 border-[#c4d92e] shadow-sm">
+          <div class="text-4xl mb-4">🚀</div>
+          <h3 class="text-lg font-bold text-brand mb-2">Foster Entrepreneurship</h3>
+          <p class="text-gray-600 text-sm">Encourage entrepreneurship through technical training, mentorship, and business &amp; marketing skill development.</p>
         </div>
-        <span class="inline-block bg-amber-100 text-amber-700 text-xs font-semibold px-3 py-1 rounded-full mb-2">Financial Steward &amp; Implementer</span>
-        <h3 class="font-bold text-brand text-sm mb-1">Lions Club of Bintulu Kidurong</h3>
-        <p class="text-gray-500 text-xs">Stewarding funds and resources, ensuring they are used effectively for maximum community impact.</p>
       </div>
     </div>
-    <p class="text-center text-gray-500 text-sm mt-8">Technical expertise and project coordination provided by <strong class="text-brand">Universiti Putra Malaysia (UPM)</strong>.</p>
-  </div>
-</section>
+  </section>
 
-<!-- WHAT IS HYDROPONIC + BENEFITS -->
-<section class="py-16 section-green">
-  <div class="max-w-6xl mx-auto px-4">
-    <div class="text-center mb-10">
-      <h2 class="text-3xl font-bold text-brand mb-3" data-i18n="benefits.title">What is Hydroponic Farming?</h2>
-      <p class="text-gray-600 max-w-3xl mx-auto">Hydroponics grows plants without soil, delivering nutrient-rich water directly to the roots in a controlled environment. It enables faster growth, higher yields, and year-round cultivation — using up to <strong class="text-[#3a9e30]">90% less water</strong>, less land, and minimal pesticides. A smarter, cleaner way to grow food — better for you, the farmer, and the planet.</p>
+  <!-- WHAT IS HYDROPONIC + BENEFITS -->
+  <section class="py-16 bg-white">
+    <div class="max-w-6xl mx-auto px-4">
+      <div class="text-center mb-10">
+        <h2 class="text-3xl font-bold text-brand mb-3" data-i18n="benefits.title">What is Hydroponic Farming?</h2>
+        <p class="text-gray-600 max-w-3xl mx-auto">Hydroponics grows plants without soil, delivering nutrient-rich water directly to the roots in a controlled environment. It enables faster growth, higher yields, and year-round cultivation — using up to <strong class="text-[#3a9e30]">90% less water</strong>, less land, and minimal pesticides. A smarter, cleaner way to grow food — better for you, the farmer, and the planet.</p>
+      </div>
+      <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div class="card-hover bg-white rounded-2xl p-6 border border-green-100 shadow-sm">
+          <div class="text-4xl mb-3">💧</div>
+          <h3 class="text-lg font-bold text-brand mb-1" data-i18n="benefits.water_title">Saves Water</h3>
+          <p class="text-gray-600 text-sm" data-i18n="benefits.water_body">Uses up to 90% less water than soil farming through closed-loop recirculation.</p>
+        </div>
+        <div class="card-hover bg-white rounded-2xl p-6 border border-green-100 shadow-sm">
+          <div class="text-4xl mb-3">🚫</div>
+          <h3 class="text-lg font-bold text-brand mb-1" data-i18n="benefits.pesticide_title">No Pesticides</h3>
+          <p class="text-gray-600 text-sm" data-i18n="benefits.pesticide_body">Grown in clean, controlled conditions, so produce is naturally pesticide-free.</p>
+        </div>
+        <div class="card-hover bg-white rounded-2xl p-6 border border-green-100 shadow-sm">
+          <div class="text-4xl mb-3">📅</div>
+          <h3 class="text-lg font-bold text-brand mb-1" data-i18n="benefits.yearround_title">Year-Round Harvest</h3>
+          <p class="text-gray-600 text-sm" data-i18n="benefits.yearround_body">Climate-controlled growing means fresh produce in every season, rain or shine.</p>
+        </div>
+        <div class="card-hover bg-white rounded-2xl p-6 border border-green-100 shadow-sm">
+          <div class="text-4xl mb-3">⚡</div>
+          <h3 class="text-lg font-bold text-brand mb-1" data-i18n="benefits.growth_title">Faster Growth</h3>
+          <p class="text-gray-600 text-sm" data-i18n="benefits.growth_body">Nutrients delivered straight to the roots let plants grow up to twice as fast.</p>
+        </div>
+        <div class="card-hover bg-white rounded-2xl p-6 border border-green-100 shadow-sm">
+          <div class="text-4xl mb-3">🏙️</div>
+          <h3 class="text-lg font-bold text-brand mb-1" data-i18n="benefits.space_title">Space-Efficient</h3>
+          <p class="text-gray-600 text-sm" data-i18n="benefits.space_body">Vertical, soil-free systems grow more food in less space, even in urban areas.</p>
+        </div>
+        <div class="card-hover bg-white rounded-2xl p-6 border border-green-100 shadow-sm">
+          <div class="text-4xl mb-3">🥗</div>
+          <h3 class="text-lg font-bold text-brand mb-1" data-i18n="benefits.nutrient_title">Nutrient-Rich &amp; Fresh</h3>
+          <p class="text-gray-600 text-sm" data-i18n="benefits.nutrient_body">Optimised nutrition and same-day freshness mean healthier, better-tasting produce.</p>
+        </div>
+      </div>
     </div>
-    <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-      <div class="card-hover bg-white rounded-2xl p-6 border border-green-100">
-        <div class="text-4xl mb-3">💧</div>
-        <h3 class="text-lg font-bold text-brand mb-1" data-i18n="benefits.water_title">Saves Water</h3>
-        <p class="text-gray-600 text-sm" data-i18n="benefits.water_body">Uses up to 90% less water than soil farming through closed-loop recirculation.</p>
-      </div>
-      <div class="card-hover bg-white rounded-2xl p-6 border border-green-100">
-        <div class="text-4xl mb-3">🚫</div>
-        <h3 class="text-lg font-bold text-brand mb-1" data-i18n="benefits.pesticide_title">No Pesticides</h3>
-        <p class="text-gray-600 text-sm" data-i18n="benefits.pesticide_body">Grown in clean, controlled conditions, so produce is naturally pesticide-free.</p>
-      </div>
-      <div class="card-hover bg-white rounded-2xl p-6 border border-green-100">
-        <div class="text-4xl mb-3">📅</div>
-        <h3 class="text-lg font-bold text-brand mb-1" data-i18n="benefits.yearround_title">Year-Round Harvest</h3>
-        <p class="text-gray-600 text-sm" data-i18n="benefits.yearround_body">Climate-controlled growing means fresh produce in every season, rain or shine.</p>
-      </div>
-      <div class="card-hover bg-white rounded-2xl p-6 border border-green-100">
-        <div class="text-4xl mb-3">⚡</div>
-        <h3 class="text-lg font-bold text-brand mb-1" data-i18n="benefits.growth_title">Faster Growth</h3>
-        <p class="text-gray-600 text-sm" data-i18n="benefits.growth_body">Nutrients delivered straight to the roots let plants grow up to twice as fast.</p>
-      </div>
-      <div class="card-hover bg-white rounded-2xl p-6 border border-green-100">
-        <div class="text-4xl mb-3">🏙️</div>
-        <h3 class="text-lg font-bold text-brand mb-1" data-i18n="benefits.space_title">Space-Efficient</h3>
-        <p class="text-gray-600 text-sm" data-i18n="benefits.space_body">Vertical, soil-free systems grow more food in less space, even in urban areas.</p>
-      </div>
-      <div class="card-hover bg-white rounded-2xl p-6 border border-green-100">
-        <div class="text-4xl mb-3">🥗</div>
-        <h3 class="text-lg font-bold text-brand mb-1" data-i18n="benefits.nutrient_title">Nutrient-Rich &amp; Fresh</h3>
-        <p class="text-gray-600 text-sm" data-i18n="benefits.nutrient_body">Optimised nutrition and same-day freshness mean healthier, better-tasting produce.</p>
-      </div>
-    </div>
-  </div>
-</section>
+  </section>
 
-<!-- HSI ACTIVITIES -->
-<section class="py-16 bg-white">
-  <div class="max-w-6xl mx-auto px-4">
-    <div class="text-center mb-10">
-      <span class="text-xs font-semibold uppercase tracking-widest text-[#56be45]">A 3-Year Journey</span>
-      <h2 class="text-3xl font-bold text-brand mt-2 mb-3">HSI Activities</h2>
-      <p class="text-gray-600 max-w-2xl mx-auto">From classroom to market — empowering B40 and low-income households through hydroponic farming and entrepreneurship.</p>
+  <!-- LONG-TERM IMPACT -->
+  <section class="py-16 section-green">
+    <div class="max-w-6xl mx-auto px-4">
+      <div class="text-center mb-10">
+        <h2 class="text-3xl font-bold text-brand mb-3">Long-Term Impact</h2>
+        <p class="text-gray-600 max-w-2xl mx-auto">As the program matures, HSI aims to build a lasting, self-sustaining local economy.</p>
+      </div>
+      <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        <div class="bg-white rounded-xl p-5 border-l-4 border-[#1b8fc4] shadow-sm">
+          <h3 class="font-bold text-brand text-sm mb-1">🌐 Entrepreneurial Ecosystem</h3>
+          <p class="text-gray-600 text-sm">Successful hydroponic businesses expand, diversify, and become suppliers, consultants and trainers within the community.</p>
+        </div>
+        <div class="bg-white rounded-xl p-5 border-l-4 border-[#56be45] shadow-sm">
+          <h3 class="font-bold text-brand text-sm mb-1">🥬 Local Supply &amp; Food Security</h3>
+          <p class="text-gray-600 text-sm">Shorter supply chains make food systems more resilient and less dependent on external markets.</p>
+        </div>
+        <div class="bg-white rounded-xl p-5 border-l-4 border-[#c4d92e] shadow-sm">
+          <h3 class="font-bold text-brand text-sm mb-1">💼 Job Creation</h3>
+          <p class="text-gray-600 text-sm">New ventures create jobs in production, packaging, sales, logistics, and retail — a ripple effect of economic growth.</p>
+        </div>
+        <div class="bg-white rounded-xl p-5 border-l-4 border-[#1b8fc4] shadow-sm">
+          <h3 class="font-bold text-brand text-sm mb-1">🤝 Knowledge Transfer</h3>
+          <p class="text-gray-600 text-sm">Graduates mentor new participants, creating a continuous cycle of learning, leadership and stronger social bonds.</p>
+        </div>
+        <div class="bg-white rounded-xl p-5 border-l-4 border-[#56be45] shadow-sm">
+          <h3 class="font-bold text-brand text-sm mb-1">🏙️ Urban Greening</h3>
+          <p class="text-gray-600 text-sm">Unused rooftops, lots and indoor spaces transform into productive farming zones — greener, more efficient land use.</p>
+        </div>
+        <div class="bg-white rounded-xl p-5 border-l-4 border-[#c4d92e] shadow-sm">
+          <h3 class="font-bold text-brand text-sm mb-1">🌍 Lower Carbon Footprint</h3>
+          <p class="text-gray-600 text-sm">Efficient water use and locally-grown food reduce long-distance transport and conserve natural resources.</p>
+        </div>
+      </div>
+      <p class="text-center text-gray-500 text-sm mt-8 max-w-3xl mx-auto">Once established, HSI can serve as a scalable model for other communities — locally and globally — adapting hydroponic entrepreneurship to address their own challenges.</p>
     </div>
-    <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
-      <div class="bg-sky-50 rounded-2xl p-6 border border-sky-100">
-        <div class="flex items-center gap-3 mb-2"><span class="brand-band text-white font-bold w-8 h-8 rounded-full flex items-center justify-center text-sm">1</span><h3 class="font-bold text-brand">Technical Training</h3></div>
-        <p class="text-gray-600 text-sm">Classroom and practical training from hydroponic experts — system setup, nutrient management, environmental control, and farm maintenance.</p>
-      </div>
-      <div class="bg-sky-50 rounded-2xl p-6 border border-sky-100">
-        <div class="flex items-center gap-3 mb-2"><span class="brand-band text-white font-bold w-8 h-8 rounded-full flex items-center justify-center text-sm">2</span><h3 class="font-bold text-brand">Hands-On Farming</h3></div>
-        <p class="text-gray-600 text-sm">Participants manage hydroponic plots — planting, monitoring growth, maintaining systems, and solving real-world challenges under expert guidance.</p>
-      </div>
-      <div class="bg-sky-50 rounded-2xl p-6 border border-sky-100">
-        <div class="flex items-center gap-3 mb-2"><span class="brand-band text-white font-bold w-8 h-8 rounded-full flex items-center justify-center text-sm">3</span><h3 class="font-bold text-brand">Business &amp; Product Development</h3></div>
-        <p class="text-gray-600 text-sm">Training in business planning, cost management, branding, packaging, and sales — supported by this online marketplace platform.</p>
-      </div>
-      <div class="bg-sky-50 rounded-2xl p-6 border border-sky-100">
-        <div class="flex items-center gap-3 mb-2"><span class="brand-band text-white font-bold w-8 h-8 rounded-full flex items-center justify-center text-sm">4</span><h3 class="font-bold text-brand">Planting, Harvesting &amp; Sales</h3></div>
-        <p class="text-gray-600 text-sm">Participants cultivate, harvest, market and sell their produce — gaining experience across the complete farm-to-market value chain.</p>
-      </div>
-      <div class="bg-sky-50 rounded-2xl p-6 border border-sky-100">
-        <div class="flex items-center gap-3 mb-2"><span class="brand-band text-white font-bold w-8 h-8 rounded-full flex items-center justify-center text-sm">5</span><h3 class="font-bold text-brand">Mentorship &amp; Graduation</h3></div>
-        <p class="text-gray-600 text-sm">Outstanding graduates become mentors for new participants, with starter kits and support to establish their own commercial hydroponic farms.</p>
-      </div>
-      <div class="brand-band rounded-2xl p-6 text-white flex flex-col justify-center">
-        <h3 class="font-bold text-lg mb-1">The Outcome</h3>
-        <p class="text-white/90 text-sm">Improved livelihoods, stronger food security, new jobs, and a new generation of sustainable agropreneurs in Bintulu.</p>
-      </div>
-    </div>
-    <!-- Activity photo gallery -->
-    <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
-      <figure class="rounded-2xl overflow-hidden shadow-sm card-hover">
-        <img src="assets/activity-1.jpg" alt="Document exchange ceremony" class="w-full h-48 object-cover" loading="lazy" />
-        <figcaption class="text-xs text-gray-500 p-2 bg-white">Document exchange ceremony · 20 Feb 2025</figcaption>
-      </figure>
-      <figure class="rounded-2xl overflow-hidden shadow-sm card-hover">
-        <img src="assets/activity-2.jpg" alt="Technical training in the greenhouse" class="w-full h-48 object-cover" loading="lazy" />
-        <figcaption class="text-xs text-gray-500 p-2 bg-white">Technical training in the greenhouse · 14 May 2025</figcaption>
-      </figure>
-      <figure class="rounded-2xl overflow-hidden shadow-sm card-hover">
-        <img src="assets/activity-3.jpg" alt="Official launch — mementos session" class="w-full h-48 object-cover" loading="lazy" />
-        <figcaption class="text-xs text-gray-500 p-2 bg-white">Official launch day · 11 Jul 2025</figcaption>
-      </figure>
-      <figure class="rounded-2xl overflow-hidden shadow-sm card-hover">
-        <img src="assets/activity-4.jpg" alt="Greenhouse tour on launch day" class="w-full h-48 object-cover" loading="lazy" />
-        <figcaption class="text-xs text-gray-500 p-2 bg-white">Smart-tech greenhouse tour · 11 Jul 2025</figcaption>
-      </figure>
-      <figure class="rounded-2xl overflow-hidden shadow-sm card-hover">
-        <img src="assets/activity-5.jpg" alt="Explaining the hydroponic system to guests" class="w-full h-48 object-cover" loading="lazy" />
-        <figcaption class="text-xs text-gray-500 p-2 bg-white">Hydroponic system showcase · 11 Jul 2025</figcaption>
-      </figure>
-      <figure class="rounded-2xl overflow-hidden shadow-sm card-hover">
-        <img src="assets/activity-6.jpg" alt="Visit from the Ambassador of Thailand" class="w-full h-48 object-cover" loading="lazy" />
-        <figcaption class="text-xs text-gray-500 p-2 bg-white">Visit from the Ambassador of Thailand to Malaysia</figcaption>
-      </figure>
-    </div>
-  </div>
-</section>
+  </section>
 
-<!-- LONG-TERM IMPACT -->
-<section class="py-16 section-blue">
-  <div class="max-w-6xl mx-auto px-4">
-    <div class="text-center mb-10">
-      <h2 class="text-3xl font-bold text-brand mb-3">Long-Term Impact</h2>
-      <p class="text-gray-600 max-w-2xl mx-auto">As the program matures, HSI aims to build a lasting, self-sustaining local economy.</p>
-    </div>
-    <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-      <div class="bg-white rounded-xl p-5 border-l-4 border-[#1b8fc4] shadow-sm">
-        <h3 class="font-bold text-brand text-sm mb-1">🌐 Entrepreneurial Ecosystem</h3>
-        <p class="text-gray-600 text-sm">Successful hydroponic businesses expand, diversify, and become suppliers, consultants and trainers within the community.</p>
-      </div>
-      <div class="bg-white rounded-xl p-5 border-l-4 border-[#56be45] shadow-sm">
-        <h3 class="font-bold text-brand text-sm mb-1">🥬 Local Supply &amp; Food Security</h3>
-        <p class="text-gray-600 text-sm">Shorter supply chains make food systems more resilient and less dependent on external markets.</p>
-      </div>
-      <div class="bg-white rounded-xl p-5 border-l-4 border-[#c4d92e] shadow-sm">
-        <h3 class="font-bold text-brand text-sm mb-1">💼 Job Creation</h3>
-        <p class="text-gray-600 text-sm">New ventures create jobs in production, packaging, sales, logistics, and retail — a ripple effect of economic growth.</p>
-      </div>
-      <div class="bg-white rounded-xl p-5 border-l-4 border-[#1b8fc4] shadow-sm">
-        <h3 class="font-bold text-brand text-sm mb-1">🤝 Knowledge Transfer</h3>
-        <p class="text-gray-600 text-sm">Graduates mentor new participants, creating a continuous cycle of learning, leadership and stronger social bonds.</p>
-      </div>
-      <div class="bg-white rounded-xl p-5 border-l-4 border-[#56be45] shadow-sm">
-        <h3 class="font-bold text-brand text-sm mb-1">🏙️ Urban Greening</h3>
-        <p class="text-gray-600 text-sm">Unused rooftops, lots and indoor spaces transform into productive farming zones — greener, more efficient land use.</p>
-      </div>
-      <div class="bg-white rounded-xl p-5 border-l-4 border-[#c4d92e] shadow-sm">
-        <h3 class="font-bold text-brand text-sm mb-1">🌍 Lower Carbon Footprint</h3>
-        <p class="text-gray-600 text-sm">Efficient water use and locally-grown food reduce long-distance transport and conserve natural resources.</p>
+  <!-- VISION & MISSION -->
+  <section class="py-16 bg-white">
+    <div class="max-w-6xl mx-auto px-4">
+      <div class="grid md:grid-cols-2 gap-8">
+        <div class="text-white rounded-2xl p-8 card-hover" style="background:#13658f">
+          <h3 class="text-2xl font-bold mb-3" data-i18n="vision.title">Our Vision</h3>
+          <p class="text-sky-100 leading-relaxed" data-i18n="vision.body">A thriving community where hydroponic farmers have direct market access, fair income, and buyers enjoy fresh, nutrient-rich produce grown responsibly.</p>
+        </div>
+        <div class="text-white rounded-2xl p-8 card-hover" style="background:#3a9e30">
+          <h3 class="text-2xl font-bold mb-3" data-i18n="mission.title">Our Mission</h3>
+          <p class="text-green-50 leading-relaxed" data-i18n="mission.body">To connect HSI-certified hydroponic farmers with buyers through a transparent, community-first marketplace that upholds quality, trust, and sustainability.</p>
+        </div>
       </div>
     </div>
-    <p class="text-center text-gray-500 text-sm mt-8 max-w-3xl mx-auto">Once established, HSI can serve as a scalable model for other communities — locally and globally — adapting hydroponic entrepreneurship to address their own challenges.</p>
-  </div>
-</section>
+  </section>
 
-<!-- FEATURED PRODUCTS -->
-<section class="py-16 bg-white">
-  <div class="max-w-6xl mx-auto px-4">
-    <div class="flex items-center justify-between mb-8">
-      <h2 class="text-3xl font-bold text-brand" data-i18n="section.fresh_week">Fresh This Week</h2>
-      <a href="marketplace/" class="text-[#1b8fc4] hover:text-[#13658f] font-medium text-sm" data-i18n="section.view_all">View all →</a>
-    </div>
-    <div id="featured-products" class="flex gap-4 overflow-x-auto pb-4 snap-x">
-      <div class="text-gray-400 text-sm py-6" data-i18n="section.loading_products">Loading fresh products…</div>
-    </div>
-  </div>
-</section>
+</div><!-- /panel-about -->
 
-<!-- ANNOUNCEMENTS -->
-<section id="announcements-section" class="py-16 section-green hidden">
-  <div class="max-w-6xl mx-auto px-4">
-    <h2 class="text-3xl font-bold text-brand mb-8" data-i18n="section.announcements">Announcements</h2>
-    <div id="announcements-list" class="grid md:grid-cols-3 gap-6"></div>
-  </div>
-</section>
+<!-- ===================== PARTNERS ===================== -->
+<div id="panel-partners" class="landing-panel">
 
-<!-- VISION & MISSION -->
-<section class="py-16 bg-white">
-  <div class="max-w-6xl mx-auto px-4">
-    <div class="grid md:grid-cols-2 gap-8">
-      <div class="text-white rounded-2xl p-8 card-hover" style="background:#13658f">
-        <h3 class="text-2xl font-bold mb-3" data-i18n="vision.title">Our Vision</h3>
-        <p class="text-sky-100 leading-relaxed" data-i18n="vision.body">A thriving community where hydroponic farmers have direct market access, fair income, and buyers enjoy fresh, nutrient-rich produce grown responsibly.</p>
+  <!-- SPONSORS & CONTRIBUTORS (highlighted) -->
+  <section class="py-16 bg-white">
+    <div class="max-w-6xl mx-auto px-4">
+      <div class="text-center mb-10">
+        <span class="text-xs font-semibold uppercase tracking-widest text-[#56be45]">With the Support Of</span>
+        <h2 class="text-3xl font-bold text-brand mt-2 mb-3">Sponsors &amp; Contributors</h2>
+        <p class="text-gray-600 max-w-2xl mx-auto">The Hydro Sprout Initiative is made possible by the generous support and collaboration of these partners.</p>
       </div>
-      <div class="text-white rounded-2xl p-8 card-hover" style="background:#3a9e30">
-        <h3 class="text-2xl font-bold mb-3" data-i18n="mission.title">Our Mission</h3>
-        <p class="text-green-50 leading-relaxed" data-i18n="mission.body">To connect HSI-certified hydroponic farmers with buyers through a transparent, community-first marketplace that upholds quality, trust, and sustainability.</p>
+      <div class="grid sm:grid-cols-3 gap-8">
+        <!-- PTTEP -->
+        <div class="card-hover bg-white rounded-2xl p-8 border border-sky-100 shadow-sm text-center flex flex-col items-center">
+          <div class="h-28 flex items-center justify-center mb-4">
+            <img src="assets/sponsor-pttep.png" alt="PTTEP" class="max-h-28 max-w-full object-contain" onerror="this.style.display='none'" />
+          </div>
+          <span class="inline-block bg-sky-100 text-[#13658f] text-xs font-semibold px-3 py-1 rounded-full mb-2">Main Sponsor</span>
+          <h3 class="font-bold text-brand text-sm mb-1">PTTEP</h3>
+          <p class="text-gray-500 text-xs">PTT Exploration and Production Public Company Limited — providing financial and strategic support for the program.</p>
+        </div>
+        <!-- BDA -->
+        <div class="card-hover bg-white rounded-2xl p-8 border border-green-100 shadow-sm text-center flex flex-col items-center">
+          <div class="h-28 flex items-center justify-center mb-4">
+            <img src="assets/sponsor-bda.png" alt="Bintulu Development Authority" class="max-h-28 max-w-full object-contain" onerror="this.style.display='none'" />
+          </div>
+          <span class="inline-block bg-green-100 text-[#3a9e30] text-xs font-semibold px-3 py-1 rounded-full mb-2">Collaborator &amp; Land Contributor</span>
+          <h3 class="font-bold text-brand text-sm mb-1">Bintulu Development Authority (BDA)</h3>
+          <p class="text-gray-500 text-xs">Making the necessary land available and collaborating to bring the project to life.</p>
+        </div>
+        <!-- LIONS CLUB -->
+        <div class="card-hover bg-white rounded-2xl p-8 border border-amber-100 shadow-sm text-center flex flex-col items-center">
+          <div class="h-28 flex items-center justify-center mb-4">
+            <img src="assets/sponsor-lions.png" alt="Lions Club International" class="max-h-28 max-w-full object-contain" onerror="this.style.display='none'" />
+          </div>
+          <span class="inline-block bg-amber-100 text-amber-700 text-xs font-semibold px-3 py-1 rounded-full mb-2">Financial Steward &amp; Implementer</span>
+          <h3 class="font-bold text-brand text-sm mb-1">Lions Club of Bintulu Kidurong</h3>
+          <p class="text-gray-500 text-xs">Stewarding funds and resources, ensuring they are used effectively for maximum community impact.</p>
+        </div>
+      </div>
+      <!-- UPM technical partner -->
+      <div class="mt-8 bg-sky-50 border border-sky-100 rounded-2xl p-6 text-center max-w-3xl mx-auto">
+        <span class="inline-block bg-white text-[#13658f] text-xs font-semibold px-3 py-1 rounded-full mb-2 border border-sky-200">Technical Partner &amp; Coordinator</span>
+        <p class="text-gray-600 text-sm">Technical expertise and project coordination provided by <strong class="text-brand">Universiti Putra Malaysia (UPM)</strong>, guiding training, system design and program delivery.</p>
       </div>
     </div>
-  </div>
-</section>
+  </section>
 
-<!-- COMMUNITY PARTICIPATION -->
-<section class="hero-gradient text-white py-16">
-  <div class="max-w-6xl mx-auto px-4 text-center">
-    <div class="inline-block bg-white/15 text-white text-xs font-semibold px-3 py-1 rounded-full mb-4 uppercase tracking-widest" data-i18n="community.tag">Get Involved</div>
-    <h2 class="text-3xl md:text-4xl font-extrabold mb-3" data-i18n="community.title">Be Part of the HSI Community</h2>
-    <p class="text-sky-50 text-lg mb-10 max-w-2xl mx-auto" data-i18n="community.body">Whether you grow, buy, or simply believe in fresh local food, there's a place for you in the Hydro Sprout Initiative.</p>
-    <div class="grid sm:grid-cols-3 gap-6 mb-10 text-left">
-      <div class="bg-white/10 rounded-2xl p-6 border border-white/25">
-        <div class="text-4xl mb-3">🌱</div>
-        <h3 class="text-lg font-bold mb-1" data-i18n="community.farmer_title">Grow &amp; Sell</h3>
-        <p class="text-sky-50 text-sm" data-i18n="community.farmer_body">Register as a community farmer to list your hydroponic produce and reach buyers directly.</p>
+</div><!-- /panel-partners -->
+
+<!-- ===================== ACTIVITIES ===================== -->
+<div id="panel-activities" class="landing-panel">
+
+  <!-- HSI ACTIVITIES -->
+  <section class="py-16 bg-white">
+    <div class="max-w-6xl mx-auto px-4">
+      <div class="text-center mb-10">
+        <span class="text-xs font-semibold uppercase tracking-widest text-[#56be45]">A 3-Year Journey</span>
+        <h2 class="text-3xl font-bold text-brand mt-2 mb-3">HSI Activities</h2>
+        <p class="text-gray-600 max-w-2xl mx-auto">From classroom to market — empowering B40 and low-income households through hydroponic farming and entrepreneurship.</p>
       </div>
-      <div class="bg-white/10 rounded-2xl p-6 border border-white/25">
-        <div class="text-4xl mb-3">🛒</div>
-        <h3 class="text-lg font-bold mb-1" data-i18n="community.buyer_title">Shop Fresh</h3>
-        <p class="text-sky-50 text-sm" data-i18n="community.buyer_body">Create a buyer account to order fresh produce, track your orders, and earn HSI loyalty points.</p>
+      <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
+        <div class="bg-sky-50 rounded-2xl p-6 border border-sky-100">
+          <div class="flex items-center gap-3 mb-2"><span class="brand-band text-white font-bold w-8 h-8 rounded-full flex items-center justify-center text-sm">1</span><h3 class="font-bold text-brand">Technical Training</h3></div>
+          <p class="text-gray-600 text-sm">Classroom and practical training from hydroponic experts — system setup, nutrient management, environmental control, and farm maintenance.</p>
+        </div>
+        <div class="bg-sky-50 rounded-2xl p-6 border border-sky-100">
+          <div class="flex items-center gap-3 mb-2"><span class="brand-band text-white font-bold w-8 h-8 rounded-full flex items-center justify-center text-sm">2</span><h3 class="font-bold text-brand">Hands-On Farming</h3></div>
+          <p class="text-gray-600 text-sm">Participants manage hydroponic plots — planting, monitoring growth, maintaining systems, and solving real-world challenges under expert guidance.</p>
+        </div>
+        <div class="bg-sky-50 rounded-2xl p-6 border border-sky-100">
+          <div class="flex items-center gap-3 mb-2"><span class="brand-band text-white font-bold w-8 h-8 rounded-full flex items-center justify-center text-sm">3</span><h3 class="font-bold text-brand">Business &amp; Product Development</h3></div>
+          <p class="text-gray-600 text-sm">Training in business planning, cost management, branding, packaging, and sales — supported by this online marketplace platform.</p>
+        </div>
+        <div class="bg-sky-50 rounded-2xl p-6 border border-sky-100">
+          <div class="flex items-center gap-3 mb-2"><span class="brand-band text-white font-bold w-8 h-8 rounded-full flex items-center justify-center text-sm">4</span><h3 class="font-bold text-brand">Planting, Harvesting &amp; Sales</h3></div>
+          <p class="text-gray-600 text-sm">Participants cultivate, harvest, market and sell their produce — gaining experience across the complete farm-to-market value chain.</p>
+        </div>
+        <div class="bg-sky-50 rounded-2xl p-6 border border-sky-100">
+          <div class="flex items-center gap-3 mb-2"><span class="brand-band text-white font-bold w-8 h-8 rounded-full flex items-center justify-center text-sm">5</span><h3 class="font-bold text-brand">Mentorship &amp; Graduation</h3></div>
+          <p class="text-gray-600 text-sm">Outstanding graduates become mentors for new participants, with starter kits and support to establish their own commercial hydroponic farms.</p>
+        </div>
+        <div class="brand-band rounded-2xl p-6 text-white flex flex-col justify-center">
+          <h3 class="font-bold text-lg mb-1">The Outcome</h3>
+          <p class="text-white/90 text-sm">Improved livelihoods, stronger food security, new jobs, and a new generation of sustainable agropreneurs in Bintulu.</p>
+        </div>
       </div>
-      <div class="bg-white/10 rounded-2xl p-6 border border-white/25">
-        <div class="text-4xl mb-3">🤝</div>
-        <h3 class="text-lg font-bold mb-1" data-i18n="community.support_title">Support Local</h3>
-        <p class="text-sky-50 text-sm" data-i18n="community.support_body">Every purchase strengthens local farmers and helps build a sustainable community food system.</p>
+      <!-- Activity photo gallery -->
+      <h3 class="text-xl font-bold text-brand text-center mb-6">Moments from the Programme</h3>
+      <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
+        <figure class="rounded-2xl overflow-hidden shadow-sm card-hover">
+          <img src="assets/activity-1.jpg" alt="Document exchange ceremony" class="w-full h-48 object-cover" loading="lazy" />
+          <figcaption class="text-xs text-gray-500 p-2 bg-white">Document exchange ceremony · 20 Feb 2025</figcaption>
+        </figure>
+        <figure class="rounded-2xl overflow-hidden shadow-sm card-hover">
+          <img src="assets/activity-2.jpg" alt="Technical training in the greenhouse" class="w-full h-48 object-cover" loading="lazy" />
+          <figcaption class="text-xs text-gray-500 p-2 bg-white">Technical training in the greenhouse · 14 May 2025</figcaption>
+        </figure>
+        <figure class="rounded-2xl overflow-hidden shadow-sm card-hover">
+          <img src="assets/activity-3.jpg" alt="Official launch — mementos session" class="w-full h-48 object-cover" loading="lazy" />
+          <figcaption class="text-xs text-gray-500 p-2 bg-white">Official launch day · 11 Jul 2025</figcaption>
+        </figure>
+        <figure class="rounded-2xl overflow-hidden shadow-sm card-hover">
+          <img src="assets/activity-4.jpg" alt="Greenhouse tour on launch day" class="w-full h-48 object-cover" loading="lazy" />
+          <figcaption class="text-xs text-gray-500 p-2 bg-white">Smart-tech greenhouse tour · 11 Jul 2025</figcaption>
+        </figure>
+        <figure class="rounded-2xl overflow-hidden shadow-sm card-hover">
+          <img src="assets/activity-5.jpg" alt="Explaining the hydroponic system to guests" class="w-full h-48 object-cover" loading="lazy" />
+          <figcaption class="text-xs text-gray-500 p-2 bg-white">Hydroponic system showcase · 11 Jul 2025</figcaption>
+        </figure>
+        <figure class="rounded-2xl overflow-hidden shadow-sm card-hover">
+          <img src="assets/activity-6.jpg" alt="Visit from the Ambassador of Thailand" class="w-full h-48 object-cover" loading="lazy" />
+          <figcaption class="text-xs text-gray-500 p-2 bg-white">Visit from the Ambassador of Thailand to Malaysia</figcaption>
+        </figure>
       </div>
     </div>
-    <div class="flex flex-col sm:flex-row gap-3 justify-center">
-      <button onclick="openAuth('register')" class="bg-white text-[#13658f] font-semibold px-8 py-3 rounded-full text-lg shadow-lg hover:bg-sky-50 transition" data-i18n="community.join_btn">Join the Community</button>
-      <a href="marketplace/" class="border-2 border-white text-white font-semibold px-8 py-3 rounded-full text-lg hover:bg-white hover:text-[#13658f] transition" data-i18n="community.browse_btn">Browse Produce</a>
+  </section>
+
+</div><!-- /panel-activities -->
+
+<!-- ===================== SHOP ===================== -->
+<div id="panel-shop" class="landing-panel">
+
+  <!-- FEATURED PRODUCTS -->
+  <section class="py-16 bg-white">
+    <div class="max-w-6xl mx-auto px-4">
+      <div class="text-center mb-8">
+        <span class="text-xs font-semibold uppercase tracking-widest text-[#56be45]">Straight from the Farm</span>
+        <h2 class="text-3xl font-bold text-brand mt-2 mb-3" data-i18n="section.fresh_week">Fresh This Week</h2>
+        <p class="text-gray-600 max-w-2xl mx-auto">Hand-picked hydroponic produce from HSI community farmers. Browse the full marketplace to order.</p>
+      </div>
+      <div id="featured-products" class="flex gap-4 overflow-x-auto pb-4 snap-x">
+        <div class="text-gray-400 text-sm py-6" data-i18n="section.loading_products">Loading fresh products…</div>
+      </div>
+      <div class="text-center mt-6">
+        <a href="marketplace/" class="inline-block btn-blue text-white font-semibold px-8 py-3 rounded-full text-lg shadow-lg transition" data-i18n="hero.browse_btn">Browse Marketplace</a>
+      </div>
     </div>
-  </div>
-</section>
+  </section>
+
+  <!-- ANNOUNCEMENTS -->
+  <section id="announcements-section" class="py-16 section-green hidden">
+    <div class="max-w-6xl mx-auto px-4">
+      <h2 class="text-3xl font-bold text-brand mb-8 text-center" data-i18n="section.announcements">Announcements</h2>
+      <div id="announcements-list" class="grid md:grid-cols-3 gap-6"></div>
+    </div>
+  </section>
+
+  <!-- COMMUNITY PARTICIPATION -->
+  <section class="hero-gradient text-white py-16">
+    <div class="max-w-6xl mx-auto px-4 text-center">
+      <div class="inline-block bg-white/15 text-white text-xs font-semibold px-3 py-1 rounded-full mb-4 uppercase tracking-widest" data-i18n="community.tag">Get Involved</div>
+      <h2 class="text-3xl md:text-4xl font-extrabold mb-3" data-i18n="community.title">Be Part of the HSI Community</h2>
+      <p class="text-sky-50 text-lg mb-10 max-w-2xl mx-auto" data-i18n="community.body">Whether you grow, buy, or simply believe in fresh local food, there's a place for you in the Hydro Sprout Initiative.</p>
+      <div class="grid sm:grid-cols-3 gap-6 mb-10 text-left">
+        <div class="bg-white/10 rounded-2xl p-6 border border-white/25">
+          <div class="text-4xl mb-3">🌱</div>
+          <h3 class="text-lg font-bold mb-1" data-i18n="community.farmer_title">Grow &amp; Sell</h3>
+          <p class="text-sky-50 text-sm" data-i18n="community.farmer_body">Register as a community farmer to list your hydroponic produce and reach buyers directly.</p>
+        </div>
+        <div class="bg-white/10 rounded-2xl p-6 border border-white/25">
+          <div class="text-4xl mb-3">🛒</div>
+          <h3 class="text-lg font-bold mb-1" data-i18n="community.buyer_title">Shop Fresh</h3>
+          <p class="text-sky-50 text-sm" data-i18n="community.buyer_body">Create a buyer account to order fresh produce, track your orders, and earn HSI loyalty points.</p>
+        </div>
+        <div class="bg-white/10 rounded-2xl p-6 border border-white/25">
+          <div class="text-4xl mb-3">🤝</div>
+          <h3 class="text-lg font-bold mb-1" data-i18n="community.support_title">Support Local</h3>
+          <p class="text-sky-50 text-sm" data-i18n="community.support_body">Every purchase strengthens local farmers and helps build a sustainable community food system.</p>
+        </div>
+      </div>
+      <div class="flex flex-col sm:flex-row gap-3 justify-center">
+        <button onclick="openAuth('register')" class="bg-white text-[#13658f] font-semibold px-8 py-3 rounded-full text-lg shadow-lg hover:bg-sky-50 transition" data-i18n="community.join_btn">Join the Community</button>
+        <a href="marketplace/" class="border-2 border-white text-white font-semibold px-8 py-3 rounded-full text-lg hover:bg-white hover:text-[#13658f] transition" data-i18n="community.browse_btn">Browse Produce</a>
+      </div>
+    </div>
+  </section>
+
+</div><!-- /panel-shop -->
 
 <!-- FOOTER -->
 <footer class="bg-[#0f4e6e] text-sky-200 py-12">
@@ -647,6 +698,37 @@
   const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtkaGN4bXp3Z2l3eXNrZmFtdmtiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODAyODYzMDgsImV4cCI6MjA5NTg2MjMwOH0.gvvp2oKrkEPLtbjmBsj_u4Hby8nyy52qi7tSNaDU3Bk';
   const { createClient } = supabase;
   const sb = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+
+  // ── SECTION TABS (About · Partners · Activities · Shop) ──
+  // Pure client-side show/hide. The tab bar is sticky just under the nav;
+  // its `top` is set from the live nav height so the two stack cleanly on
+  // any screen size. The active tab is mirrored to the URL hash for sharing.
+  const LANDING_TABS = ['about', 'partners', 'activities', 'shop'];
+  function showLandingTab(tab, opts = {}) {
+    if (!LANDING_TABS.includes(tab)) tab = 'about';
+    LANDING_TABS.forEach(name => {
+      document.getElementById('panel-' + name)?.classList.toggle('active', name === tab);
+      document.querySelector(`.landing-tab-btn[data-tab="${name}"]`)?.classList.toggle('active', name === tab);
+    });
+    if (opts.updateHash !== false) history.replaceState(null, '', '#' + tab);
+    // Scroll so the content starts just under the sticky nav + tab bar.
+    if (opts.scroll !== false) {
+      const tabs = document.getElementById('landing-tabs');
+      const y = (tabs ? tabs.offsetTop : 0) - navHeight();
+      window.scrollTo({ top: Math.max(0, y), behavior: 'smooth' });
+    }
+  }
+  // Live nav height (it grows a little once the user menu replaces the buttons).
+  function navHeight() {
+    const nav = document.getElementById('main-nav');
+    return nav ? nav.offsetHeight : 0;
+  }
+  // Keep the section tab bar pinned right below the main nav.
+  function positionTabs() {
+    const tabs = document.getElementById('landing-tabs');
+    if (tabs) tabs.style.top = navHeight() + 'px';
+  }
+  window.addEventListener('resize', positionTabs);
 
   // TOAST
   function showToast(msg, type = 'success', duration = 3500) {
@@ -896,6 +978,7 @@
     updateGreeting();
     updateLangChecks();
     updateCartBadge();
+    positionTabs();   // nav height may have shifted; re-pin the tab bar
   }
 
   // CART (view-anytime drawer)
@@ -1044,6 +1127,11 @@
       </div>
     `).join('');
   }
+
+  // Initialise the section tabs: pin the bar under the nav and open the tab
+  // named in the URL hash (default "about"), without scrolling on first load.
+  positionTabs();
+  showLandingTab((location.hash || '').replace('#', '') || 'about', { scroll: false, updateHash: false });
 
   initNav();
   loadFeaturedProducts();
