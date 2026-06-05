@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>HSI Marketplace — Fresh Hydroponic Produce</title>
   <meta name="description" content="Hydro Sprout Initiative (HSI) — a hydroponic community development program in Bintulu. Fresh produce direct from community farmers." />
-  <meta name="theme-color" content="#13658f" />
+  <meta name="theme-color" content="#0f4e6e" />
   <link rel="manifest" href="manifest.json" />
   <link rel="apple-touch-icon" href="icon-192.png" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -15,51 +15,71 @@
   <script src="https://cdn.tailwindcss.com"></script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="translations.js"></script>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
   <style>
-    /* ── HSI brand palette (sampled from the Hydro Sprout Initiative logo) ──
-       Blue  #1b8fc4 / deep #13658f   ·   Green #56be45 / deep #3a9e30   ·   Lime #c4d92e
-       The page is white-first, using blue + green as accents (not all-green). */
+    /* ──────────────────────────────────────────────────────────────
+       HSI MARKETPLACE — landing page design system
+       Palette sampled from the Hydro Sprout Initiative logo:
+         Blue  #1b8fc4 / deep #13658f / ink #0f4e6e
+         Green #56be45 / deep #3a9e30 / Lime #c4d92e
+       White-first, editorial, blue + green accents. Typeface: Plus Jakarta Sans.
+       ────────────────────────────────────────────────────────────── */
     :root {
-      --blue: #1b8fc4; --blue-dark: #13658f; --blue-deep: #0f4e6e;
+      --blue: #1b8fc4; --blue-dark: #13658f; --ink: #0f4e6e;
       --green: #56be45; --green-dark: #3a9e30; --lime: #c4d92e;
     }
-    body { background: #ffffff; }
+    * { font-family: 'Plus Jakarta Sans', ui-sans-serif, system-ui, -apple-system, sans-serif; }
+    html { scroll-behavior: smooth; }
+    body { background: #ffffff; color: #1e293b; }
+    .font-display { letter-spacing: -0.025em; }
     .text-brand { color: var(--blue-dark); }
-    .nav-bg { background: #ffffff; }
-    .btn-blue { background-color: var(--blue); color: #fff; }
-    .btn-blue:hover { background-color: var(--blue-dark); }
-    .btn-green { background-color: var(--green-dark); color: #fff; }
-    .btn-green:hover { background-color: #2f8526; }
-    /* Fresh blue→green diagonal — both brand colours, so the hero pops (no dull all-green). */
-    .hero-gradient { background: linear-gradient(135deg, #13658f 0%, #1b8fc4 38%, #2ba6a0 70%, #56be45 100%); }
-    .brand-band { background: linear-gradient(135deg, #1b8fc4 0%, #56be45 100%); }
+    .eyebrow { font-size: .72rem; font-weight: 700; letter-spacing: .2em; text-transform: uppercase; color: var(--green-dark); }
+    .btn-blue  { background: var(--blue);  color:#fff; } .btn-blue:hover  { background: var(--blue-dark); }
+    .btn-green { background: var(--green-dark); color:#fff; } .btn-green:hover { background:#2f8526; }
+    .btn-ghost { background: rgba(255,255,255,.12); color:#fff; border:1px solid rgba(255,255,255,.45); } .btn-ghost:hover { background:#fff; color:var(--blue-dark); }
+    /* Cinematic hero — greenhouse photo under a blue→green wash */
+    .hero-photo {
+      background:
+        linear-gradient(120deg, rgba(15,78,110,.94) 0%, rgba(19,101,143,.86) 42%, rgba(58,158,48,.72) 100%),
+        url('assets/activity-2.jpg');
+      background-size: cover; background-position: center;
+    }
+    .brand-band { background: linear-gradient(120deg, #1b8fc4 0%, #2ba6a0 55%, #56be45 100%); }
+    .section-tint { background: #f7fafc; }
     .section-blue { background: #f1f8fc; }
     .section-green { background: #f3faef; }
-    #auth-panel { transform: translateX(100%); transition: transform 0.3s ease; }
+    #auth-panel { transform: translateX(100%); transition: transform .35s cubic-bezier(.4,0,.2,1); }
     #auth-panel.open { transform: translateX(0); }
-    .card-hover { transition: transform 0.2s, box-shadow 0.2s; }
-    .card-hover:hover { transform: translateY(-3px); box-shadow: 0 10px 25px rgba(0,0,0,0.12); }
-    #toast-container { position: fixed; bottom: 1.5rem; right: 1rem; z-index: 9999; display: flex; flex-direction: column; gap: 0.5rem; }
-    .toast { padding: 0.75rem 1.25rem; border-radius: 0.5rem; color: white; font-size: 0.875rem; max-width: 320px; animation: slideIn 0.3s ease; }
-    @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
-    /* ── Section tab bar (About · Partners · Activities · Shop) ── */
-    #landing-tabs { position: sticky; z-index: 30; }
-    .landing-tab-btn { white-space: nowrap; padding: 0.9rem 1.1rem; font-weight: 600; font-size: 0.95rem; color: #64748b; border-bottom: 3px solid transparent; transition: color .15s, border-color .15s; display: inline-flex; align-items: center; gap: .4rem; }
-    .landing-tab-btn:hover { color: var(--blue-dark); }
-    .landing-tab-btn.active { color: var(--blue-dark); border-bottom-color: var(--blue); }
+    /* Premium card elevation + hover */
+    .elev { box-shadow: 0 1px 2px rgba(15,78,110,.04), 0 18px 40px -22px rgba(15,78,110,.35); }
+    .card-hover { transition: transform .25s ease, box-shadow .25s ease; }
+    .card-hover:hover { transform: translateY(-4px); box-shadow: 0 24px 50px -24px rgba(15,78,110,.45); }
+    .zoom { overflow: hidden; } .zoom img { transition: transform .6s cubic-bezier(.2,.6,.2,1); } .zoom:hover img { transform: scale(1.07); }
+    /* Top-nav section tabs */
+    .nav-tab { position: relative; padding: .55rem .9rem; font-weight: 600; font-size: .95rem; color:#475569; border-radius:.65rem; transition: color .15s, background .15s; }
+    .nav-tab:hover { color: var(--blue-dark); background:#f1f8fc; }
+    .nav-tab.active { color: var(--blue-dark); }
+    .nav-tab.active::after { content:''; position:absolute; left:.9rem; right:.9rem; bottom:-.62rem; height:3px; border-radius:3px; background: linear-gradient(90deg, var(--blue), var(--green)); }
+    .mnav-tab { display:block; width:100%; text-align:left; padding:.85rem 1rem; font-weight:600; color:#334155; border-radius:.75rem; }
+    .mnav-tab:hover { background:#f1f8fc; color:var(--blue-dark); }
+    .mnav-tab.active { background:#f1f8fc; color:var(--blue-dark); }
     .landing-panel { display: none; }
-    .landing-panel.active { display: block; animation: fadeIn .25s ease; }
-    @keyframes fadeIn { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
-    .no-scrollbar::-webkit-scrollbar { display: none; }
-    .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+    .landing-panel.active { display: block; animation: fadeUp .4s ease; }
+    @keyframes fadeUp { from { opacity:0; transform: translateY(10px); } to { opacity:1; transform:none; } }
+    #toast-container { position: fixed; bottom: 1.5rem; right: 1rem; z-index: 9999; display:flex; flex-direction:column; gap:.5rem; }
+    .toast { padding:.75rem 1.25rem; border-radius:.6rem; color:#fff; font-size:.875rem; max-width:320px; box-shadow:0 10px 30px -10px rgba(0,0,0,.4); animation: slideIn .3s ease; }
+    @keyframes slideIn { from { transform: translateX(100%); opacity:0; } to { transform:none; opacity:1; } }
+    .no-scrollbar::-webkit-scrollbar { display:none; } .no-scrollbar { -ms-overflow-style:none; scrollbar-width:none; }
   </style>
 </head>
-<body class="text-gray-800 font-sans">
+<body class="font-sans">
 
 <!-- TOAST -->
 <div id="toast-container"></div>
 
-<!-- PWA INSTALL BANNER (shown unless already installed) -->
+<!-- PWA INSTALL BANNER -->
 <div id="pwa-install-banner" class="hidden fixed bottom-0 left-0 right-0 z-50 bg-[#0f4e6e] text-white px-4 py-3 flex items-center justify-between shadow-2xl" style="padding-bottom:max(0.75rem,env(safe-area-inset-bottom))">
   <div class="flex items-center gap-3">
     <img src="assets/hsi-logo.png" alt="HSI" class="w-10 h-10 rounded-xl bg-white p-1 shadow" onerror="this.style.display='none'" />
@@ -74,7 +94,7 @@
   </div>
 </div>
 
-<!-- INSTALL INSTRUCTIONS MODAL (iOS + Android fallback) -->
+<!-- INSTALL INSTRUCTIONS MODAL -->
 <div id="install-modal" class="hidden fixed inset-0 z-[60] flex items-end justify-center">
   <div class="absolute inset-0 bg-black bg-opacity-60" onclick="document.getElementById('install-modal').classList.add('hidden')"></div>
   <div class="relative bg-white rounded-t-2xl w-full max-w-sm p-6 shadow-2xl">
@@ -84,63 +104,49 @@
       <h3 class="text-lg font-bold text-gray-900">Add to Home Screen</h3>
       <p class="text-sm text-gray-500 mt-1">Install HSI Marketplace as an app</p>
     </div>
-    <!-- iOS steps -->
     <ol id="ios-steps" class="hidden space-y-3 text-sm text-gray-700">
-      <li class="flex items-start gap-3">
-        <span class="bg-sky-100 text-[#13658f] font-bold rounded-full w-6 h-6 flex items-center justify-center shrink-0 mt-0.5">1</span>
-        <span>Tap the <strong>Share</strong> button (the box with an arrow) at the bottom of Safari</span>
-      </li>
-      <li class="flex items-start gap-3">
-        <span class="bg-sky-100 text-[#13658f] font-bold rounded-full w-6 h-6 flex items-center justify-center shrink-0 mt-0.5">2</span>
-        <span>Scroll down and tap <strong>"Add to Home Screen"</strong></span>
-      </li>
-      <li class="flex items-start gap-3">
-        <span class="bg-sky-100 text-[#13658f] font-bold rounded-full w-6 h-6 flex items-center justify-center shrink-0 mt-0.5">3</span>
-        <span>Tap <strong>"Add"</strong> in the top right corner</span>
-      </li>
+      <li class="flex items-start gap-3"><span class="bg-sky-100 text-[#13658f] font-bold rounded-full w-6 h-6 flex items-center justify-center shrink-0 mt-0.5">1</span><span>Tap the <strong>Share</strong> button (the box with an arrow) at the bottom of Safari</span></li>
+      <li class="flex items-start gap-3"><span class="bg-sky-100 text-[#13658f] font-bold rounded-full w-6 h-6 flex items-center justify-center shrink-0 mt-0.5">2</span><span>Scroll down and tap <strong>"Add to Home Screen"</strong></span></li>
+      <li class="flex items-start gap-3"><span class="bg-sky-100 text-[#13658f] font-bold rounded-full w-6 h-6 flex items-center justify-center shrink-0 mt-0.5">3</span><span>Tap <strong>"Add"</strong> in the top right corner</span></li>
     </ol>
-    <!-- Android steps -->
     <ol id="android-steps" class="hidden space-y-3 text-sm text-gray-700">
-      <li class="flex items-start gap-3">
-        <span class="bg-sky-100 text-[#13658f] font-bold rounded-full w-6 h-6 flex items-center justify-center shrink-0 mt-0.5">1</span>
-        <span>Tap the <strong>three-dot menu</strong> ⋮ at the top right of Chrome</span>
-      </li>
-      <li class="flex items-start gap-3">
-        <span class="bg-sky-100 text-[#13658f] font-bold rounded-full w-6 h-6 flex items-center justify-center shrink-0 mt-0.5">2</span>
-        <span>Tap <strong>"Add to Home screen"</strong> or <strong>"Install app"</strong></span>
-      </li>
-      <li class="flex items-start gap-3">
-        <span class="bg-sky-100 text-[#13658f] font-bold rounded-full w-6 h-6 flex items-center justify-center shrink-0 mt-0.5">3</span>
-        <span>Tap <strong>"Add"</strong> to confirm</span>
-      </li>
+      <li class="flex items-start gap-3"><span class="bg-sky-100 text-[#13658f] font-bold rounded-full w-6 h-6 flex items-center justify-center shrink-0 mt-0.5">1</span><span>Tap the <strong>three-dot menu</strong> ⋮ at the top right of Chrome</span></li>
+      <li class="flex items-start gap-3"><span class="bg-sky-100 text-[#13658f] font-bold rounded-full w-6 h-6 flex items-center justify-center shrink-0 mt-0.5">2</span><span>Tap <strong>"Add to Home screen"</strong> or <strong>"Install app"</strong></span></li>
+      <li class="flex items-start gap-3"><span class="bg-sky-100 text-[#13658f] font-bold rounded-full w-6 h-6 flex items-center justify-center shrink-0 mt-0.5">3</span><span>Tap <strong>"Add"</strong> to confirm</span></li>
     </ol>
-    <div class="mt-5 bg-sky-50 rounded-xl p-3 text-xs text-[#13658f] text-center">
-      The HSI Marketplace icon will appear on your home screen
-    </div>
+    <div class="mt-5 bg-sky-50 rounded-xl p-3 text-xs text-[#13658f] text-center">The HSI Marketplace icon will appear on your home screen</div>
   </div>
 </div>
 
-<!-- NAV (white, brand logo, blue + green action buttons) -->
-<nav id="main-nav" class="nav-bg sticky top-0 z-40 shadow-md border-b-2 border-[#1b8fc4]">
-  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-2.5 flex items-center justify-between">
-    <div class="flex items-center gap-4">
-      <a href="./" class="flex items-center gap-2.5">
-        <img src="assets/hsi-logo.png" alt="Hydro Sprout Initiative" class="h-10 w-auto" onerror="this.style.display='none'" />
-        <span class="font-bold text-lg tracking-wide text-brand hidden sm:inline">HSI Marketplace</span>
-      </a>
-      <a href="marketplace/" class="btn-green text-white text-sm px-4 py-1.5 rounded-full font-semibold tracking-wide transition" data-i18n="nav.shop">SHOP</a>
+<!-- ╔═══════════════════ NAV (logo · section tabs · actions) ═══════════════════╗ -->
+<nav id="main-nav" class="sticky top-0 z-40 bg-white/90 backdrop-blur-md border-b border-slate-100 shadow-[0_2px_20px_-12px_rgba(15,78,110,.4)]">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-4">
+    <!-- Logo -->
+    <a href="./" onclick="showLandingTab('about'); return false;" class="flex items-center gap-2.5 shrink-0">
+      <img src="assets/hsi-logo.png" alt="Hydro Sprout Initiative" class="h-9 w-auto" onerror="this.style.display='none'" />
+      <span class="font-display font-extrabold text-lg tracking-tight text-brand hidden sm:inline">HSI</span>
+    </a>
+
+    <!-- Center: section tabs (desktop) -->
+    <div class="hidden lg:flex items-center gap-1 absolute left-1/2 -translate-x-1/2">
+      <button onclick="showLandingTab('about')"      data-tab="about"      class="nav-tab">About</button>
+      <button onclick="showLandingTab('partners')"   data-tab="partners"   class="nav-tab">Partners</button>
+      <button onclick="showLandingTab('activities')" data-tab="activities" class="nav-tab">Activities</button>
+      <button onclick="showLandingTab('shop')"        data-tab="shop"       class="nav-tab">Shop</button>
     </div>
-    <div class="flex items-center gap-3">
-      <button id="lang-toggle" onclick="toggleLang()" class="text-[#13658f] hover:text-white hover:bg-[#1b8fc4] border border-[#1b8fc4] text-xs px-2.5 py-1 rounded-full font-semibold transition">BM</button>
-      <button id="nav-auth-btn" onclick="openAuth()" class="btn-blue text-white text-sm px-4 py-1.5 rounded-full font-medium transition" data-i18n="nav.login_register">Login / Register</button>
-      <!-- CART (shown when logged in) -->
-      <button id="nav-cart-btn" onclick="toggleCart()" class="hidden relative btn-blue p-2 rounded-full" aria-label="Cart" title="Cart">
+
+    <!-- Right: actions -->
+    <div class="flex items-center gap-2 shrink-0">
+      <button id="lang-toggle" onclick="toggleLang()" class="hidden sm:inline-block text-[#13658f] hover:text-white hover:bg-[#1b8fc4] border border-[#1b8fc4] text-xs px-2.5 py-1 rounded-full font-semibold transition">BM</button>
+      <button id="nav-auth-btn" onclick="openAuth()" class="hidden sm:inline-block btn-blue text-sm px-4 py-2 rounded-full font-semibold transition" data-i18n="nav.login_register">Login / Register</button>
+      <!-- CART -->
+      <button id="nav-cart-btn" onclick="toggleCart()" class="hidden relative btn-blue p-2.5 rounded-full" aria-label="Cart" title="Cart">
         <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-1.5 6h13M10 19a1 1 0 100 2 1 1 0 000-2zm7 0a1 1 0 100 2 1 1 0 000-2z"/></svg>
         <span id="cart-badge" class="hidden absolute -top-1 -right-1 bg-red-500 text-white text-xs font-bold w-5 h-5 rounded-full flex items-center justify-center">0</span>
       </button>
-      <!-- USER MENU (shown when logged in) -->
+      <!-- USER MENU -->
       <div id="nav-user-menu" class="hidden relative">
-        <button id="nav-user-btn" onclick="toggleUserMenu()" class="btn-blue text-white text-sm px-4 py-1.5 rounded-full font-medium transition flex items-center gap-1.5">
+        <button id="nav-user-btn" onclick="toggleUserMenu()" class="btn-blue text-sm px-4 py-2 rounded-full font-semibold transition flex items-center gap-1.5">
           <span id="nav-user-greeting">Hi</span>
           <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 9l-7 7-7-7"/></svg>
         </button>
@@ -151,16 +157,29 @@
           </button>
           <div class="border-t border-gray-100 my-1"></div>
           <p class="px-4 pt-1 pb-1 text-xs font-semibold text-gray-400 uppercase tracking-wide" data-i18n="nav.language">Language</p>
-          <button onclick="chooseLang('en')" class="w-full text-left px-4 py-2 text-sm hover:bg-sky-50 flex items-center justify-between">
-            <span>English</span><span id="lang-check-en" class="text-[#1b8fc4] font-bold"></span>
-          </button>
-          <button onclick="chooseLang('bm')" class="w-full text-left px-4 py-2 text-sm hover:bg-sky-50 flex items-center justify-between">
-            <span>Bahasa Malaysia</span><span id="lang-check-bm" class="text-[#1b8fc4] font-bold"></span>
-          </button>
+          <button onclick="chooseLang('en')" class="w-full text-left px-4 py-2 text-sm hover:bg-sky-50 flex items-center justify-between"><span>English</span><span id="lang-check-en" class="text-[#1b8fc4] font-bold"></span></button>
+          <button onclick="chooseLang('bm')" class="w-full text-left px-4 py-2 text-sm hover:bg-sky-50 flex items-center justify-between"><span>Bahasa Malaysia</span><span id="lang-check-bm" class="text-[#1b8fc4] font-bold"></span></button>
           <div class="border-t border-gray-100 my-1"></div>
           <button onclick="doLogout()" class="w-full text-left px-4 py-2.5 text-sm text-red-600 hover:bg-red-50 font-medium" data-i18n="nav.logout">Logout</button>
         </div>
       </div>
+      <!-- Hamburger (mobile) -->
+      <button onclick="toggleMobileMenu()" class="lg:hidden p-2 rounded-lg text-[#13658f] hover:bg-sky-50" aria-label="Menu">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16"/></svg>
+      </button>
+    </div>
+  </div>
+
+  <!-- Mobile menu -->
+  <div id="mobile-menu" class="hidden lg:hidden border-t border-slate-100 bg-white px-4 py-3 space-y-1">
+    <button onclick="showLandingTab('about')"      data-tab="about"      class="mnav-tab">🌱 About</button>
+    <button onclick="showLandingTab('partners')"   data-tab="partners"   class="mnav-tab">🤝 Partners</button>
+    <button onclick="showLandingTab('activities')" data-tab="activities" class="mnav-tab">📸 Activities</button>
+    <button onclick="showLandingTab('shop')"        data-tab="shop"       class="mnav-tab">🛒 Shop</button>
+    <div class="border-t border-slate-100 my-2"></div>
+    <div class="flex items-center gap-2 px-1">
+      <button onclick="openAuth(); closeMobileMenu();" class="flex-1 btn-blue text-sm px-4 py-2.5 rounded-full font-semibold">Login / Register</button>
+      <button onclick="toggleLang()" class="text-[#13658f] border border-[#1b8fc4] text-xs px-3 py-2 rounded-full font-semibold">BM</button>
     </div>
   </div>
 </nav>
@@ -170,524 +189,353 @@
 <div id="cart-sidebar" class="fixed top-0 right-0 h-full w-full max-w-sm bg-white z-50 shadow-2xl transform translate-x-full transition-transform overflow-y-auto">
   <div class="p-5">
     <div class="flex items-center justify-between mb-5">
-      <h3 class="text-xl font-bold text-brand">Your Cart</h3>
+      <h3 class="text-xl font-bold text-brand font-display">Your Cart</h3>
       <button onclick="toggleCart()" class="text-gray-400 hover:text-gray-600 text-2xl">&times;</button>
     </div>
-    <div id="cart-items-list">
-      <p class="text-gray-400 text-sm text-center py-10">Your cart is empty.</p>
-    </div>
+    <div id="cart-items-list"><p class="text-gray-400 text-sm text-center py-10">Your cart is empty.</p></div>
     <div id="cart-footer" class="hidden border-t border-sky-100 pt-4 mt-4">
-      <div class="flex justify-between font-bold text-brand mb-4">
-        <span>Total</span>
-        <span id="cart-total">RM 0.00</span>
-      </div>
+      <div class="flex justify-between font-bold text-brand mb-4"><span>Total</span><span id="cart-total">RM 0.00</span></div>
       <a href="marketplace/" class="block w-full border-2 border-[#1b8fc4] text-[#13658f] hover:bg-sky-50 font-semibold py-2.5 rounded-xl text-center transition mb-2">Continue Shopping</a>
-      <a href="buyer/" class="block w-full btn-blue text-white font-semibold py-3 rounded-xl text-center transition">Go to Checkout</a>
+      <a href="buyer/" class="block w-full btn-blue font-semibold py-3 rounded-xl text-center transition">Go to Checkout</a>
     </div>
   </div>
 </div>
 
-<!-- HERO -->
-<section class="hero-gradient text-white">
-  <div class="max-w-6xl mx-auto px-4 py-16 md:py-20 text-center">
-    <img src="assets/hsi-logo.png" alt="Hydro Sprout Initiative" class="h-24 md:h-28 w-auto mx-auto mb-6 bg-white/90 rounded-2xl p-3 shadow-lg" onerror="this.style.display='none'" />
-    <div class="inline-block bg-white/15 text-white text-xs font-semibold px-3 py-1 rounded-full mb-4 uppercase tracking-widest" data-i18n="hero.tag">Hydro Sprout Initiative</div>
-    <h1 class="text-4xl md:text-6xl font-extrabold mb-4 leading-tight" data-i18n="hero.title">Fresh Hydroponic Produce<br class="hidden md:block" /> From Your Community</h1>
-    <p class="text-sky-50 text-lg md:text-xl mb-3 max-w-2xl mx-auto" data-i18n="hero.subtitle">Connect directly with HSI community farmers in Bintulu. Get the freshest greens — grown clean, delivered fresh.</p>
-    <p class="text-white/90 italic text-base md:text-lg mb-8 max-w-2xl mx-auto">“Sprouting Sustainable Farming and the Seeds of Entrepreneurship”</p>
+<!-- ╔═══════════════════ HERO ═══════════════════╗ -->
+<section class="hero-photo text-white relative">
+  <div class="max-w-5xl mx-auto px-4 min-h-[86vh] flex flex-col items-center justify-center text-center py-20">
+    <img src="assets/hsi-logo.png" alt="Hydro Sprout Initiative" class="h-24 md:h-28 w-auto mb-7 bg-white/95 rounded-3xl p-3.5 shadow-2xl" onerror="this.style.display='none'" />
+    <div class="inline-block bg-white/15 backdrop-blur text-white text-xs font-semibold px-4 py-1.5 rounded-full mb-5 uppercase tracking-[0.2em] border border-white/25" data-i18n="hero.tag">Hydro Sprout Initiative</div>
+    <h1 class="font-display text-4xl md:text-6xl lg:text-7xl font-extrabold mb-5 leading-[1.05]" data-i18n="hero.title">Fresh Hydroponic Produce<br class="hidden md:block" /> From Your Community</h1>
+    <p class="text-sky-50/90 text-lg md:text-xl mb-3 max-w-2xl mx-auto font-light" data-i18n="hero.subtitle">Connect directly with HSI community farmers in Bintulu. Get the freshest greens — grown clean, delivered fresh.</p>
+    <p class="text-white/85 italic text-base md:text-lg mb-9 max-w-2xl mx-auto">“Sprouting Sustainable Farming and the Seeds of Entrepreneurship”</p>
     <div class="flex flex-col sm:flex-row gap-3 justify-center">
-      <a href="marketplace/" class="btn-green text-white font-semibold px-8 py-3 rounded-full text-lg shadow-lg transition" data-i18n="hero.browse_btn">Browse Marketplace</a>
-      <button onclick="openAuth('register')" class="bg-white text-[#13658f] font-semibold px-8 py-3 rounded-full text-lg shadow-lg hover:bg-sky-50 transition" data-i18n="hero.join_btn">Join as Seller / Buyer</button>
+      <a href="marketplace/" class="btn-green font-semibold px-8 py-3.5 rounded-full text-lg shadow-xl transition" data-i18n="hero.browse_btn">Browse Marketplace</a>
+      <button onclick="openAuth('register')" class="btn-ghost font-semibold px-8 py-3.5 rounded-full text-lg backdrop-blur transition" data-i18n="hero.join_btn">Join as Seller / Buyer</button>
     </div>
   </div>
+  <!-- Scroll cue -->
+  <button onclick="document.getElementById('content-top').scrollIntoView({behavior:'smooth'})" class="absolute bottom-6 left-1/2 -translate-x-1/2 text-white/70 hover:text-white transition animate-bounce" aria-label="Scroll down">
+    <svg class="w-7 h-7" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M19 14l-7 7m0 0l-7-7m7 7V3"/></svg>
+  </button>
 </section>
 
-<!-- SECTION TAB BAR (About · Partners · Activities · Shop) -->
-<div id="landing-tabs" class="bg-white/95 backdrop-blur border-b border-sky-100 shadow-sm">
-  <div class="max-w-6xl mx-auto px-2">
-    <div class="flex gap-1 overflow-x-auto no-scrollbar justify-start sm:justify-center">
-      <button onclick="showLandingTab('about')"      data-tab="about"      class="landing-tab-btn"><span>🌱</span><span>About</span></button>
-      <button onclick="showLandingTab('partners')"   data-tab="partners"   class="landing-tab-btn"><span>🤝</span><span>Partners</span></button>
-      <button onclick="showLandingTab('activities')" data-tab="activities" class="landing-tab-btn"><span>📸</span><span>Activities</span></button>
-      <button onclick="showLandingTab('shop')"        data-tab="shop"       class="landing-tab-btn"><span>🛒</span><span>Shop</span></button>
-    </div>
-  </div>
-</div>
+<!-- Scroll anchor for tab switches (sits just below the sticky nav) -->
+<div id="content-top" style="scroll-margin-top:4rem"></div>
 
-<!-- ===================== ABOUT ===================== -->
+<!-- ╔═══════════════════ ABOUT ═══════════════════╗ -->
 <div id="panel-about" class="landing-panel">
 
-  <!-- INTRODUCTION / ABOUT HSI -->
-  <section class="py-16 bg-white">
-    <div class="max-w-5xl mx-auto px-4">
-      <div class="text-center mb-8">
-        <span class="text-xs font-semibold uppercase tracking-widest text-[#56be45]">About the Program</span>
-        <h2 class="text-3xl font-bold text-brand mt-2">The Hydro Sprout Initiative</h2>
-      </div>
-      <div class="space-y-4 text-gray-600 leading-relaxed text-center max-w-3xl mx-auto">
-        <p>The <strong class="text-brand">Hydro Sprout Initiative (HSI)</strong> is a groundbreaking hydroponic community development program aimed at fostering sustainable agriculture, improving food security, and empowering local communities in Bintulu through modern farming practices.</p>
-        <p>It is driven by a multi-stakeholder partnership — with <strong>PTTEP</strong> as the main sponsor, the <strong>Bintulu Development Authority (BDA)</strong> as land contributor and collaborator, <strong>Universiti Putra Malaysia</strong> providing technical expertise and project coordination, and the <strong>Lions Club of Bintulu Kidurong</strong> acting as financial steward and implementer.</p>
-        <p>By leveraging hydroponic technology, the program addresses local food-supply challenges, creates entrepreneurship opportunities, and uplifts low-income communities — contributing to the socio-economic well-being of Bintulu.</p>
-      </div>
+  <!-- INTRODUCTION -->
+  <section class="py-20 md:py-24 bg-white">
+    <div class="max-w-4xl mx-auto px-4 text-center">
+      <span class="eyebrow">About the Program</span>
+      <h2 class="font-display text-3xl md:text-5xl font-extrabold text-slate-900 mt-3 mb-8">The Hydro Sprout Initiative</h2>
+      <p class="text-xl md:text-2xl text-slate-700 leading-relaxed font-light mb-6">A groundbreaking hydroponic community development program in Bintulu — fostering <span class="text-brand font-medium">sustainable agriculture</span>, improving <span class="text-brand font-medium">food security</span>, and empowering local communities through modern farming.</p>
+      <p class="text-slate-500 leading-relaxed max-w-3xl mx-auto">Driven by a multi-stakeholder partnership — PTTEP as main sponsor, the Bintulu Development Authority as land contributor, Universiti Putra Malaysia providing technical expertise, and the Lions Club of Bintulu Kidurong as financial steward — HSI leverages hydroponic technology to address local food-supply challenges, create entrepreneurship opportunities, and uplift low-income communities.</p>
     </div>
   </section>
 
-  <!-- MOTTO BAND -->
-  <section class="brand-band text-white py-12">
+  <!-- STATS STRIP -->
+  <section class="brand-band text-white">
+    <div class="max-w-6xl mx-auto px-4 py-12 grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
+      <div><div class="font-display text-4xl md:text-5xl font-extrabold">90%</div><div class="text-white/80 text-sm mt-1">Less water used</div></div>
+      <div><div class="font-display text-4xl md:text-5xl font-extrabold">3-Year</div><div class="text-white/80 text-sm mt-1">Community program</div></div>
+      <div><div class="font-display text-4xl md:text-5xl font-extrabold">4</div><div class="text-white/80 text-sm mt-1">Partner organisations</div></div>
+      <div><div class="font-display text-4xl md:text-5xl font-extrabold">100%</div><div class="text-white/80 text-sm mt-1">Pesticide-free produce</div></div>
+    </div>
+  </section>
+
+  <!-- MOTTO -->
+  <section class="py-16 bg-white">
     <div class="max-w-4xl mx-auto px-4 text-center">
-      <p class="text-xs font-semibold uppercase tracking-widest text-white/80 mb-3">Our Motto</p>
-      <p class="text-2xl md:text-3xl font-bold leading-snug">“Sprouting Sustainable Farming and the Seeds of Entrepreneurship”</p>
+      <svg class="w-10 h-10 mx-auto mb-4 text-[#56be45]" fill="currentColor" viewBox="0 0 24 24"><path d="M7.17 6A5.17 5.17 0 002 11.17V18h6.83v-6.83H5.5A1.67 1.67 0 017.17 9.5V6zm10 0A5.17 5.17 0 0012 11.17V18h6.83v-6.83H15.5A1.67 1.67 0 0117.17 9.5V6z"/></svg>
+      <p class="font-display text-2xl md:text-4xl font-bold text-slate-900 leading-snug">Sprouting Sustainable Farming<br class="hidden md:block" /> and the Seeds of Entrepreneurship</p>
+      <p class="eyebrow mt-5">Our Motto</p>
     </div>
   </section>
 
   <!-- OBJECTIVES -->
-  <section class="py-16 section-blue">
+  <section class="py-20 section-blue">
     <div class="max-w-6xl mx-auto px-4">
-      <div class="text-center mb-10">
-        <h2 class="text-3xl font-bold text-brand mb-3">Our Objectives</h2>
-        <p class="text-gray-600 max-w-2xl mx-auto">Three goals at the heart of the Hydro Sprout Initiative.</p>
-      </div>
-      <div class="grid md:grid-cols-3 gap-8">
-        <div class="card-hover bg-white rounded-2xl p-8 border-t-4 border-[#1b8fc4] shadow-sm">
-          <div class="text-4xl mb-4">🌱</div>
-          <h3 class="text-lg font-bold text-brand mb-2">Empower the Community</h3>
-          <p class="text-gray-600 text-sm">Train participants in advanced farming techniques such as hydroponics, improving agricultural skills and knowledge in the community.</p>
+      <div class="text-center mb-12"><span class="eyebrow">What We Set Out To Do</span><h2 class="font-display text-3xl md:text-4xl font-extrabold text-slate-900 mt-3">Our Objectives</h2></div>
+      <div class="grid md:grid-cols-3 gap-6">
+        <div class="card-hover elev bg-white rounded-3xl p-8">
+          <div class="w-14 h-14 rounded-2xl bg-sky-100 flex items-center justify-center text-3xl mb-5">🌱</div>
+          <h3 class="font-display text-xl font-bold text-slate-900 mb-2">Empower the Community</h3>
+          <p class="text-slate-500 text-sm leading-relaxed">Train participants in advanced farming techniques such as hydroponics, improving agricultural skills and knowledge across the community.</p>
         </div>
-        <div class="card-hover bg-white rounded-2xl p-8 border-t-4 border-[#56be45] shadow-sm">
-          <div class="text-4xl mb-4">💚</div>
-          <h3 class="text-lg font-bold text-brand mb-2">Uplift Livelihoods</h3>
-          <p class="text-gray-600 text-sm">Provide opportunities for low-income participants to generate income by selling their hydroponically-grown crops.</p>
+        <div class="card-hover elev bg-white rounded-3xl p-8">
+          <div class="w-14 h-14 rounded-2xl bg-green-100 flex items-center justify-center text-3xl mb-5">💚</div>
+          <h3 class="font-display text-xl font-bold text-slate-900 mb-2">Uplift Livelihoods</h3>
+          <p class="text-slate-500 text-sm leading-relaxed">Create real income opportunities for low-income participants by enabling them to sell their hydroponically-grown crops.</p>
         </div>
-        <div class="card-hover bg-white rounded-2xl p-8 border-t-4 border-[#c4d92e] shadow-sm">
-          <div class="text-4xl mb-4">🚀</div>
-          <h3 class="text-lg font-bold text-brand mb-2">Foster Entrepreneurship</h3>
-          <p class="text-gray-600 text-sm">Encourage entrepreneurship through technical training, mentorship, and business &amp; marketing skill development.</p>
+        <div class="card-hover elev bg-white rounded-3xl p-8">
+          <div class="w-14 h-14 rounded-2xl bg-lime-100 flex items-center justify-center text-3xl mb-5">🚀</div>
+          <h3 class="font-display text-xl font-bold text-slate-900 mb-2">Foster Entrepreneurship</h3>
+          <p class="text-slate-500 text-sm leading-relaxed">Encourage entrepreneurship through technical training, mentorship, and business &amp; marketing skill development.</p>
         </div>
       </div>
     </div>
   </section>
 
-  <!-- WHAT IS HYDROPONIC + BENEFITS -->
-  <section class="py-16 bg-white">
-    <div class="max-w-6xl mx-auto px-4">
-      <div class="text-center mb-10">
-        <h2 class="text-3xl font-bold text-brand mb-3" data-i18n="benefits.title">What is Hydroponic Farming?</h2>
-        <p class="text-gray-600 max-w-3xl mx-auto">Hydroponics grows plants without soil, delivering nutrient-rich water directly to the roots in a controlled environment. It enables faster growth, higher yields, and year-round cultivation — using up to <strong class="text-[#3a9e30]">90% less water</strong>, less land, and minimal pesticides. A smarter, cleaner way to grow food — better for you, the farmer, and the planet.</p>
+  <!-- WHAT IS HYDROPONIC — image + text split -->
+  <section class="py-20 md:py-24 bg-white">
+    <div class="max-w-6xl mx-auto px-4 grid lg:grid-cols-2 gap-12 items-center">
+      <div class="zoom rounded-3xl elev order-2 lg:order-1">
+        <img src="assets/activity-6.jpg" alt="Lush hydroponic lettuce in the HSI greenhouse" class="w-full h-full object-cover" loading="lazy" />
       </div>
-      <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-        <div class="card-hover bg-white rounded-2xl p-6 border border-green-100 shadow-sm">
-          <div class="text-4xl mb-3">💧</div>
-          <h3 class="text-lg font-bold text-brand mb-1" data-i18n="benefits.water_title">Saves Water</h3>
-          <p class="text-gray-600 text-sm" data-i18n="benefits.water_body">Uses up to 90% less water than soil farming through closed-loop recirculation.</p>
-        </div>
-        <div class="card-hover bg-white rounded-2xl p-6 border border-green-100 shadow-sm">
-          <div class="text-4xl mb-3">🚫</div>
-          <h3 class="text-lg font-bold text-brand mb-1" data-i18n="benefits.pesticide_title">No Pesticides</h3>
-          <p class="text-gray-600 text-sm" data-i18n="benefits.pesticide_body">Grown in clean, controlled conditions, so produce is naturally pesticide-free.</p>
-        </div>
-        <div class="card-hover bg-white rounded-2xl p-6 border border-green-100 shadow-sm">
-          <div class="text-4xl mb-3">📅</div>
-          <h3 class="text-lg font-bold text-brand mb-1" data-i18n="benefits.yearround_title">Year-Round Harvest</h3>
-          <p class="text-gray-600 text-sm" data-i18n="benefits.yearround_body">Climate-controlled growing means fresh produce in every season, rain or shine.</p>
-        </div>
-        <div class="card-hover bg-white rounded-2xl p-6 border border-green-100 shadow-sm">
-          <div class="text-4xl mb-3">⚡</div>
-          <h3 class="text-lg font-bold text-brand mb-1" data-i18n="benefits.growth_title">Faster Growth</h3>
-          <p class="text-gray-600 text-sm" data-i18n="benefits.growth_body">Nutrients delivered straight to the roots let plants grow up to twice as fast.</p>
-        </div>
-        <div class="card-hover bg-white rounded-2xl p-6 border border-green-100 shadow-sm">
-          <div class="text-4xl mb-3">🏙️</div>
-          <h3 class="text-lg font-bold text-brand mb-1" data-i18n="benefits.space_title">Space-Efficient</h3>
-          <p class="text-gray-600 text-sm" data-i18n="benefits.space_body">Vertical, soil-free systems grow more food in less space, even in urban areas.</p>
-        </div>
-        <div class="card-hover bg-white rounded-2xl p-6 border border-green-100 shadow-sm">
-          <div class="text-4xl mb-3">🥗</div>
-          <h3 class="text-lg font-bold text-brand mb-1" data-i18n="benefits.nutrient_title">Nutrient-Rich &amp; Fresh</h3>
-          <p class="text-gray-600 text-sm" data-i18n="benefits.nutrient_body">Optimised nutrition and same-day freshness mean healthier, better-tasting produce.</p>
+      <div class="order-1 lg:order-2">
+        <span class="eyebrow" data-i18n="benefits.title">What is Hydroponic Farming?</span>
+        <h2 class="font-display text-3xl md:text-4xl font-extrabold text-slate-900 mt-3 mb-5">Growing more, with far less.</h2>
+        <p class="text-slate-600 leading-relaxed mb-8">Hydroponics grows plants without soil, delivering nutrient-rich water directly to the roots in a controlled environment — enabling faster growth, higher yields, and year-round cultivation while using up to <strong class="text-[#3a9e30]">90% less water</strong>, less land, and minimal pesticides.</p>
+        <div class="grid sm:grid-cols-2 gap-x-6 gap-y-5">
+          <div class="flex gap-3"><span class="text-2xl">💧</span><div><h4 class="font-bold text-slate-800 text-sm" data-i18n="benefits.water_title">Saves Water</h4><p class="text-slate-500 text-sm" data-i18n="benefits.water_body">Up to 90% less than soil farming via closed-loop recirculation.</p></div></div>
+          <div class="flex gap-3"><span class="text-2xl">🚫</span><div><h4 class="font-bold text-slate-800 text-sm" data-i18n="benefits.pesticide_title">No Pesticides</h4><p class="text-slate-500 text-sm" data-i18n="benefits.pesticide_body">Clean, controlled conditions keep produce naturally pesticide-free.</p></div></div>
+          <div class="flex gap-3"><span class="text-2xl">📅</span><div><h4 class="font-bold text-slate-800 text-sm" data-i18n="benefits.yearround_title">Year-Round Harvest</h4><p class="text-slate-500 text-sm" data-i18n="benefits.yearround_body">Climate-controlled growing means fresh produce every season.</p></div></div>
+          <div class="flex gap-3"><span class="text-2xl">⚡</span><div><h4 class="font-bold text-slate-800 text-sm" data-i18n="benefits.growth_title">Faster Growth</h4><p class="text-slate-500 text-sm" data-i18n="benefits.growth_body">Roots get nutrients directly, so plants grow up to twice as fast.</p></div></div>
         </div>
       </div>
     </div>
   </section>
 
   <!-- LONG-TERM IMPACT -->
-  <section class="py-16 section-green">
+  <section class="py-20 section-green">
     <div class="max-w-6xl mx-auto px-4">
-      <div class="text-center mb-10">
-        <h2 class="text-3xl font-bold text-brand mb-3">Long-Term Impact</h2>
-        <p class="text-gray-600 max-w-2xl mx-auto">As the program matures, HSI aims to build a lasting, self-sustaining local economy.</p>
+      <div class="text-center mb-12"><span class="eyebrow">Looking Ahead</span><h2 class="font-display text-3xl md:text-4xl font-extrabold text-slate-900 mt-3">Long-Term Impact</h2><p class="text-slate-500 max-w-2xl mx-auto mt-3">As the program matures, HSI builds a lasting, self-sustaining local economy.</p></div>
+      <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-5">
+        <div class="bg-white rounded-2xl p-6 border-t-4 border-[#1b8fc4] elev"><h3 class="font-bold text-slate-800 mb-1">🌐 Entrepreneurial Ecosystem</h3><p class="text-slate-500 text-sm">Businesses expand and diversify, becoming suppliers, consultants and trainers within the community.</p></div>
+        <div class="bg-white rounded-2xl p-6 border-t-4 border-[#56be45] elev"><h3 class="font-bold text-slate-800 mb-1">🥬 Local Supply &amp; Food Security</h3><p class="text-slate-500 text-sm">Shorter supply chains make food systems more resilient and less dependent on external markets.</p></div>
+        <div class="bg-white rounded-2xl p-6 border-t-4 border-[#c4d92e] elev"><h3 class="font-bold text-slate-800 mb-1">💼 Job Creation</h3><p class="text-slate-500 text-sm">New ventures create jobs in production, packaging, sales, logistics and retail.</p></div>
+        <div class="bg-white rounded-2xl p-6 border-t-4 border-[#1b8fc4] elev"><h3 class="font-bold text-slate-800 mb-1">🤝 Knowledge Transfer</h3><p class="text-slate-500 text-sm">Graduates mentor newcomers — a continuous cycle of learning and leadership.</p></div>
+        <div class="bg-white rounded-2xl p-6 border-t-4 border-[#56be45] elev"><h3 class="font-bold text-slate-800 mb-1">🏙️ Urban Greening</h3><p class="text-slate-500 text-sm">Unused rooftops and lots become productive farming zones — greener, more efficient land use.</p></div>
+        <div class="bg-white rounded-2xl p-6 border-t-4 border-[#c4d92e] elev"><h3 class="font-bold text-slate-800 mb-1">🌍 Lower Carbon Footprint</h3><p class="text-slate-500 text-sm">Efficient water use and local food reduce transport and conserve natural resources.</p></div>
       </div>
-      <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
-        <div class="bg-white rounded-xl p-5 border-l-4 border-[#1b8fc4] shadow-sm">
-          <h3 class="font-bold text-brand text-sm mb-1">🌐 Entrepreneurial Ecosystem</h3>
-          <p class="text-gray-600 text-sm">Successful hydroponic businesses expand, diversify, and become suppliers, consultants and trainers within the community.</p>
-        </div>
-        <div class="bg-white rounded-xl p-5 border-l-4 border-[#56be45] shadow-sm">
-          <h3 class="font-bold text-brand text-sm mb-1">🥬 Local Supply &amp; Food Security</h3>
-          <p class="text-gray-600 text-sm">Shorter supply chains make food systems more resilient and less dependent on external markets.</p>
-        </div>
-        <div class="bg-white rounded-xl p-5 border-l-4 border-[#c4d92e] shadow-sm">
-          <h3 class="font-bold text-brand text-sm mb-1">💼 Job Creation</h3>
-          <p class="text-gray-600 text-sm">New ventures create jobs in production, packaging, sales, logistics, and retail — a ripple effect of economic growth.</p>
-        </div>
-        <div class="bg-white rounded-xl p-5 border-l-4 border-[#1b8fc4] shadow-sm">
-          <h3 class="font-bold text-brand text-sm mb-1">🤝 Knowledge Transfer</h3>
-          <p class="text-gray-600 text-sm">Graduates mentor new participants, creating a continuous cycle of learning, leadership and stronger social bonds.</p>
-        </div>
-        <div class="bg-white rounded-xl p-5 border-l-4 border-[#56be45] shadow-sm">
-          <h3 class="font-bold text-brand text-sm mb-1">🏙️ Urban Greening</h3>
-          <p class="text-gray-600 text-sm">Unused rooftops, lots and indoor spaces transform into productive farming zones — greener, more efficient land use.</p>
-        </div>
-        <div class="bg-white rounded-xl p-5 border-l-4 border-[#c4d92e] shadow-sm">
-          <h3 class="font-bold text-brand text-sm mb-1">🌍 Lower Carbon Footprint</h3>
-          <p class="text-gray-600 text-sm">Efficient water use and locally-grown food reduce long-distance transport and conserve natural resources.</p>
-        </div>
-      </div>
-      <p class="text-center text-gray-500 text-sm mt-8 max-w-3xl mx-auto">Once established, HSI can serve as a scalable model for other communities — locally and globally — adapting hydroponic entrepreneurship to address their own challenges.</p>
     </div>
   </section>
 
   <!-- VISION & MISSION -->
-  <section class="py-16 bg-white">
-    <div class="max-w-6xl mx-auto px-4">
-      <div class="grid md:grid-cols-2 gap-8">
-        <div class="text-white rounded-2xl p-8 card-hover" style="background:#13658f">
-          <h3 class="text-2xl font-bold mb-3" data-i18n="vision.title">Our Vision</h3>
-          <p class="text-sky-100 leading-relaxed" data-i18n="vision.body">A thriving community where hydroponic farmers have direct market access, fair income, and buyers enjoy fresh, nutrient-rich produce grown responsibly.</p>
-        </div>
-        <div class="text-white rounded-2xl p-8 card-hover" style="background:#3a9e30">
-          <h3 class="text-2xl font-bold mb-3" data-i18n="mission.title">Our Mission</h3>
-          <p class="text-green-50 leading-relaxed" data-i18n="mission.body">To connect HSI-certified hydroponic farmers with buyers through a transparent, community-first marketplace that upholds quality, trust, and sustainability.</p>
-        </div>
+  <section class="py-20 md:py-24 bg-white">
+    <div class="max-w-6xl mx-auto px-4 grid md:grid-cols-2 gap-6">
+      <div class="rounded-3xl p-10 text-white card-hover relative overflow-hidden" style="background:#13658f">
+        <div class="absolute -right-8 -top-8 w-40 h-40 rounded-full bg-white/10"></div>
+        <h3 class="font-display text-2xl font-bold mb-3 relative" data-i18n="vision.title">Our Vision</h3>
+        <p class="text-sky-100 leading-relaxed relative" data-i18n="vision.body">A thriving community where hydroponic farmers have direct market access, fair income, and buyers enjoy fresh, nutrient-rich produce grown responsibly.</p>
+      </div>
+      <div class="rounded-3xl p-10 text-white card-hover relative overflow-hidden" style="background:#3a9e30">
+        <div class="absolute -right-8 -top-8 w-40 h-40 rounded-full bg-white/10"></div>
+        <h3 class="font-display text-2xl font-bold mb-3 relative" data-i18n="mission.title">Our Mission</h3>
+        <p class="text-green-50 leading-relaxed relative" data-i18n="mission.body">To connect HSI-certified hydroponic farmers with buyers through a transparent, community-first marketplace that upholds quality, trust, and sustainability.</p>
       </div>
     </div>
   </section>
 
 </div><!-- /panel-about -->
 
-<!-- ===================== PARTNERS ===================== -->
+<!-- ╔═══════════════════ PARTNERS ═══════════════════╗ -->
 <div id="panel-partners" class="landing-panel">
-
-  <!-- SPONSORS & CONTRIBUTORS (highlighted) -->
-  <section class="py-16 bg-white">
+  <section class="py-20 md:py-24 bg-white">
     <div class="max-w-6xl mx-auto px-4">
-      <div class="text-center mb-10">
-        <span class="text-xs font-semibold uppercase tracking-widest text-[#56be45]">With the Support Of</span>
-        <h2 class="text-3xl font-bold text-brand mt-2 mb-3">Sponsors &amp; Contributors</h2>
-        <p class="text-gray-600 max-w-2xl mx-auto">The Hydro Sprout Initiative is made possible by the generous support and collaboration of these partners.</p>
-      </div>
-      <div class="grid sm:grid-cols-3 gap-8">
+      <div class="text-center mb-14"><span class="eyebrow">With the Support Of</span><h2 class="font-display text-3xl md:text-5xl font-extrabold text-slate-900 mt-3 mb-4">Sponsors &amp; Contributors</h2><p class="text-slate-500 max-w-2xl mx-auto">The Hydro Sprout Initiative is made possible by the generous support and collaboration of these partners.</p></div>
+      <div class="grid md:grid-cols-3 gap-8">
         <!-- PTTEP -->
-        <div class="card-hover bg-white rounded-2xl p-8 border border-sky-100 shadow-sm text-center flex flex-col items-center">
-          <div class="h-28 flex items-center justify-center mb-4">
-            <img src="assets/sponsor-pttep.png" alt="PTTEP" class="max-h-28 max-w-full object-contain" onerror="this.style.display='none'" />
-          </div>
-          <span class="inline-block bg-sky-100 text-[#13658f] text-xs font-semibold px-3 py-1 rounded-full mb-2">Main Sponsor</span>
-          <h3 class="font-bold text-brand text-sm mb-1">PTTEP</h3>
-          <p class="text-gray-500 text-xs">PTT Exploration and Production Public Company Limited — providing financial and strategic support for the program.</p>
+        <div class="card-hover elev bg-white rounded-3xl p-10 text-center flex flex-col items-center border border-slate-100">
+          <div class="h-32 flex items-center justify-center mb-6"><img src="assets/sponsor-pttep.png" alt="PTTEP" class="max-h-32 max-w-full object-contain" onerror="this.style.display='none'" /></div>
+          <span class="inline-block bg-sky-100 text-[#13658f] text-xs font-bold uppercase tracking-wide px-3 py-1 rounded-full mb-3">Main Sponsor</span>
+          <h3 class="font-display font-bold text-slate-900 mb-2">PTTEP</h3>
+          <p class="text-slate-500 text-sm leading-relaxed">PTT Exploration and Production Public Company Limited — providing financial and strategic support for the program.</p>
         </div>
         <!-- BDA -->
-        <div class="card-hover bg-white rounded-2xl p-8 border border-green-100 shadow-sm text-center flex flex-col items-center">
-          <div class="h-28 flex items-center justify-center mb-4">
-            <img src="assets/sponsor-bda.png" alt="Bintulu Development Authority" class="max-h-28 max-w-full object-contain" onerror="this.style.display='none'" />
-          </div>
-          <span class="inline-block bg-green-100 text-[#3a9e30] text-xs font-semibold px-3 py-1 rounded-full mb-2">Collaborator &amp; Land Contributor</span>
-          <h3 class="font-bold text-brand text-sm mb-1">Bintulu Development Authority (BDA)</h3>
-          <p class="text-gray-500 text-xs">Making the necessary land available and collaborating to bring the project to life.</p>
+        <div class="card-hover elev bg-white rounded-3xl p-10 text-center flex flex-col items-center border border-slate-100">
+          <div class="h-32 flex items-center justify-center mb-6"><img src="assets/sponsor-bda.png" alt="Bintulu Development Authority" class="max-h-32 max-w-full object-contain" onerror="this.style.display='none'" /></div>
+          <span class="inline-block bg-green-100 text-[#3a9e30] text-xs font-bold uppercase tracking-wide px-3 py-1 rounded-full mb-3">Land Contributor</span>
+          <h3 class="font-display font-bold text-slate-900 mb-2">Bintulu Development Authority</h3>
+          <p class="text-slate-500 text-sm leading-relaxed">Making the necessary land available and collaborating to bring the project to life.</p>
         </div>
-        <!-- LIONS CLUB -->
-        <div class="card-hover bg-white rounded-2xl p-8 border border-amber-100 shadow-sm text-center flex flex-col items-center">
-          <div class="h-28 flex items-center justify-center mb-4">
-            <img src="assets/sponsor-lions.png" alt="Lions Club International" class="max-h-28 max-w-full object-contain" onerror="this.style.display='none'" />
-          </div>
-          <span class="inline-block bg-amber-100 text-amber-700 text-xs font-semibold px-3 py-1 rounded-full mb-2">Financial Steward &amp; Implementer</span>
-          <h3 class="font-bold text-brand text-sm mb-1">Lions Club of Bintulu Kidurong</h3>
-          <p class="text-gray-500 text-xs">Stewarding funds and resources, ensuring they are used effectively for maximum community impact.</p>
+        <!-- LIONS -->
+        <div class="card-hover elev bg-white rounded-3xl p-10 text-center flex flex-col items-center border border-slate-100">
+          <div class="h-32 flex items-center justify-center mb-6"><img src="assets/sponsor-lions.png" alt="Lions Club International" class="max-h-32 max-w-full object-contain" onerror="this.style.display='none'" /></div>
+          <span class="inline-block bg-amber-100 text-amber-700 text-xs font-bold uppercase tracking-wide px-3 py-1 rounded-full mb-3">Financial Steward</span>
+          <h3 class="font-display font-bold text-slate-900 mb-2">Lions Club of Bintulu Kidurong</h3>
+          <p class="text-slate-500 text-sm leading-relaxed">Stewarding funds and resources, ensuring they are used effectively for maximum community impact.</p>
         </div>
       </div>
-      <!-- UPM technical partner -->
-      <div class="mt-8 bg-sky-50 border border-sky-100 rounded-2xl p-6 text-center max-w-3xl mx-auto">
-        <span class="inline-block bg-white text-[#13658f] text-xs font-semibold px-3 py-1 rounded-full mb-2 border border-sky-200">Technical Partner &amp; Coordinator</span>
-        <p class="text-gray-600 text-sm">Technical expertise and project coordination provided by <strong class="text-brand">Universiti Putra Malaysia (UPM)</strong>, guiding training, system design and program delivery.</p>
+      <div class="mt-10 bg-slate-50 border border-slate-100 rounded-3xl p-8 text-center max-w-3xl mx-auto">
+        <span class="inline-block bg-white text-[#13658f] text-xs font-bold uppercase tracking-wide px-3 py-1 rounded-full mb-3 border border-sky-200">Technical Partner &amp; Coordinator</span>
+        <p class="text-slate-600">Technical expertise and project coordination provided by <strong class="text-brand">Universiti Putra Malaysia (UPM)</strong> — guiding training, system design and programme delivery.</p>
       </div>
     </div>
   </section>
-
 </div><!-- /panel-partners -->
 
-<!-- ===================== ACTIVITIES ===================== -->
+<!-- ╔═══════════════════ ACTIVITIES ═══════════════════╗ -->
 <div id="panel-activities" class="landing-panel">
-
-  <!-- HSI ACTIVITIES -->
-  <section class="py-16 bg-white">
+  <section class="py-20 md:py-24 bg-white">
     <div class="max-w-6xl mx-auto px-4">
-      <div class="text-center mb-10">
-        <span class="text-xs font-semibold uppercase tracking-widest text-[#56be45]">A 3-Year Journey</span>
-        <h2 class="text-3xl font-bold text-brand mt-2 mb-3">HSI Activities</h2>
-        <p class="text-gray-600 max-w-2xl mx-auto">From classroom to market — empowering B40 and low-income households through hydroponic farming and entrepreneurship.</p>
+      <div class="text-center mb-14"><span class="eyebrow">A 3-Year Journey</span><h2 class="font-display text-3xl md:text-5xl font-extrabold text-slate-900 mt-3 mb-4">HSI Activities</h2><p class="text-slate-500 max-w-2xl mx-auto">From classroom to market — empowering B40 and low-income households through hydroponic farming and entrepreneurship.</p></div>
+      <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6 mb-16">
+        <div class="bg-slate-50 rounded-2xl p-7 border border-slate-100 card-hover"><div class="flex items-center gap-3 mb-3"><span class="brand-band text-white font-display font-extrabold w-10 h-10 rounded-xl flex items-center justify-center">1</span><h3 class="font-display font-bold text-slate-900">Technical Training</h3></div><p class="text-slate-500 text-sm leading-relaxed">Classroom and practical training from hydroponic experts — system setup, nutrient management, environmental control and farm maintenance.</p></div>
+        <div class="bg-slate-50 rounded-2xl p-7 border border-slate-100 card-hover"><div class="flex items-center gap-3 mb-3"><span class="brand-band text-white font-display font-extrabold w-10 h-10 rounded-xl flex items-center justify-center">2</span><h3 class="font-display font-bold text-slate-900">Hands-On Farming</h3></div><p class="text-slate-500 text-sm leading-relaxed">Participants manage hydroponic plots — planting, monitoring growth, maintaining systems and solving real-world challenges under guidance.</p></div>
+        <div class="bg-slate-50 rounded-2xl p-7 border border-slate-100 card-hover"><div class="flex items-center gap-3 mb-3"><span class="brand-band text-white font-display font-extrabold w-10 h-10 rounded-xl flex items-center justify-center">3</span><h3 class="font-display font-bold text-slate-900">Business Development</h3></div><p class="text-slate-500 text-sm leading-relaxed">Training in business planning, cost management, branding, packaging and sales — supported by this online marketplace platform.</p></div>
+        <div class="bg-slate-50 rounded-2xl p-7 border border-slate-100 card-hover"><div class="flex items-center gap-3 mb-3"><span class="brand-band text-white font-display font-extrabold w-10 h-10 rounded-xl flex items-center justify-center">4</span><h3 class="font-display font-bold text-slate-900">Harvest &amp; Sales</h3></div><p class="text-slate-500 text-sm leading-relaxed">Participants cultivate, harvest, market and sell their produce — gaining experience across the complete farm-to-market value chain.</p></div>
+        <div class="bg-slate-50 rounded-2xl p-7 border border-slate-100 card-hover"><div class="flex items-center gap-3 mb-3"><span class="brand-band text-white font-display font-extrabold w-10 h-10 rounded-xl flex items-center justify-center">5</span><h3 class="font-display font-bold text-slate-900">Mentorship &amp; Graduation</h3></div><p class="text-slate-500 text-sm leading-relaxed">Outstanding graduates become mentors, with starter kits and support to establish their own commercial hydroponic farms.</p></div>
+        <div class="brand-band rounded-2xl p-7 text-white flex flex-col justify-center elev"><h3 class="font-display font-bold text-lg mb-1">The Outcome</h3><p class="text-white/90 text-sm leading-relaxed">Improved livelihoods, stronger food security, new jobs, and a new generation of sustainable agropreneurs in Bintulu.</p></div>
       </div>
-      <div class="grid md:grid-cols-2 lg:grid-cols-3 gap-6 mb-12">
-        <div class="bg-sky-50 rounded-2xl p-6 border border-sky-100">
-          <div class="flex items-center gap-3 mb-2"><span class="brand-band text-white font-bold w-8 h-8 rounded-full flex items-center justify-center text-sm">1</span><h3 class="font-bold text-brand">Technical Training</h3></div>
-          <p class="text-gray-600 text-sm">Classroom and practical training from hydroponic experts — system setup, nutrient management, environmental control, and farm maintenance.</p>
-        </div>
-        <div class="bg-sky-50 rounded-2xl p-6 border border-sky-100">
-          <div class="flex items-center gap-3 mb-2"><span class="brand-band text-white font-bold w-8 h-8 rounded-full flex items-center justify-center text-sm">2</span><h3 class="font-bold text-brand">Hands-On Farming</h3></div>
-          <p class="text-gray-600 text-sm">Participants manage hydroponic plots — planting, monitoring growth, maintaining systems, and solving real-world challenges under expert guidance.</p>
-        </div>
-        <div class="bg-sky-50 rounded-2xl p-6 border border-sky-100">
-          <div class="flex items-center gap-3 mb-2"><span class="brand-band text-white font-bold w-8 h-8 rounded-full flex items-center justify-center text-sm">3</span><h3 class="font-bold text-brand">Business &amp; Product Development</h3></div>
-          <p class="text-gray-600 text-sm">Training in business planning, cost management, branding, packaging, and sales — supported by this online marketplace platform.</p>
-        </div>
-        <div class="bg-sky-50 rounded-2xl p-6 border border-sky-100">
-          <div class="flex items-center gap-3 mb-2"><span class="brand-band text-white font-bold w-8 h-8 rounded-full flex items-center justify-center text-sm">4</span><h3 class="font-bold text-brand">Planting, Harvesting &amp; Sales</h3></div>
-          <p class="text-gray-600 text-sm">Participants cultivate, harvest, market and sell their produce — gaining experience across the complete farm-to-market value chain.</p>
-        </div>
-        <div class="bg-sky-50 rounded-2xl p-6 border border-sky-100">
-          <div class="flex items-center gap-3 mb-2"><span class="brand-band text-white font-bold w-8 h-8 rounded-full flex items-center justify-center text-sm">5</span><h3 class="font-bold text-brand">Mentorship &amp; Graduation</h3></div>
-          <p class="text-gray-600 text-sm">Outstanding graduates become mentors for new participants, with starter kits and support to establish their own commercial hydroponic farms.</p>
-        </div>
-        <div class="brand-band rounded-2xl p-6 text-white flex flex-col justify-center">
-          <h3 class="font-bold text-lg mb-1">The Outcome</h3>
-          <p class="text-white/90 text-sm">Improved livelihoods, stronger food security, new jobs, and a new generation of sustainable agropreneurs in Bintulu.</p>
-        </div>
-      </div>
-      <!-- Activity photo gallery -->
-      <h3 class="text-xl font-bold text-brand text-center mb-6">Moments from the Programme</h3>
+      <!-- Gallery -->
+      <div class="text-center mb-8"><span class="eyebrow">In the Field</span><h3 class="font-display text-2xl md:text-3xl font-extrabold text-slate-900 mt-2">Moments from the Programme</h3></div>
       <div class="grid grid-cols-2 md:grid-cols-3 gap-4">
-        <figure class="rounded-2xl overflow-hidden shadow-sm card-hover">
-          <img src="assets/activity-1.jpg" alt="Document exchange ceremony" class="w-full h-48 object-cover" loading="lazy" />
-          <figcaption class="text-xs text-gray-500 p-2 bg-white">Document exchange ceremony · 20 Feb 2025</figcaption>
-        </figure>
-        <figure class="rounded-2xl overflow-hidden shadow-sm card-hover">
-          <img src="assets/activity-2.jpg" alt="Technical training in the greenhouse" class="w-full h-48 object-cover" loading="lazy" />
-          <figcaption class="text-xs text-gray-500 p-2 bg-white">Technical training in the greenhouse · 14 May 2025</figcaption>
-        </figure>
-        <figure class="rounded-2xl overflow-hidden shadow-sm card-hover">
-          <img src="assets/activity-3.jpg" alt="Official launch — mementos session" class="w-full h-48 object-cover" loading="lazy" />
-          <figcaption class="text-xs text-gray-500 p-2 bg-white">Official launch day · 11 Jul 2025</figcaption>
-        </figure>
-        <figure class="rounded-2xl overflow-hidden shadow-sm card-hover">
-          <img src="assets/activity-4.jpg" alt="Greenhouse tour on launch day" class="w-full h-48 object-cover" loading="lazy" />
-          <figcaption class="text-xs text-gray-500 p-2 bg-white">Smart-tech greenhouse tour · 11 Jul 2025</figcaption>
-        </figure>
-        <figure class="rounded-2xl overflow-hidden shadow-sm card-hover">
-          <img src="assets/activity-5.jpg" alt="Explaining the hydroponic system to guests" class="w-full h-48 object-cover" loading="lazy" />
-          <figcaption class="text-xs text-gray-500 p-2 bg-white">Hydroponic system showcase · 11 Jul 2025</figcaption>
-        </figure>
-        <figure class="rounded-2xl overflow-hidden shadow-sm card-hover">
-          <img src="assets/activity-6.jpg" alt="Visit from the Ambassador of Thailand" class="w-full h-48 object-cover" loading="lazy" />
-          <figcaption class="text-xs text-gray-500 p-2 bg-white">Visit from the Ambassador of Thailand to Malaysia</figcaption>
-        </figure>
+        <figure class="zoom rounded-2xl elev relative group"><img src="assets/activity-1.jpg" alt="Document exchange ceremony" class="w-full h-56 object-cover" loading="lazy" /><figcaption class="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/70 to-transparent text-white text-xs p-3 pt-8">Document exchange ceremony · 20 Feb 2025</figcaption></figure>
+        <figure class="zoom rounded-2xl elev relative group"><img src="assets/activity-2.jpg" alt="Technical training in the greenhouse" class="w-full h-56 object-cover" loading="lazy" /><figcaption class="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/70 to-transparent text-white text-xs p-3 pt-8">Technical training · 14 May 2025</figcaption></figure>
+        <figure class="zoom rounded-2xl elev relative group"><img src="assets/activity-3.jpg" alt="Official launch — mementos session" class="w-full h-56 object-cover" loading="lazy" /><figcaption class="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/70 to-transparent text-white text-xs p-3 pt-8">Official launch day · 11 Jul 2025</figcaption></figure>
+        <figure class="zoom rounded-2xl elev relative group"><img src="assets/activity-4.jpg" alt="Greenhouse tour on launch day" class="w-full h-56 object-cover" loading="lazy" /><figcaption class="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/70 to-transparent text-white text-xs p-3 pt-8">Smart-tech greenhouse tour · 11 Jul 2025</figcaption></figure>
+        <figure class="zoom rounded-2xl elev relative group"><img src="assets/activity-5.jpg" alt="Showcasing the hydroponic system" class="w-full h-56 object-cover" loading="lazy" /><figcaption class="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/70 to-transparent text-white text-xs p-3 pt-8">Hydroponic system showcase · 11 Jul 2025</figcaption></figure>
+        <figure class="zoom rounded-2xl elev relative group"><img src="assets/activity-6.jpg" alt="Visit from the Ambassador of Thailand" class="w-full h-56 object-cover" loading="lazy" /><figcaption class="absolute inset-x-0 bottom-0 bg-gradient-to-t from-black/70 to-transparent text-white text-xs p-3 pt-8">Visit from the Ambassador of Thailand</figcaption></figure>
       </div>
     </div>
   </section>
-
 </div><!-- /panel-activities -->
 
-<!-- ===================== SHOP ===================== -->
+<!-- ╔═══════════════════ SHOP ═══════════════════╗ -->
 <div id="panel-shop" class="landing-panel">
-
-  <!-- FEATURED PRODUCTS -->
-  <section class="py-16 bg-white">
+  <section class="py-20 md:py-24 bg-white">
     <div class="max-w-6xl mx-auto px-4">
-      <div class="text-center mb-8">
-        <span class="text-xs font-semibold uppercase tracking-widest text-[#56be45]">Straight from the Farm</span>
-        <h2 class="text-3xl font-bold text-brand mt-2 mb-3" data-i18n="section.fresh_week">Fresh This Week</h2>
-        <p class="text-gray-600 max-w-2xl mx-auto">Hand-picked hydroponic produce from HSI community farmers. Browse the full marketplace to order.</p>
-      </div>
-      <div id="featured-products" class="flex gap-4 overflow-x-auto pb-4 snap-x">
+      <div class="text-center mb-12"><span class="eyebrow">Straight from the Farm</span><h2 class="font-display text-3xl md:text-5xl font-extrabold text-slate-900 mt-3 mb-4" data-i18n="section.fresh_week">Fresh This Week</h2><p class="text-slate-500 max-w-2xl mx-auto">Hand-picked hydroponic produce from HSI community farmers. Browse the full marketplace to order.</p></div>
+      <div id="featured-products" class="flex gap-5 overflow-x-auto pb-4 snap-x no-scrollbar">
         <div class="text-gray-400 text-sm py-6" data-i18n="section.loading_products">Loading fresh products…</div>
       </div>
-      <div class="text-center mt-6">
-        <a href="marketplace/" class="inline-block btn-blue text-white font-semibold px-8 py-3 rounded-full text-lg shadow-lg transition" data-i18n="hero.browse_btn">Browse Marketplace</a>
-      </div>
+      <div class="text-center mt-8"><a href="marketplace/" class="inline-block btn-blue font-semibold px-9 py-3.5 rounded-full text-lg shadow-xl transition" data-i18n="hero.browse_btn">Browse Marketplace</a></div>
     </div>
   </section>
 
   <!-- ANNOUNCEMENTS -->
-  <section id="announcements-section" class="py-16 section-green hidden">
+  <section id="announcements-section" class="py-20 section-green hidden">
     <div class="max-w-6xl mx-auto px-4">
-      <h2 class="text-3xl font-bold text-brand mb-8 text-center" data-i18n="section.announcements">Announcements</h2>
+      <div class="text-center mb-10"><span class="eyebrow">Latest News</span><h2 class="font-display text-3xl md:text-4xl font-extrabold text-slate-900 mt-2" data-i18n="section.announcements">Announcements</h2></div>
       <div id="announcements-list" class="grid md:grid-cols-3 gap-6"></div>
     </div>
   </section>
 
-  <!-- COMMUNITY PARTICIPATION -->
-  <section class="hero-gradient text-white py-16">
-    <div class="max-w-6xl mx-auto px-4 text-center">
-      <div class="inline-block bg-white/15 text-white text-xs font-semibold px-3 py-1 rounded-full mb-4 uppercase tracking-widest" data-i18n="community.tag">Get Involved</div>
-      <h2 class="text-3xl md:text-4xl font-extrabold mb-3" data-i18n="community.title">Be Part of the HSI Community</h2>
-      <p class="text-sky-50 text-lg mb-10 max-w-2xl mx-auto" data-i18n="community.body">Whether you grow, buy, or simply believe in fresh local food, there's a place for you in the Hydro Sprout Initiative.</p>
-      <div class="grid sm:grid-cols-3 gap-6 mb-10 text-left">
-        <div class="bg-white/10 rounded-2xl p-6 border border-white/25">
-          <div class="text-4xl mb-3">🌱</div>
-          <h3 class="text-lg font-bold mb-1" data-i18n="community.farmer_title">Grow &amp; Sell</h3>
-          <p class="text-sky-50 text-sm" data-i18n="community.farmer_body">Register as a community farmer to list your hydroponic produce and reach buyers directly.</p>
-        </div>
-        <div class="bg-white/10 rounded-2xl p-6 border border-white/25">
-          <div class="text-4xl mb-3">🛒</div>
-          <h3 class="text-lg font-bold mb-1" data-i18n="community.buyer_title">Shop Fresh</h3>
-          <p class="text-sky-50 text-sm" data-i18n="community.buyer_body">Create a buyer account to order fresh produce, track your orders, and earn HSI loyalty points.</p>
-        </div>
-        <div class="bg-white/10 rounded-2xl p-6 border border-white/25">
-          <div class="text-4xl mb-3">🤝</div>
-          <h3 class="text-lg font-bold mb-1" data-i18n="community.support_title">Support Local</h3>
-          <p class="text-sky-50 text-sm" data-i18n="community.support_body">Every purchase strengthens local farmers and helps build a sustainable community food system.</p>
-        </div>
+  <!-- COMMUNITY CTA -->
+  <section class="hero-photo text-white py-24">
+    <div class="max-w-5xl mx-auto px-4 text-center">
+      <div class="inline-block bg-white/15 backdrop-blur text-white text-xs font-semibold px-4 py-1.5 rounded-full mb-5 uppercase tracking-[0.2em] border border-white/25" data-i18n="community.tag">Get Involved</div>
+      <h2 class="font-display text-3xl md:text-5xl font-extrabold mb-4" data-i18n="community.title">Be Part of the HSI Community</h2>
+      <p class="text-sky-50/90 text-lg mb-12 max-w-2xl mx-auto font-light" data-i18n="community.body">Whether you grow, buy, or simply believe in fresh local food, there's a place for you in the Hydro Sprout Initiative.</p>
+      <div class="grid sm:grid-cols-3 gap-5 mb-12 text-left">
+        <div class="bg-white/10 backdrop-blur rounded-2xl p-7 border border-white/20"><div class="text-4xl mb-3">🌱</div><h3 class="font-display text-lg font-bold mb-1" data-i18n="community.farmer_title">Grow &amp; Sell</h3><p class="text-sky-50/85 text-sm" data-i18n="community.farmer_body">Register as a community farmer to list your produce and reach buyers directly.</p></div>
+        <div class="bg-white/10 backdrop-blur rounded-2xl p-7 border border-white/20"><div class="text-4xl mb-3">🛒</div><h3 class="font-display text-lg font-bold mb-1" data-i18n="community.buyer_title">Shop Fresh</h3><p class="text-sky-50/85 text-sm" data-i18n="community.buyer_body">Create a buyer account to order fresh produce, track orders and earn loyalty points.</p></div>
+        <div class="bg-white/10 backdrop-blur rounded-2xl p-7 border border-white/20"><div class="text-4xl mb-3">🤝</div><h3 class="font-display text-lg font-bold mb-1" data-i18n="community.support_title">Support Local</h3><p class="text-sky-50/85 text-sm" data-i18n="community.support_body">Every purchase strengthens local farmers and a sustainable community food system.</p></div>
       </div>
       <div class="flex flex-col sm:flex-row gap-3 justify-center">
-        <button onclick="openAuth('register')" class="bg-white text-[#13658f] font-semibold px-8 py-3 rounded-full text-lg shadow-lg hover:bg-sky-50 transition" data-i18n="community.join_btn">Join the Community</button>
-        <a href="marketplace/" class="border-2 border-white text-white font-semibold px-8 py-3 rounded-full text-lg hover:bg-white hover:text-[#13658f] transition" data-i18n="community.browse_btn">Browse Produce</a>
+        <button onclick="openAuth('register')" class="bg-white text-[#13658f] font-semibold px-8 py-3.5 rounded-full text-lg shadow-xl hover:bg-sky-50 transition" data-i18n="community.join_btn">Join the Community</button>
+        <a href="marketplace/" class="btn-ghost font-semibold px-8 py-3.5 rounded-full text-lg transition" data-i18n="community.browse_btn">Browse Produce</a>
       </div>
     </div>
   </section>
-
 </div><!-- /panel-shop -->
 
-<!-- FOOTER -->
-<footer class="bg-[#0f4e6e] text-sky-200 py-12">
-  <div class="max-w-6xl mx-auto px-4 text-center">
-    <img src="assets/hsi-logo.png" alt="Hydro Sprout Initiative" class="h-16 w-auto mx-auto mb-4 bg-white/90 rounded-xl p-2" onerror="this.style.display='none'" />
-    <p class="font-bold text-white text-lg mb-1">HSI Marketplace</p>
-    <p class="text-sm" data-i18n="footer.tagline">Hydro Sprout Initiative — Sprouting sustainable farming and the seeds of entrepreneurship</p>
-    <!-- Supported by -->
-    <p class="text-xs uppercase tracking-widest text-sky-400 mt-8 mb-4">Supported By</p>
-    <div class="flex flex-wrap items-center justify-center gap-6 bg-white/95 rounded-2xl py-4 px-6 max-w-xl mx-auto">
-      <img src="assets/sponsor-pttep.png" alt="PTTEP" class="h-12 w-auto object-contain" onerror="this.style.display='none'" />
-      <img src="assets/sponsor-bda.png" alt="Bintulu Development Authority" class="h-12 w-auto object-contain" onerror="this.style.display='none'" />
-      <img src="assets/sponsor-lions.png" alt="Lions Club of Bintulu Kidurong" class="h-12 w-auto object-contain" onerror="this.style.display='none'" />
+<!-- ╔═══════════════════ FOOTER ═══════════════════╗ -->
+<footer class="bg-[#0f4e6e] text-sky-200 pt-16 pb-10">
+  <div class="max-w-6xl mx-auto px-4">
+    <div class="grid md:grid-cols-3 gap-10 items-start text-center md:text-left">
+      <div>
+        <img src="assets/hsi-logo.png" alt="Hydro Sprout Initiative" class="h-16 w-auto mb-4 bg-white/95 rounded-2xl p-2 inline-block" onerror="this.style.display='none'" />
+        <p class="font-display font-bold text-white text-lg">HSI Marketplace</p>
+        <p class="text-sm text-sky-300/90 mt-1" data-i18n="footer.tagline">Sprouting sustainable farming and the seeds of entrepreneurship.</p>
+      </div>
+      <div>
+        <p class="text-xs uppercase tracking-[0.18em] text-sky-400 mb-4 font-semibold">Explore</p>
+        <div class="flex flex-col gap-2 text-sm">
+          <button onclick="showLandingTab('about')" class="text-sky-200 hover:text-white text-left md:text-left text-center transition">About the Programme</button>
+          <button onclick="showLandingTab('partners')" class="text-sky-200 hover:text-white transition">Partners</button>
+          <button onclick="showLandingTab('activities')" class="text-sky-200 hover:text-white transition">Activities</button>
+          <a href="marketplace/" class="text-sky-200 hover:text-white transition">Shop the Marketplace</a>
+        </div>
+      </div>
+      <div>
+        <p class="text-xs uppercase tracking-[0.18em] text-sky-400 mb-4 font-semibold">Supported By</p>
+        <div class="flex flex-wrap items-center justify-center md:justify-start gap-4 bg-white/95 rounded-2xl py-4 px-5">
+          <img src="assets/sponsor-pttep.png" alt="PTTEP" class="h-11 w-auto object-contain" onerror="this.style.display='none'" />
+          <img src="assets/sponsor-bda.png" alt="Bintulu Development Authority" class="h-11 w-auto object-contain" onerror="this.style.display='none'" />
+          <img src="assets/sponsor-lions.png" alt="Lions Club of Bintulu Kidurong" class="h-11 w-auto object-contain" onerror="this.style.display='none'" />
+        </div>
+      </div>
     </div>
-    <p class="text-xs text-sky-400 mt-8" data-i18n="footer.copyright">&copy; 2025 Hydro Sprout Initiative. All rights reserved.</p>
+    <div class="border-t border-white/10 mt-12 pt-6 text-center">
+      <p class="text-xs text-sky-400" data-i18n="footer.copyright">&copy; 2025 Hydro Sprout Initiative. All rights reserved.</p>
+    </div>
   </div>
 </footer>
 
-<!-- AUTH OVERLAY -->
+<!-- AUTH OVERLAY + PANEL -->
 <div id="auth-overlay" onclick="closeAuth()" class="hidden fixed inset-0 bg-black bg-opacity-40 z-40"></div>
-
-<!-- AUTH PANEL -->
 <div id="auth-panel" class="fixed top-0 right-0 h-full w-full max-w-md bg-white z-50 shadow-2xl overflow-y-auto">
   <div class="p-6">
     <div class="flex items-center justify-between mb-6">
-      <h2 class="text-2xl font-bold text-brand" data-i18n="auth.welcome">Welcome</h2>
+      <h2 class="text-2xl font-bold text-brand font-display" data-i18n="auth.welcome">Welcome</h2>
       <button onclick="closeAuth()" class="text-gray-400 hover:text-gray-600 text-2xl leading-none">&times;</button>
     </div>
 
-    <!-- LOGIN FORM -->
     <form id="login-form" onsubmit="return false;">
       <div class="space-y-4">
         <div id="login-error" class="hidden bg-red-50 border border-red-300 text-red-700 text-sm rounded-lg px-4 py-3"></div>
         <div id="login-info" class="hidden bg-sky-50 border border-sky-300 text-[#13658f] text-sm rounded-lg px-4 py-3"></div>
         <div>
           <label class="block text-sm font-medium text-gray-700 mb-1">Email</label>
-          <input type="email" id="login-email" required placeholder="you@example.com" autocomplete="email"
-            class="w-full border border-gray-300 rounded-lg px-4 py-2.5 focus:outline-none focus:border-[#1b8fc4] text-sm" />
+          <input type="email" id="login-email" required placeholder="you@example.com" autocomplete="email" class="w-full border border-gray-300 rounded-lg px-4 py-2.5 focus:outline-none focus:border-[#1b8fc4] text-sm" />
         </div>
         <div>
           <label class="block text-sm font-medium text-gray-700 mb-1">Password</label>
-          <input type="password" id="login-password" placeholder="••••••••" autocomplete="current-password"
-            onkeydown="if(event.key==='Enter') doLogin()"
-            class="w-full border border-gray-300 rounded-lg px-4 py-2.5 focus:outline-none focus:border-[#1b8fc4] text-sm" />
+          <input type="password" id="login-password" placeholder="••••••••" autocomplete="current-password" onkeydown="if(event.key==='Enter') doLogin()" class="w-full border border-gray-300 rounded-lg px-4 py-2.5 focus:outline-none focus:border-[#1b8fc4] text-sm" />
         </div>
-        <button type="button" id="login-btn" onclick="doLogin()" class="w-full btn-blue text-white font-semibold py-3 rounded-lg transition text-sm">Login</button>
-        <div class="text-center pt-1">
-          <button type="button" onclick="doForgotPassword()" class="text-sm text-[#13658f] hover:text-[#0f4e6e] font-medium hover:underline">Forgot password?</button>
-        </div>
-        <div class="text-center text-sm text-gray-500">
-          Don't have an account?
-          <button type="button" onclick="switchTab('register')" class="text-[#13658f] font-semibold hover:underline ml-1">Sign up</button>
-        </div>
+        <button type="button" id="login-btn" onclick="doLogin()" class="w-full btn-blue font-semibold py-3 rounded-lg transition text-sm">Login</button>
+        <div class="text-center pt-1"><button type="button" onclick="doForgotPassword()" class="text-sm text-[#13658f] hover:text-[#0f4e6e] font-medium hover:underline">Forgot password?</button></div>
+        <div class="text-center text-sm text-gray-500">Don't have an account?<button type="button" onclick="switchTab('register')" class="text-[#13658f] font-semibold hover:underline ml-1">Sign up</button></div>
       </div>
     </form>
 
-    <!-- REGISTER FORM -->
     <form id="register-form" class="hidden" onsubmit="doRegister(event)">
       <div class="space-y-4">
-        <div>
-          <label class="block text-sm font-medium text-gray-700 mb-1">Full Name</label>
-          <input type="text" id="reg-name" required placeholder="Juan dela Cruz"
-            class="w-full border border-gray-300 rounded-lg px-4 py-2.5 focus:outline-none focus:border-[#1b8fc4] text-sm" />
-        </div>
-        <div>
-          <label class="block text-sm font-medium text-gray-700 mb-1">Email</label>
-          <input type="email" id="reg-email" required placeholder="you@example.com" autocomplete="email"
-            class="w-full border border-gray-300 rounded-lg px-4 py-2.5 focus:outline-none focus:border-[#1b8fc4] text-sm" />
-        </div>
-        <div>
-          <label class="block text-sm font-medium text-gray-700 mb-1">Password</label>
-          <input type="password" id="reg-password" required placeholder="Min. 6 characters" minlength="6" autocomplete="new-password"
-            class="w-full border border-gray-300 rounded-lg px-4 py-2.5 focus:outline-none focus:border-[#1b8fc4] text-sm" />
-        </div>
-        <div>
-          <label class="block text-sm font-medium text-gray-700 mb-1">Phone</label>
-          <input type="tel" id="reg-phone" placeholder="+63 912 345 6789"
-            class="w-full border border-gray-300 rounded-lg px-4 py-2.5 focus:outline-none focus:border-[#1b8fc4] text-sm" />
-        </div>
-        <!-- Role -->
+        <div><label class="block text-sm font-medium text-gray-700 mb-1">Full Name</label><input type="text" id="reg-name" required placeholder="Juan dela Cruz" class="w-full border border-gray-300 rounded-lg px-4 py-2.5 focus:outline-none focus:border-[#1b8fc4] text-sm" /></div>
+        <div><label class="block text-sm font-medium text-gray-700 mb-1">Email</label><input type="email" id="reg-email" required placeholder="you@example.com" autocomplete="email" class="w-full border border-gray-300 rounded-lg px-4 py-2.5 focus:outline-none focus:border-[#1b8fc4] text-sm" /></div>
+        <div><label class="block text-sm font-medium text-gray-700 mb-1">Password</label><input type="password" id="reg-password" required placeholder="Min. 6 characters" minlength="6" autocomplete="new-password" class="w-full border border-gray-300 rounded-lg px-4 py-2.5 focus:outline-none focus:border-[#1b8fc4] text-sm" /></div>
+        <div><label class="block text-sm font-medium text-gray-700 mb-1">Phone</label><input type="tel" id="reg-phone" placeholder="+63 912 345 6789" class="w-full border border-gray-300 rounded-lg px-4 py-2.5 focus:outline-none focus:border-[#1b8fc4] text-sm" /></div>
         <div>
           <label class="block text-sm font-medium text-gray-700 mb-2">I am a…</label>
           <div class="flex gap-4">
-            <label class="flex items-center gap-2 cursor-pointer">
-              <input type="radio" name="role" value="buyer" checked onchange="toggleSellerFields()" class="accent-[#1b8fc4]" />
-              <span class="text-sm">Buyer</span>
-            </label>
-            <label class="flex items-center gap-2 cursor-pointer">
-              <input type="radio" name="role" value="seller" onchange="toggleSellerFields()" class="accent-[#1b8fc4]" />
-              <span class="text-sm">Seller / Farmer</span>
-            </label>
+            <label class="flex items-center gap-2 cursor-pointer"><input type="radio" name="role" value="buyer" checked onchange="toggleSellerFields()" class="accent-[#1b8fc4]" /><span class="text-sm">Buyer</span></label>
+            <label class="flex items-center gap-2 cursor-pointer"><input type="radio" name="role" value="seller" onchange="toggleSellerFields()" class="accent-[#1b8fc4]" /><span class="text-sm">Seller / Farmer</span></label>
           </div>
         </div>
-        <!-- Seller fields -->
         <div id="seller-fields" class="hidden space-y-3 border-l-4 border-[#56be45] pl-4">
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">Farm Name</label>
-            <input type="text" id="reg-farm-name" placeholder="Green Acres Farm"
-              class="w-full border border-gray-300 rounded-lg px-4 py-2.5 focus:outline-none focus:border-[#1b8fc4] text-sm" />
-          </div>
-          <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">Farm Location</label>
-            <input type="text" id="reg-farm-location" placeholder="Barangay, City, Province"
-              class="w-full border border-gray-300 rounded-lg px-4 py-2.5 focus:outline-none focus:border-[#1b8fc4] text-sm" />
-          </div>
+          <div><label class="block text-sm font-medium text-gray-700 mb-1">Farm Name</label><input type="text" id="reg-farm-name" placeholder="Green Acres Farm" class="w-full border border-gray-300 rounded-lg px-4 py-2.5 focus:outline-none focus:border-[#1b8fc4] text-sm" /></div>
+          <div><label class="block text-sm font-medium text-gray-700 mb-1">Farm Location</label><input type="text" id="reg-farm-location" placeholder="Barangay, City, Province" class="w-full border border-gray-300 rounded-lg px-4 py-2.5 focus:outline-none focus:border-[#1b8fc4] text-sm" /></div>
           <p class="text-xs text-amber-600 bg-amber-50 rounded p-2">Seller accounts require admin approval before you can list products.</p>
         </div>
-        <button type="submit" id="reg-btn" class="w-full btn-blue text-white font-semibold py-3 rounded-lg transition text-sm">Create Account</button>
+        <button type="submit" id="reg-btn" class="w-full btn-blue font-semibold py-3 rounded-lg transition text-sm">Create Account</button>
         <div id="reg-error" class="hidden bg-red-50 border border-red-300 text-red-700 text-sm rounded-lg px-4 py-3"></div>
-        <div class="text-center text-sm text-gray-500 pt-1">
-          Already have an account?
-          <button type="button" onclick="switchTab('login')" class="text-[#13658f] font-semibold hover:underline ml-1">Log in</button>
-        </div>
+        <div class="text-center text-sm text-gray-500 pt-1">Already have an account?<button type="button" onclick="switchTab('login')" class="text-[#13658f] font-semibold hover:underline ml-1">Log in</button></div>
       </div>
     </form>
 
-    <!-- EMAIL CONFIRMATION NOTICE (shown after signup) -->
     <div id="confirm-notice" class="hidden text-center py-4">
       <div class="w-16 h-16 bg-sky-100 rounded-full flex items-center justify-center mx-auto mb-4">
-        <svg class="w-8 h-8 text-[#13658f]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-            d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
-        </svg>
+        <svg class="w-8 h-8 text-[#13658f]" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/></svg>
       </div>
       <h3 class="text-lg font-bold text-gray-900 mb-2">Check your email</h3>
       <p class="text-gray-600 text-sm mb-1">We sent a confirmation link to:</p>
       <p id="confirm-email-display" class="font-semibold text-[#13658f] text-sm mb-4"></p>
       <p class="text-gray-500 text-xs">Click the link in the email to activate your account, then come back here to log in.</p>
-      <button onclick="switchTab('login')" class="mt-5 w-full border border-[#1b8fc4] text-[#13658f] font-semibold py-2.5 rounded-lg text-sm hover:bg-sky-50 transition">
-        Back to Login
-      </button>
+      <button onclick="switchTab('login')" class="mt-5 w-full border border-[#1b8fc4] text-[#13658f] font-semibold py-2.5 rounded-lg text-sm hover:bg-sky-50 transition">Back to Login</button>
     </div>
 
-    <!-- SET NEW PASSWORD (password recovery) -->
     <form id="set-password-view" class="hidden" onsubmit="updatePassword(event)">
       <div class="space-y-4">
         <h3 class="text-lg font-bold text-gray-900">Set a new password</h3>
         <p class="text-sm text-gray-500">Enter a new password for your account.</p>
         <div id="setpw-error" class="hidden bg-red-50 border border-red-300 text-red-700 text-sm rounded-lg px-4 py-3"></div>
-        <div>
-          <label class="block text-sm font-medium text-gray-700 mb-1">New Password</label>
-          <input type="password" id="setpw-password" required minlength="6" placeholder="Min. 6 characters"
-            class="w-full border border-gray-300 rounded-lg px-4 py-2.5 focus:outline-none focus:border-[#1b8fc4] text-sm" />
-        </div>
-        <button type="submit" id="setpw-btn" class="w-full btn-blue text-white font-semibold py-3 rounded-lg transition text-sm">Update Password</button>
+        <div><label class="block text-sm font-medium text-gray-700 mb-1">New Password</label><input type="password" id="setpw-password" required minlength="6" placeholder="Min. 6 characters" class="w-full border border-gray-300 rounded-lg px-4 py-2.5 focus:outline-none focus:border-[#1b8fc4] text-sm" /></div>
+        <button type="submit" id="setpw-btn" class="w-full btn-blue font-semibold py-3 rounded-lg transition text-sm">Update Password</button>
       </div>
     </form>
   </div>
@@ -700,35 +548,27 @@
   const sb = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
   // ── SECTION TABS (About · Partners · Activities · Shop) ──
-  // Pure client-side show/hide. The tab bar is sticky just under the nav;
-  // its `top` is set from the live nav height so the two stack cleanly on
-  // any screen size. The active tab is mirrored to the URL hash for sharing.
+  // Tabs live in the top nav. showLandingTab() shows the chosen panel, marks
+  // the matching nav buttons active (desktop + mobile), mirrors the choice to
+  // the URL hash, closes the mobile menu, and scrolls to the content start.
   const LANDING_TABS = ['about', 'partners', 'activities', 'shop'];
+  function navHeight() { const n = document.getElementById('main-nav'); return n ? n.offsetHeight : 0; }
   function showLandingTab(tab, opts = {}) {
     if (!LANDING_TABS.includes(tab)) tab = 'about';
     LANDING_TABS.forEach(name => {
       document.getElementById('panel-' + name)?.classList.toggle('active', name === tab);
-      document.querySelector(`.landing-tab-btn[data-tab="${name}"]`)?.classList.toggle('active', name === tab);
+      document.querySelectorAll(`[data-tab="${name}"]`).forEach(b => b.classList.toggle('active', name === tab));
     });
+    closeMobileMenu();
     if (opts.updateHash !== false) history.replaceState(null, '', '#' + tab);
-    // Scroll so the content starts just under the sticky nav + tab bar.
     if (opts.scroll !== false) {
-      const tabs = document.getElementById('landing-tabs');
-      const y = (tabs ? tabs.offsetTop : 0) - navHeight();
+      const top = document.getElementById('content-top');
+      const y = (top ? top.getBoundingClientRect().top + window.scrollY : 0) - navHeight();
       window.scrollTo({ top: Math.max(0, y), behavior: 'smooth' });
     }
   }
-  // Live nav height (it grows a little once the user menu replaces the buttons).
-  function navHeight() {
-    const nav = document.getElementById('main-nav');
-    return nav ? nav.offsetHeight : 0;
-  }
-  // Keep the section tab bar pinned right below the main nav.
-  function positionTabs() {
-    const tabs = document.getElementById('landing-tabs');
-    if (tabs) tabs.style.top = navHeight() + 'px';
-  }
-  window.addEventListener('resize', positionTabs);
+  function toggleMobileMenu() { document.getElementById('mobile-menu')?.classList.toggle('hidden'); }
+  function closeMobileMenu() { document.getElementById('mobile-menu')?.classList.add('hidden'); }
 
   // TOAST
   function showToast(msg, type = 'success', duration = 3500) {
@@ -745,15 +585,11 @@
     document.getElementById('auth-panel').classList.add('open');
     document.getElementById('auth-overlay').classList.remove('hidden');
   }
-  function openAuth(tab = 'login') {
-    openPanel();
-    switchTab(tab);
-  }
+  function openAuth(tab = 'login') { openPanel(); switchTab(tab); }
   function closeAuth() {
     document.getElementById('auth-panel').classList.remove('open');
     document.getElementById('auth-overlay').classList.add('hidden');
   }
-  // Switch between the login and signup ("register") forms.
   function switchTab(tab) {
     const isLogin = tab === 'login';
     document.getElementById('login-form').classList.toggle('hidden', !isLogin);
@@ -763,7 +599,6 @@
     document.getElementById('login-error').classList.add('hidden');
     document.getElementById('login-info').classList.add('hidden');
   }
-  // Show the "set new password" view (used after a recovery-link click).
   function showSetPassword() {
     openPanel();
     document.getElementById('login-form').classList.add('hidden');
@@ -771,27 +606,16 @@
     document.getElementById('confirm-notice').classList.add('hidden');
     document.getElementById('set-password-view').classList.remove('hidden');
   }
-  // Send a password-reset email to the address typed in the login form.
   async function doForgotPassword() {
     const email = document.getElementById('login-email').value.trim();
     const errBox = document.getElementById('login-error');
     const infoBox = document.getElementById('login-info');
-    errBox.classList.add('hidden');
-    infoBox.classList.add('hidden');
-    if (!email) {
-      errBox.textContent = 'Please enter your email above first, then click “Forgot password?”.';
-      errBox.classList.remove('hidden');
-      document.getElementById('login-email').focus();
-      return;
-    }
-    const { error } = await sb.auth.resetPasswordForEmail(email, {
-      redirectTo: window.location.origin + window.location.pathname
-    });
+    errBox.classList.add('hidden'); infoBox.classList.add('hidden');
+    if (!email) { errBox.textContent = 'Please enter your email above first, then click “Forgot password?”.'; errBox.classList.remove('hidden'); document.getElementById('login-email').focus(); return; }
+    const { error } = await sb.auth.resetPasswordForEmail(email, { redirectTo: window.location.origin + window.location.pathname });
     if (error) { errBox.textContent = error.message; errBox.classList.remove('hidden'); return; }
-    infoBox.textContent = `Password reset link sent to ${email}. Check your inbox.`;
-    infoBox.classList.remove('hidden');
+    infoBox.textContent = `Password reset link sent to ${email}. Check your inbox.`; infoBox.classList.remove('hidden');
   }
-  // Save the new password after the user followed a recovery link.
   async function updatePassword(e) {
     e.preventDefault();
     const btn = document.getElementById('setpw-btn');
@@ -823,12 +647,8 @@
       showToast('Your seller account is pending admin approval.', 'warning');
       return;
     }
-    // Buyer: stay on the main landing page; just reflect the logged-in state.
-    closeAuth();
-    initNav();
-    showToast('Welcome back!');
+    closeAuth(); initNav(); showToast('Welcome back!');
   }
-
   function goToDashboard() {
     sb.auth.getSession().then(async ({ data: { session } }) => {
       if (!session) return openAuth();
@@ -844,29 +664,22 @@
     const btn = document.getElementById('login-btn');
     const errBox = document.getElementById('login-error');
     errBox.classList.add('hidden');
-    btn.disabled = true;
-    btn.textContent = 'Logging in…';
+    btn.disabled = true; btn.textContent = 'Logging in…';
     const { data, error } = await sb.auth.signInWithPassword({
       email: document.getElementById('login-email').value.trim(),
       password: document.getElementById('login-password').value
     });
     if (error) {
       let msg = error.message;
-      if (msg.toLowerCase().includes('not confirmed')) {
-        msg = 'Please check your email and click the confirmation link before logging in.';
-      } else if (msg.toLowerCase().includes('invalid login')) {
-        msg = 'Incorrect email or password.';
-      }
-      errBox.textContent = msg;
-      errBox.classList.remove('hidden');
-      btn.disabled = false;
-      btn.textContent = 'Login';
+      if (msg.toLowerCase().includes('not confirmed')) msg = 'Please check your email and click the confirmation link before logging in.';
+      else if (msg.toLowerCase().includes('invalid login')) msg = 'Incorrect email or password.';
+      errBox.textContent = msg; errBox.classList.remove('hidden');
+      btn.disabled = false; btn.textContent = 'Login';
       return;
     }
     btn.textContent = 'Redirecting…';
     let { data: profile, error: profErr } = await sb.from('shared_profiles').select('role,status').eq('id', data.user.id).single();
     if (profErr || !profile) {
-      // Self-heal: the DB trigger may not have created the profile — create it now from auth metadata.
       await ensureProfile(data.user, data.user.user_metadata || {});
       ({ data: profile, error: profErr } = await sb.from('shared_profiles').select('role,status').eq('id', data.user.id).single());
     }
@@ -874,27 +687,18 @@
       errBox.innerHTML = profErr
         ? 'Profile load failed: ' + profErr.message + '<br><span class="text-xs">Make sure you ran supabase/setup_all.sql in this Supabase project.</span>'
         : 'Profile could not be created. Make sure you ran supabase/setup_all.sql in this Supabase project.';
-      errBox.classList.remove('hidden');
-      btn.disabled = false;
-      btn.textContent = 'Login';
+      errBox.classList.remove('hidden'); btn.disabled = false; btn.textContent = 'Login';
       return;
     }
     routeByRole(profile);
   }
 
-  // Ensure a shared_profiles row exists for this user. Works even if the
-  // DB trigger isn't installed (an INSERT RLS policy allows self-creation).
   async function ensureProfile(user, meta) {
     try {
       await sb.from('shared_profiles').upsert({
-        id: user.id,
-        email: user.email,
-        full_name: meta.full_name || '',
-        phone: meta.phone || null,
-        farm_name: meta.farm_name || null,
-        farm_location: meta.farm_location || null,
-        role: meta.role || 'buyer',
-        status: (meta.role === 'seller') ? 'pending' : 'active'
+        id: user.id, email: user.email, full_name: meta.full_name || '',
+        phone: meta.phone || null, farm_name: meta.farm_name || null, farm_location: meta.farm_location || null,
+        role: meta.role || 'buyer', status: (meta.role === 'seller') ? 'pending' : 'active'
       }, { onConflict: 'id', ignoreDuplicates: true });
     } catch (_) {}
   }
@@ -904,84 +708,62 @@
     const btn = document.getElementById('reg-btn');
     const errBox = document.getElementById('reg-error');
     errBox.classList.add('hidden');
-    btn.disabled = true;
-    btn.textContent = 'Creating account…';
+    btn.disabled = true; btn.textContent = 'Creating account…';
     const email = document.getElementById('reg-email').value.trim();
     const role = document.querySelector('input[name="role"]:checked').value;
     const meta = {
-      full_name: document.getElementById('reg-name').value.trim(),
-      role,
+      full_name: document.getElementById('reg-name').value.trim(), role,
       phone: document.getElementById('reg-phone').value.trim(),
       farm_name: document.getElementById('reg-farm-name').value.trim() || null,
       farm_location: document.getElementById('reg-farm-location').value.trim() || null
     };
     try {
       const { data, error } = await sb.auth.signUp({
-        email,
-        password: document.getElementById('reg-password').value,
+        email, password: document.getElementById('reg-password').value,
         options: { data: meta, emailRedirectTo: window.location.origin + window.location.pathname }
       });
       if (error) {
         let m = error.message;
         if (/already registered|already exists/i.test(m)) m = 'This email is already registered. Please log in or reset your password.';
-        errBox.textContent = m;
-        errBox.classList.remove('hidden');
-        btn.disabled = false;
-        btn.textContent = 'Create Account';
+        errBox.textContent = m; errBox.classList.remove('hidden'); btn.disabled = false; btn.textContent = 'Create Account';
         return;
       }
-      // Supabase returns a fake user with an empty identities[] when the email already exists.
       if (data.user && Array.isArray(data.user.identities) && data.user.identities.length === 0) {
         errBox.textContent = 'This email is already registered. Please log in instead.';
-        errBox.classList.remove('hidden');
-        btn.disabled = false;
-        btn.textContent = 'Create Account';
+        errBox.classList.remove('hidden'); btn.disabled = false; btn.textContent = 'Create Account';
         return;
       }
-      // Email confirmation OFF → we get a session immediately. Create the profile and go.
       if (data.session && data.user) {
         await ensureProfile(data.user, meta);
         let { data: profile } = await sb.from('shared_profiles').select('role,status').eq('id', data.user.id).single();
         if (profile) { routeByRole(profile); return; }
       }
-      // Email confirmation ON → show the "check your email" notice.
       document.getElementById('register-form').classList.add('hidden');
       document.getElementById('confirm-email-display').textContent = email;
       document.getElementById('confirm-notice').classList.remove('hidden');
     } catch (err) {
       errBox.textContent = (err && err.message) || 'Registration failed. Please try again.';
-      errBox.classList.remove('hidden');
-      btn.disabled = false;
-      btn.textContent = 'Create Account';
+      errBox.classList.remove('hidden'); btn.disabled = false; btn.textContent = 'Create Account';
     }
   }
 
-  async function doLogout() {
-    await sb.auth.signOut();
-    window.location.reload();
-  }
+  async function doLogout() { await sb.auth.signOut(); window.location.reload(); }
 
   // NAV STATE
   let currentUserName = '';
-
   async function initNav() {
     const { data: { session } } = await sb.auth.getSession();
     if (!session) return;
-    // Logged in: swap Login/Register + standalone lang toggle for the user menu
     document.getElementById('nav-auth-btn').classList.add('hidden');
     document.getElementById('lang-toggle').classList.add('hidden');
     document.getElementById('nav-user-menu').classList.remove('hidden');
     document.getElementById('nav-cart-btn').classList.remove('hidden');
-    const { data: profile } = await sb.from('shared_profiles')
-      .select('full_name').eq('id', session.user.id).single();
+    const { data: profile } = await sb.from('shared_profiles').select('full_name').eq('id', session.user.id).single();
     currentUserName = (profile?.full_name || session.user.email || '').trim();
-    updateGreeting();
-    updateLangChecks();
-    updateCartBadge();
-    positionTabs();   // nav height may have shifted; re-pin the tab bar
+    updateGreeting(); updateLangChecks(); updateCartBadge();
   }
 
-  // CART (view-anytime drawer)
+  // CART
   let cartOpen = false;
   function toggleCart() {
     cartOpen = !cartOpen;
@@ -994,29 +776,19 @@
     const badge = document.getElementById('cart-badge');
     if (!session) { badge.classList.add('hidden'); return; }
     const { count } = await sb.from('mkt_cart_items').select('id', { count: 'exact', head: true }).eq('buyer_id', session.user.id);
-    if (count && count > 0) { badge.textContent = count; badge.classList.remove('hidden'); }
-    else badge.classList.add('hidden');
+    if (count && count > 0) { badge.textContent = count; badge.classList.remove('hidden'); } else badge.classList.add('hidden');
   }
   async function loadCart() {
     const { data: { session } } = await sb.auth.getSession();
     if (!session) return;
-    const { data: items } = await sb.from('mkt_cart_items')
-      .select('*, products:mkt_products(name, price, unit)')
-      .eq('buyer_id', session.user.id);
+    const { data: items } = await sb.from('mkt_cart_items').select('*, products:mkt_products(name, price, unit)').eq('buyer_id', session.user.id);
     const list = document.getElementById('cart-items-list');
     const footer = document.getElementById('cart-footer');
-    if (!items || items.length === 0) {
-      list.innerHTML = '<p class="text-gray-400 text-sm text-center py-10">Your cart is empty.</p>';
-      footer.classList.add('hidden');
-      return;
-    }
+    if (!items || items.length === 0) { list.innerHTML = '<p class="text-gray-400 text-sm text-center py-10">Your cart is empty.</p>'; footer.classList.add('hidden'); return; }
     const total = items.reduce((s, i) => s + (i.quantity * parseFloat(i.products?.price || 0)), 0);
     list.innerHTML = items.map(i => `
       <div class="flex items-center gap-3 py-3 border-b border-sky-50">
-        <div class="flex-1 min-w-0">
-          <p class="text-sm font-medium truncate">${i.products?.name}</p>
-          <p class="text-xs text-gray-500">RM ${parseFloat(i.products?.price).toFixed(2)} / ${i.products?.unit}</p>
-        </div>
+        <div class="flex-1 min-w-0"><p class="text-sm font-medium truncate">${i.products?.name}</p><p class="text-xs text-gray-500">RM ${parseFloat(i.products?.price).toFixed(2)} / ${i.products?.unit}</p></div>
         <span class="text-sm font-semibold">×${i.quantity}</span>
         <span class="text-[#13658f] text-sm font-bold">RM ${(i.quantity * parseFloat(i.products?.price || 0)).toFixed(2)}</span>
       </div>`).join('');
@@ -1029,52 +801,33 @@
     if (!span) return;
     const first = currentUserName.split(' ')[0] || currentUserName || '';
     let hi = (typeof t === 'function') ? t('nav.greeting') : '';
-    // Fallback if translations.js is missing/stale (t() would return the raw key)
     if (!hi || hi === 'nav.greeting') hi = (typeof getLang === 'function' && getLang() === 'bm') ? 'Hai' : 'Hi';
     span.textContent = first ? `${hi}, ${first}` : hi;
   }
-
-  function toggleUserMenu() {
-    document.getElementById('user-dropdown').classList.toggle('hidden');
-  }
-  function closeUserMenu() {
-    document.getElementById('user-dropdown')?.classList.add('hidden');
-  }
-  function chooseLang(lang) {
-    setLang(lang);        // re-applies all data-i18n translations
-    updateGreeting();     // greeting is built in JS, re-render it
-    updateLangChecks();
-    closeUserMenu();
-  }
+  function toggleUserMenu() { document.getElementById('user-dropdown').classList.toggle('hidden'); }
+  function closeUserMenu() { document.getElementById('user-dropdown')?.classList.add('hidden'); }
+  function chooseLang(lang) { setLang(lang); updateGreeting(); updateLangChecks(); closeUserMenu(); }
   function updateLangChecks() {
     const lang = getLang();
-    const en = document.getElementById('lang-check-en');
-    const bm = document.getElementById('lang-check-bm');
+    const en = document.getElementById('lang-check-en'); const bm = document.getElementById('lang-check-bm');
     if (en) en.textContent = lang === 'en' ? '✓' : '';
     if (bm) bm.textContent = lang === 'bm' ? '✓' : '';
   }
-  // Close the dropdown when clicking outside of it
   document.addEventListener('click', (e) => {
     const menu = document.getElementById('nav-user-menu');
     if (menu && !menu.classList.contains('hidden') && !menu.contains(e.target)) closeUserMenu();
   });
 
   // POST-EMAIL-CONFIRMATION REDIRECT
-  // When user clicks the confirmation link in their email, Supabase
-  // returns them here with auth tokens in the URL hash. The JS SDK
-  // auto-parses the hash; we just listen for SIGNED_IN and route them.
   sb.auth.onAuthStateChange(async (event, session) => {
     const hash = window.location.hash || '';
-    // Password recovery: let the user set a new password instead of routing them.
     if (event === 'PASSWORD_RECOVERY' || (event === 'SIGNED_IN' && hash.includes('type=recovery'))) {
       history.replaceState(null, '', window.location.pathname + window.location.search);
-      showSetPassword();
-      return;
+      showSetPassword(); return;
     }
     if (event !== 'SIGNED_IN' || !session) return;
     const isConfirmation = hash.includes('type=signup') || hash.includes('access_token');
     if (!isConfirmation) return;
-    // Clean hash so we don't loop
     history.replaceState(null, '', window.location.pathname + window.location.search);
     await ensureProfile(session.user, session.user.user_metadata || {});
     const { data: profile } = await sb.from('shared_profiles').select('role,status').eq('id', session.user.id).single();
@@ -1085,54 +838,37 @@
   async function loadFeaturedProducts() {
     const { data: products } = await sb.from('mkt_products')
       .select('*, profiles:shared_profiles(full_name, farm_name)')
-      .eq('status', 'active')
-      .order('created_at', { ascending: false })
-      .limit(6);
+      .eq('status', 'active').order('created_at', { ascending: false }).limit(6);
     const container = document.getElementById('featured-products');
-    if (!products || products.length === 0) {
-      container.innerHTML = '<p class="text-gray-400 text-sm py-6">No products yet. Check back soon!</p>';
-      return;
-    }
+    if (!products || products.length === 0) { container.innerHTML = '<p class="text-gray-400 text-sm py-6">No products yet. Check back soon!</p>'; return; }
     container.innerHTML = products.map(p => `
-      <a href="marketplace/" class="snap-start shrink-0 w-52 bg-white rounded-xl overflow-hidden shadow card-hover border border-sky-100">
-        <div class="h-36 bg-sky-50 overflow-hidden">
+      <a href="marketplace/" class="snap-start shrink-0 w-56 bg-white rounded-2xl overflow-hidden elev card-hover border border-slate-100 zoom">
+        <div class="h-40 bg-sky-50 overflow-hidden">
           ${p.image_url ? `<img src="${p.image_url}" alt="${p.name}" class="w-full h-full object-cover" />` : '<div class="w-full h-full flex items-center justify-center text-4xl">🌿</div>'}
         </div>
-        <div class="p-3">
-          <p class="font-semibold text-sm text-gray-800 truncate">${p.name}</p>
+        <div class="p-4">
+          <p class="font-semibold text-sm text-slate-800 truncate">${p.name}</p>
           <p class="text-xs text-gray-500 truncate">${p.profiles?.farm_name || p.profiles?.full_name || 'HSI Farmer'}</p>
-          <p class="text-[#13658f] font-bold text-sm mt-1">RM ${parseFloat(p.price).toFixed(2)} / ${p.unit}</p>
+          <p class="text-[#13658f] font-bold text-base mt-1">RM ${parseFloat(p.price).toFixed(2)} <span class="text-xs font-normal text-gray-400">/ ${p.unit}</span></p>
         </div>
-      </a>
-    `).join('');
+      </a>`).join('');
   }
 
   // ANNOUNCEMENTS
   async function loadAnnouncements() {
     const { data: items } = await sb.from('mkt_announcements')
-      .select('*')
-      .eq('is_active', true)
-      .eq('is_featured', true)
-      .order('created_at', { ascending: false })
-      .limit(3);
+      .select('*').eq('is_active', true).eq('is_featured', true).order('created_at', { ascending: false }).limit(3);
     if (!items || items.length === 0) return;
     document.getElementById('announcements-section').classList.remove('hidden');
     document.getElementById('announcements-list').innerHTML = items.map(a => `
-      <div class="bg-white rounded-xl overflow-hidden shadow card-hover border border-sky-100">
-        ${a.image_url ? `<img src="${a.image_url}" alt="${a.title}" class="w-full h-36 object-cover" />` : ''}
-        <div class="p-5">
-          <h4 class="font-bold text-brand mb-1">${a.title}</h4>
-          <p class="text-gray-600 text-sm">${a.body || ''}</p>
-        </div>
-      </div>
-    `).join('');
+      <div class="bg-white rounded-2xl overflow-hidden elev card-hover border border-slate-100">
+        ${a.image_url ? `<img src="${a.image_url}" alt="${a.title}" class="w-full h-40 object-cover" />` : ''}
+        <div class="p-6"><h4 class="font-display font-bold text-slate-900 mb-1">${a.title}</h4><p class="text-slate-500 text-sm">${a.body || ''}</p></div>
+      </div>`).join('');
   }
 
-  // Initialise the section tabs: pin the bar under the nav and open the tab
-  // named in the URL hash (default "about"), without scrolling on first load.
-  positionTabs();
+  // Init: open the tab named in the URL hash (default "about"), no scroll on load.
   showLandingTab((location.hash || '').replace('#', '') || 'about', { scroll: false, updateHash: false });
-
   initNav();
   loadFeaturedProducts();
   loadAnnouncements();
@@ -1143,60 +879,36 @@
   const isIOS = /iphone|ipad|ipod/i.test(navigator.userAgent) && !window.MSStream;
   const isAndroid = /android/i.test(navigator.userAgent);
   const isMobile = isIOS || isAndroid;
-
   function showInstallBanner() {
     if (isStandalone) return;
     const banner = document.getElementById('pwa-install-banner');
     if (!banner) return;
-    if (isIOS) {
-      document.getElementById('install-subtitle').textContent = 'Tap Share → Add to Home Screen';
-      document.getElementById('install-btn').textContent = 'How to Install';
-    } else {
-      document.getElementById('install-subtitle').textContent = 'Install app for quick access';
-      document.getElementById('install-btn').textContent = deferredPrompt ? 'Install' : 'How to Install';
-    }
+    if (isIOS) { document.getElementById('install-subtitle').textContent = 'Tap Share → Add to Home Screen'; document.getElementById('install-btn').textContent = 'How to Install'; }
+    else { document.getElementById('install-subtitle').textContent = 'Install app for quick access'; document.getElementById('install-btn').textContent = deferredPrompt ? 'Install' : 'How to Install'; }
     banner.classList.remove('hidden');
   }
-
   window.handleInstall = async function() {
-    // If Chrome gave us the native prompt, use it
     if (deferredPrompt) {
       deferredPrompt.prompt();
       const { outcome } = await deferredPrompt.userChoice;
       deferredPrompt = null;
-      if (outcome === 'accepted') {
-        document.getElementById('pwa-install-banner').classList.add('hidden');
-      }
+      if (outcome === 'accepted') document.getElementById('pwa-install-banner').classList.add('hidden');
       return;
     }
-    // Otherwise show step-by-step instructions for the platform
     const modal = document.getElementById('install-modal');
     document.getElementById('ios-steps').classList.toggle('hidden', !isIOS);
     document.getElementById('android-steps').classList.toggle('hidden', isIOS);
     modal.classList.remove('hidden');
   };
-
   window.addEventListener('beforeinstallprompt', e => {
-    e.preventDefault();
-    deferredPrompt = e;
-    // Update button to say "Install" now that native prompt is ready
-    const btn = document.getElementById('install-btn');
-    if (btn) btn.textContent = 'Install';
+    e.preventDefault(); deferredPrompt = e;
+    const btn = document.getElementById('install-btn'); if (btn) btn.textContent = 'Install';
     showInstallBanner();
   });
-
-  window.addEventListener('appinstalled', () => {
-    document.getElementById('pwa-install-banner').classList.add('hidden');
-    deferredPrompt = null;
-  });
-
-  // Show banner immediately on any mobile browser (not just when beforeinstallprompt fires)
+  window.addEventListener('appinstalled', () => { document.getElementById('pwa-install-banner').classList.add('hidden'); deferredPrompt = null; });
   if (isMobile) showInstallBanner();
 
-  // PWA service worker
-  if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('sw.js').catch(() => {});
-  }
+  if ('serviceWorker' in navigator) navigator.serviceWorker.register('sw.js').catch(() => {});
 </script>
 </body>
 </html>
