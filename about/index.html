@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>About — HSI Hydro Sprout Initiative</title>
+  <meta name="description" content="About the Hydro Sprout Initiative (HSI): objectives, hydroponics, benefits, long-term impact, vision and mission." />
+  <meta name="theme-color" content="#1b75bc" />
+  <link rel="manifest" href="../manifest.json" />
+  <link rel="apple-touch-icon" href="../icon-192.png" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = { theme: { extend: { colors: {
+      brand: { blue:'#1b75bc', bluedark:'#11537f', bluelight:'#e8f3fb', green:'#56b947', greendark:'#3c8a30', greenlight:'#eef8e8', yellow:'#cfdb2e' },
+      green: { 50:'#f1f9ee',100:'#dcf0d3',200:'#bce3aa',300:'#95d27c',400:'#74c455',500:'#56b947',600:'#46a338',700:'#3c8a30',800:'#336f29',900:'#285a22' }
+    }}}}
+  </script>
+  <script src="../translations.js"></script>
+  <style>
+    .nav-bg { background: linear-gradient(90deg, #11537f 0%, #1b75bc 100%); }
+    .hero-gradient { background: linear-gradient(135deg, #11537f 0%, #1b75bc 45%, #56b947 100%); }
+    .btn-primary { background-color: #46a338; }
+    .btn-primary:hover { background-color: #3c8a30; }
+    .card-hover { transition: transform 0.2s, box-shadow 0.2s; }
+    .card-hover:hover { transform: translateY(-3px); box-shadow: 0 10px 25px rgba(0,0,0,0.12); }
+  </style>
+</head>
+<body class="bg-white text-gray-800 font-sans overflow-x-hidden">
+<!-- NAV -->
+<nav class="bg-white text-gray-800 sticky top-0 z-40 shadow-md border-b border-gray-100">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex items-center justify-between gap-2">
+    <div class="flex items-center gap-4 min-w-0">
+      <a href="../" class="flex items-center gap-2 font-bold text-lg tracking-wide shrink-0">
+        <img src="../assets/hsi-logo.png" alt="HSI Marketplace" class="h-9 sm:h-10 w-auto" onerror="this.style.display='none'" />
+        <span class="text-brand-bluedark hidden sm:inline">HSI Marketplace</span>
+      </a>
+      <a href="../" class="hidden md:inline text-gray-600 hover:text-brand-blue text-sm font-medium transition">Home</a>
+      <a href="../about/" class="hidden md:inline text-brand-blue font-semibold text-sm font-medium transition">About</a>
+      <a href="../activities/" class="hidden md:inline text-gray-600 hover:text-brand-blue text-sm font-medium transition">Activities</a>
+      <a href="../partners/" class="hidden md:inline text-gray-600 hover:text-brand-blue text-sm font-medium transition">Partners</a>
+      <a href="../marketplace/" class="hidden md:inline btn-primary text-white text-sm px-4 py-1.5 rounded-full font-semibold tracking-wide transition" data-i18n="nav.shop">SHOP</a>
+    </div>
+    <div class="flex items-center gap-2 sm:gap-3 shrink-0">
+      <button id="lang-toggle" onclick="toggleLang()" class="hidden sm:inline-block text-gray-600 hover:text-brand-blue border border-gray-300 hover:border-brand-blue text-xs px-2.5 py-1 rounded-full font-semibold transition">BM</button>
+      <a href="../" class="btn-primary text-white text-sm px-3 sm:px-4 py-1.5 rounded-full font-medium transition">Login / Register</a>
+      <button onclick="toggleMobileMenu()" class="md:hidden text-brand-bluedark p-2 -mr-1" aria-label="Open menu">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16"/></svg>
+      </button>
+    </div>
+  </div>
+  <!-- MOBILE MENU -->
+  <div id="mobile-menu" class="hidden md:hidden border-t border-gray-100 bg-white px-4 py-3 space-y-1">
+    <a href="../" class="block px-3 py-2 rounded-lg text-gray-700 font-medium hover:bg-brand-bluelight">Home</a>
+    <a href="../about/" class="block px-3 py-2 rounded-lg text-brand-blue font-semibold hover:bg-brand-bluelight">About</a>
+    <a href="../activities/" class="block px-3 py-2 rounded-lg text-gray-700 font-medium hover:bg-brand-bluelight">Activities</a>
+    <a href="../partners/" class="block px-3 py-2 rounded-lg text-gray-700 font-medium hover:bg-brand-bluelight">Partners</a>
+    <a href="../marketplace/" class="block px-3 py-2 rounded-lg text-center text-white btn-primary font-semibold" data-i18n="nav.shop">SHOP</a>
+    <button onclick="toggleLang()" class="w-full text-left px-3 py-2 rounded-lg text-gray-700 font-medium hover:bg-brand-bluelight">Bahasa / English</button>
+  </div>
+</nav>
+
+<section class="bg-brand-bluelight py-12">
+  <div class="max-w-5xl mx-auto px-4 text-center">
+    <h1 class="text-3xl sm:text-4xl md:text-5xl font-extrabold text-brand-bluedark">About HSI</h1>
+    <p class="text-gray-600 mt-3 max-w-2xl mx-auto">Sprouting sustainable farming and the seeds of entrepreneurship.</p>
+  </div>
+</section>
+<!-- ABOUT / PROJECT INTRODUCTION -->
+<section id="about" class="py-16 bg-white scroll-mt-16">
+  <div class="max-w-5xl mx-auto px-4">
+    <div class="text-center mb-10">
+      <span class="text-brand-green font-semibold text-sm uppercase tracking-widest">About the Programme</span>
+      <h2 class="text-3xl md:text-4xl font-bold text-brand-bluedark mt-2">The Hydro Sprout Initiative (HSI)</h2>
+    </div>
+    <div class="space-y-5 text-gray-600 leading-relaxed text-lg">
+      <p>The <strong class="text-brand-bluedark">Hydro Sprout Initiative (HSI)</strong> is a groundbreaking hydroponic community development program aimed at fostering sustainable agriculture, improving food security, and empowering local communities through modern and sustainable farming practices.</p>
+      <p>This innovative project is driven by a multi-stakeholder partnership, with <strong>PTTEP</strong> as the main sponsor, the <strong>Bintulu Development Authority (BDA)</strong> as the land contributor and collaborator, <strong>University Putra Malaysia</strong> providing technical expertise and as the project coordinator, and the <strong>Lions Club of Bintulu Kidurong</strong> acting as the financial steward and implementer.</p>
+      <p>By leveraging hydroponic technology, the program aims to address local food supply challenges, create entrepreneurship opportunities, and uplift low-income communities in Bintulu — ultimately contributing to the socio-economic well-being of the community.</p>
+    </div>
+    <div class="mt-10 bg-gradient-to-r from-brand-bluelight to-brand-greenlight rounded-2xl p-8 text-center">
+      <p class="text-brand-green font-semibold text-xs uppercase tracking-widest mb-2">Our Motto</p>
+      <p class="text-2xl md:text-3xl font-bold text-brand-bluedark italic">“Sprouting Sustainable Farming and the Seeds of Entrepreneurship”</p>
+    </div>
+  </div>
+</section>
+
+<!-- OBJECTIVES -->
+<section class="py-16 bg-brand-bluelight">
+  <div class="max-w-6xl mx-auto px-4">
+    <div class="text-center mb-10">
+      <span class="text-brand-blue font-semibold text-sm uppercase tracking-widest">What We Aim For</span>
+      <h2 class="text-3xl font-bold text-brand-bluedark mt-2">Our Objectives</h2>
+    </div>
+    <div class="grid md:grid-cols-3 gap-8">
+      <div class="card-hover bg-white rounded-2xl p-8 border-t-4 border-brand-blue shadow-sm">
+        <div class="w-12 h-12 rounded-xl bg-brand-bluelight text-brand-blue flex items-center justify-center mb-4"><svg class="w-7 h-7" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19.128a9.38 9.38 0 002.625.372 9.337 9.337 0 004.121-.952 4.125 4.125 0 00-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 018.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0111.964-3.07M12 6.375a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zm8.25 2.25a2.625 2.625 0 11-5.25 0 2.625 2.625 0 015.25 0z"/></svg></div>
+        <h3 class="text-xl font-bold text-brand-bluedark mb-2">Empower the Local Community</h3>
+        <p class="text-gray-600">Train participants in advanced farming techniques such as hydroponics, improving agricultural skills and knowledge across the community.</p>
+      </div>
+      <div class="card-hover bg-white rounded-2xl p-8 border-t-4 border-brand-green shadow-sm">
+        <div class="w-12 h-12 rounded-xl bg-brand-greenlight text-brand-greendark flex items-center justify-center mb-4"><svg class="w-7 h-7" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 18L9 11.25l4.306 4.307a11.95 11.95 0 015.814-5.519l2.74-1.22m0 0l-5.94-2.28m5.94 2.28l-2.28 5.941"/></svg></div>
+        <h3 class="text-xl font-bold text-brand-bluedark mb-2">Uplift Low-Income Livelihoods</h3>
+        <p class="text-gray-600">Provide opportunities for participants to generate income by selling their hydroponically-grown crops.</p>
+      </div>
+      <div class="card-hover bg-white rounded-2xl p-8 border-t-4 border-brand-yellow shadow-sm">
+        <div class="w-12 h-12 rounded-xl bg-[#f8f6d8] text-[#9a8a08] flex items-center justify-center mb-4"><svg class="w-7 h-7" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15.59 14.37a6 6 0 01-5.84 7.38v-4.8m5.84-2.58a14.98 14.98 0 006.16-12.12A14.98 14.98 0 009.631 8.41m5.96 5.96a14.926 14.926 0 01-5.841 2.58m-.119-8.54a6 6 0 00-7.381 5.84h4.8m2.581-5.84a14.927 14.927 0 00-2.58 5.84m2.699 2.7c-.103.021-.207.041-.311.06a15.09 15.09 0 01-2.448-2.448 14.9 14.9 0 01.06-.312m-2.24 2.39a4.493 4.493 0 00-1.757 4.306 4.493 4.493 0 004.306-1.758M16.5 9a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0z"/></svg></div>
+        <h3 class="text-xl font-bold text-brand-bluedark mb-2">Foster Entrepreneurship</h3>
+        <p class="text-gray-600">Encourage entrepreneurship through technical training, mentorship, and business and marketing skill development.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- WHAT IS HYDROPONIC -->
+<section class="py-16 bg-white">
+  <div class="max-w-5xl mx-auto px-4">
+    <div class="text-center mb-8">
+      <span class="text-brand-green font-semibold text-sm uppercase tracking-widest">The Technology</span>
+      <h2 class="text-3xl font-bold text-brand-bluedark mt-2">What is Hydroponics?</h2>
+    </div>
+    <p class="text-gray-600 leading-relaxed text-lg text-center max-w-3xl mx-auto">
+      Hydroponic farming is an innovative method of growing plants without soil, using nutrient-rich water solutions to deliver essential nutrients directly to plant roots. By providing a controlled growing environment, hydroponic systems enable faster plant growth, higher yields, and year-round cultivation regardless of weather. Compared to conventional agriculture, hydroponics can use up to <strong class="text-brand-blue">90% less water</strong>, requires less land, and minimises the need for pesticides — making it a sustainable, resource-efficient approach to food production, especially well suited to urban areas where land is limited and food security matters.
+    </p>
+  </div>
+</section>
+
+<!-- BENEFITS OF HYDROPONIC FARMING -->
+<section class="py-16 bg-brand-greenlight">
+  <div class="max-w-6xl mx-auto px-4">
+    <div class="text-center mb-10">
+      <h2 class="text-3xl font-bold text-brand-bluedark mb-3" data-i18n="benefits.title">Benefits of Hydroponic Farming</h2>
+      <p class="text-gray-600 max-w-2xl mx-auto" data-i18n="benefits.subtitle">A smarter, cleaner way to grow food — better for you, for the farmer, and for the planet.</p>
+    </div>
+    <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div class="card-hover bg-white rounded-2xl p-6 border border-brand-bluelight">
+        <div class="w-12 h-12 rounded-xl bg-brand-bluelight text-brand-blue flex items-center justify-center mb-4"><svg class="w-7 h-7" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 3.75c2.25 3 5.25 6.75 5.25 9.75a5.25 5.25 0 11-10.5 0c0-3 3-6.75 5.25-9.75z"/></svg></div>
+        <h3 class="text-lg font-bold text-brand-bluedark mb-1" data-i18n="benefits.water_title">Saves Water</h3>
+        <p class="text-gray-600 text-sm" data-i18n="benefits.water_body">Uses up to 90% less water than soil farming through closed-loop recirculation.</p>
+      </div>
+      <div class="card-hover bg-white rounded-2xl p-6 border border-brand-bluelight">
+        <div class="w-12 h-12 rounded-xl bg-brand-bluelight text-brand-blue flex items-center justify-center mb-4"><svg class="w-7 h-7" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9 12.75L11.25 15 15 9.75m-3-7.036A11.959 11.959 0 013.598 6 11.99 11.99 0 003 9.749c0 5.592 3.824 10.29 9 11.623 5.176-1.332 9-6.03 9-11.622 0-1.31-.21-2.571-.598-3.751h-.152c-3.196 0-6.1-1.248-8.25-3.285z"/></svg></div>
+        <h3 class="text-lg font-bold text-brand-bluedark mb-1" data-i18n="benefits.pesticide_title">No Pesticides</h3>
+        <p class="text-gray-600 text-sm" data-i18n="benefits.pesticide_body">Grown in clean, controlled conditions, so produce is naturally pesticide-free.</p>
+      </div>
+      <div class="card-hover bg-white rounded-2xl p-6 border border-brand-bluelight">
+        <div class="w-12 h-12 rounded-xl bg-brand-bluelight text-brand-blue flex items-center justify-center mb-4"><svg class="w-7 h-7" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M6.75 3v2.25M17.25 3v2.25M3 18.75V7.5a2.25 2.25 0 012.25-2.25h13.5A2.25 2.25 0 0121 7.5v11.25m-18 0A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75m-18 0v-7.5A2.25 2.25 0 015.25 9h13.5A2.25 2.25 0 0121 11.25v7.5"/></svg></div>
+        <h3 class="text-lg font-bold text-brand-bluedark mb-1" data-i18n="benefits.yearround_title">Year-Round Harvest</h3>
+        <p class="text-gray-600 text-sm" data-i18n="benefits.yearround_body">Climate-controlled growing means fresh produce in every season, rain or shine.</p>
+      </div>
+      <div class="card-hover bg-white rounded-2xl p-6 border border-brand-bluelight">
+        <div class="w-12 h-12 rounded-xl bg-brand-bluelight text-brand-blue flex items-center justify-center mb-4"><svg class="w-7 h-7" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 13.5l10.5-11.25L12 10.5h8.25L9.75 21.75 12 13.5H3.75z"/></svg></div>
+        <h3 class="text-lg font-bold text-brand-bluedark mb-1" data-i18n="benefits.growth_title">Faster Growth</h3>
+        <p class="text-gray-600 text-sm" data-i18n="benefits.growth_body">Nutrients delivered straight to the roots let plants grow up to twice as fast.</p>
+      </div>
+      <div class="card-hover bg-white rounded-2xl p-6 border border-brand-bluelight">
+        <div class="w-12 h-12 rounded-xl bg-brand-bluelight text-brand-blue flex items-center justify-center mb-4"><svg class="w-7 h-7" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3.75 21h16.5M4.5 3h15M5.25 3v18m13.5-18v18M9 6.75h1.5m-1.5 3h1.5m-1.5 3h1.5m3-6H15m-1.5 3H15m-1.5 3H15M9 21v-3.375c0-.621.504-1.125 1.125-1.125h3.75c.621 0 1.125.504 1.125 1.125V21"/></svg></div>
+        <h3 class="text-lg font-bold text-brand-bluedark mb-1" data-i18n="benefits.space_title">Space-Efficient</h3>
+        <p class="text-gray-600 text-sm" data-i18n="benefits.space_body">Vertical, soil-free systems grow more food in less space, even in urban areas.</p>
+      </div>
+      <div class="card-hover bg-white rounded-2xl p-6 border border-brand-bluelight">
+        <div class="w-12 h-12 rounded-xl bg-brand-bluelight text-brand-blue flex items-center justify-center mb-4"><svg class="w-7 h-7" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M9.813 15.904L9 18.75l-.813-2.846a4.5 4.5 0 00-3.09-3.09L2.25 12l2.846-.813a4.5 4.5 0 003.09-3.09L9 5.25l.813 2.846a4.5 4.5 0 003.09 3.09L15.75 12l-2.846.813a4.5 4.5 0 00-3.09 3.09z"/></svg></div>
+        <h3 class="text-lg font-bold text-brand-bluedark mb-1" data-i18n="benefits.nutrient_title">Nutrient-Rich &amp; Fresh</h3>
+        <p class="text-gray-600 text-sm" data-i18n="benefits.nutrient_body">Optimised nutrition and same-day freshness mean healthier, better-tasting produce.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- LONG-TERM IMPACT -->
+<section class="py-16 bg-brand-bluelight">
+  <div class="max-w-6xl mx-auto px-4">
+    <div class="text-center mb-10">
+      <span class="text-brand-blue font-semibold text-sm uppercase tracking-widest">Looking Ahead</span>
+      <h2 class="text-3xl font-bold text-brand-bluedark mt-2">Long-Term Impact</h2>
+    </div>
+    <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
+      <div class="bg-white rounded-2xl p-6 card-hover border-l-4 border-brand-green">
+        <h3 class="font-bold text-brand-bluedark mb-1">Entrepreneurial Ecosystem</h3>
+        <p class="text-gray-600 text-sm">Successful hydroponic businesses can expand, diversify crops, and become suppliers, consultants or trainers — growing a localised economy.</p>
+      </div>
+      <div class="bg-white rounded-2xl p-6 card-hover border-l-4 border-brand-blue">
+        <h3 class="font-bold text-brand-bluedark mb-1">Food Security</h3>
+        <p class="text-gray-600 text-sm">A network of local farms shortens supply chains, builds resilience, and shields the community from global food price volatility.</p>
+      </div>
+      <div class="bg-white rounded-2xl p-6 card-hover border-l-4 border-brand-green">
+        <h3 class="font-bold text-brand-bluedark mb-1">Job Creation</h3>
+        <p class="text-gray-600 text-sm">New ventures create jobs in production, packaging, sales, marketing, logistics and retail — rippling out to other local industries.</p>
+      </div>
+      <div class="bg-white rounded-2xl p-6 card-hover border-l-4 border-brand-blue">
+        <h3 class="font-bold text-brand-bluedark mb-1">Knowledge Transfer</h3>
+        <p class="text-gray-600 text-sm">Graduates mentoring new participants creates a continuous cycle of learning, leadership and stronger social bonds.</p>
+      </div>
+      <div class="bg-white rounded-2xl p-6 card-hover border-l-4 border-brand-green">
+        <h3 class="font-bold text-brand-bluedark mb-1">Urban Greening</h3>
+        <p class="text-gray-600 text-sm">Rooftops, vacant lots and indoor spaces can be transformed into productive farms, making cities greener and land use more efficient.</p>
+      </div>
+      <div class="bg-white rounded-2xl p-6 card-hover border-l-4 border-brand-blue">
+        <h3 class="font-bold text-brand-bluedark mb-1">Lower Carbon Footprint</h3>
+        <p class="text-gray-600 text-sm">Up to 90% less water and locally grown food reduce resource use and cut transport emissions — supporting global environmental goals.</p>
+      </div>
+    </div>
+    <p class="text-center text-gray-600 max-w-3xl mx-auto mt-8 text-sm">Once established, HSI can serve as a <strong class="text-brand-bluedark">scalable model</strong> for other communities locally and globally — adapting hydroponic entrepreneurship to address food security, economic empowerment and sustainability everywhere.</p>
+  </div>
+</section>
+
+<!-- VISION & MISSION -->
+<section class="py-16 bg-white">
+  <div class="max-w-6xl mx-auto px-4">
+    <div class="grid md:grid-cols-2 gap-8">
+      <div class="bg-brand-bluedark text-white rounded-2xl p-8 card-hover">
+        <h3 class="text-2xl font-bold mb-3" data-i18n="vision.title">Our Vision</h3>
+        <p class="text-blue-100 leading-relaxed" data-i18n="vision.body">A thriving community where hydroponic farmers have direct market access, fair income, and buyers enjoy fresh, nutrient-rich produce grown responsibly.</p>
+      </div>
+      <div class="bg-brand-green text-white rounded-2xl p-8 card-hover">
+        <h3 class="text-2xl font-bold mb-3" data-i18n="mission.title">Our Mission</h3>
+        <p class="text-green-50 leading-relaxed" data-i18n="mission.body">To connect HSI-certified hydroponic farmers with buyers through a transparent, community-first marketplace that upholds quality, trust, and sustainability.</p>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- COMMUNITY PARTICIPATION -->
+<section class="hero-gradient text-white py-16">
+  <div class="max-w-6xl mx-auto px-4 text-center">
+    <div class="inline-block bg-white/15 text-white text-xs font-semibold px-3 py-1 rounded-full mb-4 uppercase tracking-widest" data-i18n="community.tag">Get Involved</div>
+    <h2 class="text-3xl md:text-4xl font-extrabold mb-3" data-i18n="community.title">Be Part of the HSI Community</h2>
+    <p class="text-blue-50 text-lg mb-10 max-w-2xl mx-auto" data-i18n="community.body">Whether you grow, buy, or simply believe in fresh local food, there's a place for you in the HSI Program.</p>
+    <div class="grid sm:grid-cols-3 gap-6 mb-10 text-left">
+      <div class="bg-white/10 rounded-2xl p-6 border border-white/25">
+        <div class="w-12 h-12 rounded-xl bg-white/15 text-white flex items-center justify-center mb-3"><svg class="w-7 h-7" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 21c0-4.97 0-7.5 0-7.5m0 0c0-2.485 2.015-4.5 4.5-4.5h1.5c0 2.485-2.015 4.5-4.5 4.5H12zm0-1.5C12 11.015 9.985 9 7.5 9H6c0 2.485 2.015 4.5 4.5 4.5H12z"/></svg></div>
+        <h3 class="text-lg font-bold mb-1" data-i18n="community.farmer_title">Grow &amp; Sell</h3>
+        <p class="text-blue-50 text-sm" data-i18n="community.farmer_body">Register as a community farmer to list your hydroponic produce and reach buyers directly.</p>
+      </div>
+      <div class="bg-white/10 rounded-2xl p-6 border border-white/25">
+        <div class="w-12 h-12 rounded-xl bg-white/15 text-white flex items-center justify-center mb-3"><svg class="w-7 h-7" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 3h1.386c.51 0 .955.343 1.087.835l.383 1.437M7.5 14.25a3 3 0 00-3 3h15.75m-12.75-3h11.218c1.121-2.3 2.1-4.684 2.924-7.138a60.114 60.114 0 00-16.536-1.84M7.5 14.25L5.106 5.272M6 20.25a.75.75 0 11-1.5 0 .75.75 0 011.5 0zm12.75 0a.75.75 0 11-1.5 0 .75.75 0 011.5 0z"/></svg></div>
+        <h3 class="text-lg font-bold mb-1" data-i18n="community.buyer_title">Shop Fresh</h3>
+        <p class="text-blue-50 text-sm" data-i18n="community.buyer_body">Create a buyer account to order fresh produce, track your orders, and earn HSI loyalty points.</p>
+      </div>
+      <div class="bg-white/10 rounded-2xl p-6 border border-white/25">
+        <div class="w-12 h-12 rounded-xl bg-white/15 text-white flex items-center justify-center mb-3"><svg class="w-7 h-7" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z"/></svg></div>
+        <h3 class="text-lg font-bold mb-1" data-i18n="community.support_title">Support Local</h3>
+        <p class="text-blue-50 text-sm" data-i18n="community.support_body">Every purchase strengthens local farmers and helps build a sustainable community food system.</p>
+      </div>
+    </div>
+    <div class="flex flex-col sm:flex-row gap-3 justify-center">
+      <button onclick="window.location.href='../'" class="bg-white text-brand-bluedark font-semibold px-8 py-3 rounded-full text-lg shadow-lg hover:bg-blue-50 transition" data-i18n="community.join_btn">Join the Community</button>
+      <a href="../marketplace/" class="border-2 border-white text-white font-semibold px-8 py-3 rounded-full text-lg hover:bg-white hover:text-brand-bluedark transition" data-i18n="community.browse_btn">Browse Produce</a>
+    </div>
+  </div>
+</section>
+
+
+<!-- FOOTER -->
+<footer class="nav-bg text-blue-100 py-10 mt-0">
+  <div class="max-w-6xl mx-auto px-4 text-center">
+    <p class="font-bold text-white text-lg mb-1">HSI Marketplace</p>
+    <p class="text-sm" data-i18n="footer.tagline">Hydro Sprout Initiative — Fresh produce, community grown</p>
+    <div class="flex flex-wrap items-center justify-center gap-6 bg-white/95 rounded-2xl px-6 py-4 my-6 max-w-2xl mx-auto">
+      <img src="../assets/sponsors/pttep.png" alt="PTTEP" class="h-12 w-auto" onerror="this.style.display='none'" />
+      <img src="../assets/sponsors/bda.png" alt="BDA" class="h-12 w-auto" onerror="this.style.display='none'" />
+      <img src="../assets/sponsors/lions.png" alt="Lions Club of Bintulu Kidurong" class="h-12 w-auto" onerror="this.style.display='none'" />
+    </div>
+    <p class="text-xs text-blue-200">Supported by PTTEP · Bintulu Development Authority · Lions Club of Bintulu Kidurong · University Putra Malaysia</p>
+    <p class="text-xs text-blue-300 mt-4" data-i18n="footer.copyright">&copy; 2025 HSI Program. All rights reserved.</p>
+  </div>
+</footer>
+
+<script>
+  function toggleMobileMenu(){ var m=document.getElementById('mobile-menu'); if(m) m.classList.toggle('hidden'); }
+  (function(){
+    function sync(){ var b=document.getElementById('lang-toggle'); if(b&&window.getLang) b.textContent=(getLang()==='en'?'BM':'EN'); }
+    document.addEventListener('DOMContentLoaded', sync);
+    if(window.toggleLang){ var o=window.toggleLang; window.toggleLang=function(){o();sync();}; }
+  })();
+</script>
+</body>
+</html>

@@ -1,5 +1,5 @@
-const CACHE = 'hsi-marketplace-v34';
-const PRECACHE = ['./', './marketplace/', './manifest.json', './icon-192.png', './icon-512.png', './translations.js'];
+const CACHE = 'hsi-marketplace-v35';
+const PRECACHE = ['./', './about/', './activities/', './partners/', './marketplace/', './manifest.json', './icon-192.png', './icon-512.png', './translations.js'];
 
 self.addEventListener('install', e => {
   e.waitUntil(caches.open(CACHE).then(c => c.addAll(PRECACHE).catch(() => {})));
