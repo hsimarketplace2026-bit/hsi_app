@@ -91,7 +91,7 @@
       const btn = document.getElementById(`tab-${t}`);
       btn.classList.toggle('active', t === tab);
       btn.classList.toggle('bg-white', t !== tab);
-      btn.classList.toggle('text-green-700', t !== tab);
+      btn.classList.toggle('text-brand-bluedark', t !== tab);
     });
     if (tab === 'cart') loadCart();
     if (tab === 'orders') loadOrders();
@@ -105,7 +105,7 @@
       const btn = document.getElementById('ordview-' + s);
       if (!btn) return;
       btn.className = `py-2 px-1 text-xs font-semibold rounded-lg transition text-center ${
-        s === v ? 'bg-green-600 text-white' : 'bg-white border border-green-200 text-green-700'
+        s === v ? 'bg-brand-blue text-white' : 'bg-white border border-gray-200 text-brand-bluedark'
       }`;
     });
     loadOrders();
@@ -164,17 +164,17 @@
     } catch (_) {}
 
     listEl.innerHTML = CART.map(i => `
-      <div class="bg-white rounded-xl p-4 shadow border border-green-100 flex items-center gap-4">
+      <div class="bg-white rounded-xl p-4 shadow border border-gray-100 flex items-center gap-4">
         <div class="flex-1 min-w-0">
           <p class="font-semibold text-sm">${i.name}</p>
           <p class="text-xs text-gray-500">${rm(i.price)} / ${i.unit}${i.promo>0?` · <span class="text-green-600">promo -${rm(i.promo)}</span>`:''}</p>
         </div>
-        <div class="flex items-center border border-green-200 rounded-lg overflow-hidden">
-          <button onclick="updateCartQty('${i.cart_id}', ${i.qty - 1}, ${i.stock})" class="px-2 py-1 bg-green-50 hover:bg-green-100 font-bold">−</button>
+        <div class="flex items-center border border-gray-200 rounded-lg overflow-hidden">
+          <button onclick="updateCartQty('${i.cart_id}', ${i.qty - 1}, ${i.stock})" class="px-2 py-1 bg-brand-bluelight hover:bg-brand-bluelight font-bold">−</button>
           <span class="px-3 py-1 text-sm font-medium">${i.qty}</span>
-          <button onclick="updateCartQty('${i.cart_id}', ${i.qty + 1}, ${i.stock})" class="px-2 py-1 bg-green-50 hover:bg-green-100 font-bold">+</button>
+          <button onclick="updateCartQty('${i.cart_id}', ${i.qty + 1}, ${i.stock})" class="px-2 py-1 bg-brand-bluelight hover:bg-brand-bluelight font-bold">+</button>
         </div>
-        <span class="font-bold text-green-700 text-sm w-20 text-right">${rm(i.qty * i.price - i.promo)}</span>
+        <span class="font-bold text-brand-bluedark text-sm w-20 text-right">${rm(i.qty * i.price - i.promo)}</span>
         <button onclick="removeCartItem('${i.cart_id}')" class="text-red-400 hover:text-red-600 text-lg ml-1">×</button>
       </div>`).join('');
 
@@ -208,11 +208,11 @@
 
   function setFulfillment(choice) {
     deliveryChoice = choice;
-    document.getElementById('lbl-pickup').classList.toggle('border-green-500', choice === 'pickup');
-    document.getElementById('lbl-pickup').classList.toggle('bg-green-50', choice === 'pickup');
+    document.getElementById('lbl-pickup').classList.toggle('border-brand-blue', choice === 'pickup');
+    document.getElementById('lbl-pickup').classList.toggle('bg-brand-bluelight', choice === 'pickup');
     document.getElementById('lbl-pickup').classList.toggle('border-gray-200', choice !== 'pickup');
-    document.getElementById('lbl-delivery').classList.toggle('border-green-500', choice === 'delivery');
-    document.getElementById('lbl-delivery').classList.toggle('bg-green-50', choice === 'delivery');
+    document.getElementById('lbl-delivery').classList.toggle('border-brand-blue', choice === 'delivery');
+    document.getElementById('lbl-delivery').classList.toggle('bg-brand-bluelight', choice === 'delivery');
     document.getElementById('lbl-delivery').classList.toggle('border-gray-200', choice !== 'delivery');
     document.getElementById('delivery-address-wrap').classList.toggle('hidden', choice !== 'delivery');
     recalcTotals();
@@ -418,45 +418,44 @@
       const sellerName = s.farm_name || s.full_name || 'Seller';
       const hasBank = s.bank_name || s.bank_account_no;
       const payBlock = needsPayment ? `
-          <div class="border-t border-green-50 pt-3 mt-3 bg-green-50/60 -mx-5 px-5 pb-1">
-            <p class="text-sm font-semibold text-green-800 mb-2">Pay ${sellerName} — ${rm(o.total_amount)}</p>
+          <div class="border-t border-gray-100 pt-3 mt-3 bg-brand-bluelight/60 -mx-5 px-5 pb-1">
+            <p class="text-sm font-semibold text-brand-bluedark mb-2">Pay ${sellerName} — ${rm(o.total_amount)}</p>
             <div class="flex items-start gap-3">
               ${s.bank_qr_url ? `
                 <div class="shrink-0 flex flex-col items-center gap-1">
                   <a href="${s.bank_qr_url}" target="_blank">
-                    <img src="${s.bank_qr_url}" alt="Pay QR" class="w-28 h-28 object-contain rounded-lg border border-green-200 bg-white" />
+                    <img src="${s.bank_qr_url}" alt="Pay QR" class="w-28 h-28 object-contain rounded-lg border border-gray-200 bg-white" />
                   </a>
-                  <button onclick="downloadQr('${s.bank_qr_url}')" class="text-xs text-green-700 hover:underline"> Download QR</button>
+                  <button onclick="downloadQr('${s.bank_qr_url}')" class="text-xs text-brand-bluedark hover:underline">Download QR</button>
                 </div>` : ''}
               <div class="text-xs text-gray-600 space-y-1">
                 ${hasBank ? `
                   ${s.bank_name?`<p><span class="text-gray-400">Bank:</span> <span class="font-medium text-gray-800">${s.bank_name}</span></p>`:''}
                   ${s.bank_account_name?`<p><span class="text-gray-400">Name:</span> <span class="font-medium text-gray-800">${s.bank_account_name}</span></p>`:''}
-                  ${s.bank_account_no?`<div class="flex items-center gap-1"><span class="text-gray-400">Acc:</span> <span class="font-medium text-gray-800">${s.bank_account_no}</span><button onclick="copyText('${s.bank_account_no}')" class="text-green-600 hover:text-green-800 ml-1" title="Copy"></button></div>`:''}
+                  ${s.bank_account_no?`<div class="flex items-center gap-1"><span class="text-gray-400">Acc:</span> <span class="font-medium text-gray-800">${s.bank_account_no}</span><button onclick="copyText('${s.bank_account_no}')" class="text-green-600 hover:text-brand-bluedark ml-1" title="Copy"></button></div>`:''}
                 ` : (s.bank_qr_url ? '<p>Scan the QR code to pay.</p>' : '<p class="text-amber-600">Seller has not set up payment details yet. Please contact them.</p>')}
               </div>
             </div>
             <div class="flex gap-2 mt-3 flex-wrap">
               ${s.whatsapp ? `<button onclick="sendSlip('${s.whatsapp}','${(o.order_number||'').replace(/'/g,'')}','${o.total_amount}','${sellerName.replace(/'/g,'')}')" class="bg-[#25D366] hover:opacity-90 text-white text-sm font-semibold px-4 py-1.5 rounded-full transition inline-flex items-center gap-1.5">
-                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M.057 24l1.687-6.163a11.867 11.867 0 01-1.587-5.946C.16 5.335 5.495 0 12.05 0a11.817 11.817 0 018.413 3.488 11.824 11.824 0 013.48 8.414c-.003 6.557-5.338 11.892-11.893 11.892a11.9 11.9 0 01-5.688-1.448L.057 24zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884a9.86 9.86 0 001.51 5.26l-.999 3.648 3.978-1.115zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/></svg>
-                Send Slip on WhatsApp</button>` : ''}
-              <button onclick="openPaymentModal('${o.id}')" class="bg-white border border-green-300 text-green-700 hover:bg-green-50 text-sm px-4 py-1.5 rounded-full transition">${isRejected ? 'Upload Slip Again' : 'Upload Slip'}</button>
+                <svg class="w-4 h-4" fill="currentColor" viewBox="0 0 24 24"><path d="M.057 24l1.687-6.163a11.867 11.867 0 01-1.587-5.946C.16 5.335 5.495 0 12.05 0a11.817 11.817 0 018.413 3.488 11.824 11.824 0 013.48 8.414c-.003 6.557-5.338 11.892-11.893 11.892a11.9 11.9 0 01-5.688-1.448L.057 24zm6.597-3.807c1.676.995 3.276 1.591 5.392 1.592 5.448 0 9.886-4.434 9.889-9.885.002-5.462-4.415-9.89-9.881-9.892-5.452 0-9.887 4.434-9.889 9.884a9.86 9.86 0 001.51 5.26l-.999 3.648 3.978-1.115zm11.387-5.464c-.074-.124-.272-.198-.57-.347-.297-.149-1.758-.868-2.031-.967-.272-.099-.47-.149-.669.149-.198.297-.768.967-.941 1.165-.173.198-.347.223-.644.074-.297-.149-1.255-.462-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.297-.347.446-.521.151-.172.2-.296.3-.495.099-.198.05-.372-.025-.521-.075-.148-.669-1.611-.916-2.206-.242-.579-.487-.501-.669-.51l-.57-.01c-.198 0-.52.074-.792.372s-1.04 1.016-1.04 2.479 1.065 2.876 1.213 3.074c.149.198 2.095 3.2 5.076 4.487.709.306 1.263.489 1.694.626.712.226 1.36.194 1.872.118.571-.085 1.758-.719 2.006-1.413.248-.695.248-1.29.173-1.414z"/></svg>Send Slip on WhatsApp</button>` : ''}
+              <button onclick="openPaymentModal('${o.id}')" class="bg-white border border-gray-300 text-brand-bluedark hover:bg-brand-bluelight text-sm px-4 py-1.5 rounded-full transition">${isRejected ? 'Upload Slip Again' : 'Upload Slip'}</button>
               <button onclick="cancelOrder('${o.id}')" class="bg-white border border-red-200 text-red-600 hover:bg-red-50 text-sm px-4 py-1.5 rounded-full transition">Cancel Order</button>
             </div>
           </div>` : '';
       return `
-        <div class="bg-white rounded-xl p-5 shadow border border-green-100">
+        <div class="bg-white rounded-xl p-5 shadow border border-gray-100">
           <div class="flex items-start justify-between mb-2">
             <div>
-              <p class="font-semibold text-green-900">${sellerName}</p>
+              <p class="font-semibold text-brand-bluedark">${sellerName}</p>
               <p class="text-xs text-gray-400">${o.order_number ? o.order_number+' · ' : ''}${new Date(o.created_at).toLocaleString()}</p>
             </div>
             <span class="text-xs font-semibold px-2 py-1 rounded-full text-center leading-snug ${isRejected ? 'status-cancelled' : 'status-'+o.status}" style="max-width:180px">${isRejected ? 'VERIFICATION UNSUCCESSFUL' : (STATUS_LABEL[o.status] || o.status.replace(/_/g,' ').toUpperCase())}</span>
           </div>
           <div class="flex gap-2 mb-2 flex-wrap">
             ${o.fulfillment_type === 'delivery'
-              ? `<span class="text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full"> Delivery${o.delivery_fee > 0 ? ` +RM ${parseFloat(o.delivery_fee).toFixed(2)}` : ''}</span>`
-              : `<span class="text-xs bg-gray-100 text-gray-600 px-2 py-0.5 rounded-full"> Pickup</span>`}
+              ? `<span class="text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full">Delivery${o.delivery_fee > 0 ? ` +RM ${parseFloat(o.delivery_fee).toFixed(2)}` : ''}</span>`
+              : `<span class="text-xs bg-gray-100 text-gray-600 px-2 py-0.5 rounded-full">Pickup</span>`}
             ${o.delivery_address ? `<span class="text-xs text-gray-500"> ${o.delivery_address}</span>` : ''}
           </div>
           <div class="space-y-1 mb-3">
@@ -467,14 +466,14 @@
               </div>`).join('')}
           </div>
           ${o.discount_amount>0?`<p class="text-xs text-green-600 mb-1">Discount: -${rm(o.discount_amount)}</p>`:''}
-          ${isRejected?`<div class="bg-red-50 border border-red-200 rounded-lg px-3 py-2 mb-3 text-sm text-red-700 font-medium"> Verification unsuccessful. Please upload your payment slip again.${latestPayment.notes?`<br><span class="text-xs font-normal">Reason: ${latestPayment.notes}</span>`:''}</div>`:''}
-          ${o.status==='payment_uploaded'?`<div class="bg-blue-50 border border-blue-100 rounded-lg px-3 py-2 mb-3 text-sm text-blue-700"> Payment slip uploaded. Pending seller verification.</div>`:''}
-          ${o.status==='processing'?`<div class="bg-green-50 border border-green-200 rounded-lg px-3 py-2 mb-3 text-sm text-green-800 font-medium"> Order confirmed! Your order is being processed/delivered.</div>`:''}
+          ${isRejected?`<div class="bg-red-50 border border-red-200 rounded-lg px-3 py-2 mb-3 text-sm text-red-700 font-medium">Verification unsuccessful. Please upload your payment slip again.${latestPayment.notes?`<br><span class="text-xs font-normal">Reason: ${latestPayment.notes}</span>`:''}</div>`:''}
+          ${o.status==='payment_uploaded'?`<div class="bg-blue-50 border border-blue-100 rounded-lg px-3 py-2 mb-3 text-sm text-blue-700">Payment slip uploaded. Pending seller verification.</div>`:''}
+          ${o.status==='processing'?`<div class="bg-brand-bluelight border border-gray-200 rounded-lg px-3 py-2 mb-3 text-sm text-brand-bluedark font-medium">Order confirmed! Your order is being processed/delivered.</div>`:''}
           ${o.rating?`<p class="text-xs text-amber-500 mb-1">${'★'.repeat(o.rating)}${'☆'.repeat(5-o.rating)}</p>`:''}
-          <div class="flex items-center justify-between border-t border-green-50 pt-3 flex-wrap gap-2">
-            <span class="font-bold text-green-700">${rm(o.total_amount)}</span>
+          <div class="flex items-center justify-between border-t border-gray-100 pt-3 flex-wrap gap-2">
+            <span class="font-bold text-brand-bluedark">${rm(o.total_amount)}</span>
             <div class="flex gap-2">
-              <button onclick="openOrderDetail('${o.id}')" class="bg-green-50 text-green-700 text-sm px-4 py-1.5 rounded-full transition">View details</button>
+              <button onclick="openOrderDetail('${o.id}')" class="bg-brand-bluelight text-brand-bluedark text-sm px-4 py-1.5 rounded-full transition">View details</button>
               ${canRate ? `<button onclick="openRatingModal('${o.id}')" class="bg-amber-100 text-amber-700 text-sm px-4 py-1.5 rounded-full transition">★ Rate Order</button>` : ''}
             </div>
           </div>
@@ -499,8 +498,8 @@
     const el = document.getElementById('pay-bank-details');
     if (!el) return;
     el.innerHTML = `
-      <div class="bg-green-50 border border-green-100 rounded-xl p-4 text-sm text-gray-600">
-        <p class="font-semibold text-green-900 mb-1">Pay the seller directly</p>
+      <div class="bg-brand-bluelight border border-gray-100 rounded-xl p-4 text-sm text-gray-600">
+        <p class="font-semibold text-brand-bluedark mb-1">Pay the seller directly</p>
         <p class="text-xs">Use the seller's bank details / DuitNow QR shown on your order to make payment, then upload your slip below.</p>
       </div>`;
   }
@@ -517,7 +516,7 @@
     if (!o) { document.getElementById('od-body').innerHTML = '<p class="text-red-500 text-sm text-center py-8">Order not found.</p>'; return; }
     const items = o.order_items || [];
     const rows = items.map(i => `
-      <tr class="border-b border-green-50">
+      <tr class="border-b border-gray-100">
         <td class="py-2 pr-2">${i.product_name || i.products?.name || 'Item'}</td>
         <td class="py-2 px-2 text-center whitespace-nowrap">${i.quantity} ${i.products?.unit || ''}</td>
         <td class="py-2 px-2 text-right whitespace-nowrap">${rm(i.unit_price)}</td>
@@ -525,32 +524,32 @@
       </tr>`).join('');
     const b = o.buyer || {}, s = o.seller || {};
     document.getElementById('od-body').innerHTML = `
-      <h3 class="text-lg font-bold text-green-900 mb-1">Order Details</h3>
+      <h3 class="text-lg font-bold text-brand-bluedark mb-1">Order Details</h3>
       <div class="flex items-center justify-between mb-4 flex-wrap gap-2">
         <p class="text-xs text-gray-400">${o.order_number ? o.order_number + ' · ' : ''}${new Date(o.created_at).toLocaleString()}</p>
         <span class="text-xs font-semibold px-2 py-1 rounded-full status-${o.status}">${o.status.replace(/_/g,' ').toUpperCase()}</span>
       </div>
       <div class="grid sm:grid-cols-2 gap-3 mb-4 text-sm">
-        <div class="bg-green-50/60 rounded-lg p-3">
+        <div class="bg-brand-bluelight/60 rounded-lg p-3">
           <p class="text-xs font-semibold text-gray-500 mb-1">Buyer</p>
           <p class="font-medium">${b.full_name || '—'}</p>
           ${b.email ? `<p class="text-xs text-gray-500 break-words">${b.email}</p>` : ''}
           ${b.phone ? `<p class="text-xs text-gray-500">${b.phone}</p>` : ''}
         </div>
-        <div class="bg-green-50/60 rounded-lg p-3">
+        <div class="bg-brand-bluelight/60 rounded-lg p-3">
           <p class="text-xs font-semibold text-gray-500 mb-1">Seller</p>
           <p class="font-medium">${s.farm_name || s.full_name || '—'}</p>
         </div>
       </div>
       <table class="w-full text-sm mb-3">
-        <thead><tr class="text-xs text-gray-400 border-b border-green-100"><th class="text-left py-1 pr-2 font-medium">Product</th><th class="py-1 px-2 font-medium">Qty</th><th class="text-right py-1 px-2 font-medium">Unit price</th><th class="text-right py-1 pl-2 font-medium">Total</th></tr></thead>
+        <thead><tr class="text-xs text-gray-400 border-b border-gray-100"><th class="text-left py-1 pr-2 font-medium">Product</th><th class="py-1 px-2 font-medium">Qty</th><th class="text-right py-1 px-2 font-medium">Unit price</th><th class="text-right py-1 pl-2 font-medium">Total</th></tr></thead>
         <tbody>${rows}</tbody>
       </table>
-      <div class="border-t border-green-100 pt-3 space-y-1 text-sm">
+      <div class="border-t border-gray-100 pt-3 space-y-1 text-sm">
         ${o.subtotal ? `<div class="flex justify-between text-gray-500"><span>Subtotal</span><span>${rm(o.subtotal)}</span></div>` : ''}
         ${o.discount_amount > 0 ? `<div class="flex justify-between text-green-600"><span>Discount${o.coupon_code ? ' (' + o.coupon_code + ')' : ''}</span><span>- ${rm(o.discount_amount)}</span></div>` : ''}
         ${o.points_discount_rm > 0 ? `<div class="flex justify-between text-green-600"><span>Points redeemed</span><span>- ${rm(o.points_discount_rm)}</span></div>` : ''}
-        <div class="flex justify-between font-bold text-green-800 text-base"><span>Total</span><span>${rm(o.total_amount)}</span></div>
+        <div class="flex justify-between font-bold text-brand-bluedark text-base"><span>Total</span><span>${rm(o.total_amount)}</span></div>
       </div>
       ${o.payment_method ? `<p class="text-xs text-gray-500 mt-3">Payment method: ${o.payment_method}</p>` : ''}
       ${o.delivery_notes ? `<p class="text-xs text-gray-500 mt-1">Notes: ${o.delivery_notes}</p>` : ''}`;
@@ -643,11 +642,11 @@
     const { data: coupons } = await sb.from('mkt_coupons').select('*').eq('is_active', true).order('created_at',{ascending:false});
     const valid = (coupons||[]).filter(c => (!c.expiry_date || c.expiry_date >= today) && (!c.start_date || c.start_date <= today) && (c.usage_limit===0 || c.usage_count < c.usage_limit));
     document.getElementById('rw-coupons').innerHTML = valid.length ? valid.map(c => `
-      <div class="bg-white border border-dashed border-green-300 rounded-xl p-4">
-        <p class="text-lg font-extrabold text-green-700">${c.discount_type==='percentage'? c.discount_value+'% OFF' : rm(c.discount_value)+' OFF'}</p>
+      <div class="bg-white border border-dashed border-gray-300 rounded-xl p-4">
+        <p class="text-lg font-extrabold text-brand-bluedark">${c.discount_type==='percentage'? c.discount_value+'% OFF' : rm(c.discount_value)+' OFF'}</p>
         <p class="text-xs text-gray-500 mb-2">${c.name||c.description||''}${c.min_order_value>0?` · min ${rm(c.min_order_value)}`:''}</p>
         <div class="flex items-center justify-between">
-          <code class="bg-green-50 text-green-700 px-2 py-1 rounded text-sm font-bold">${c.code}</code>
+          <code class="bg-brand-bluelight text-brand-bluedark px-2 py-1 rounded text-sm font-bold">${c.code}</code>
           <button onclick="copyCode('${c.code}')" class="text-xs text-green-600 hover:underline">Copy</button>
         </div>
       </div>`).join('') : '<p class="text-gray-400 text-sm">No coupons available right now.</p>';
@@ -693,9 +692,9 @@
     const el = document.getElementById('billing-list');
     if (!data || data.length === 0) { el.innerHTML = '<p class="text-gray-400 text-sm">No billing addresses yet.</p>'; return; }
     el.innerHTML = data.map(b => `
-      <div class="border border-green-100 rounded-lg p-3 flex items-start justify-between">
+      <div class="border border-gray-100 rounded-lg p-3 flex items-start justify-between">
         <div>
-          <p class="font-medium text-sm">${b.name||''} ${b.is_default?'<span class="text-xs bg-green-100 text-green-700 px-1.5 py-0.5 rounded">Default</span>':''} <span class="text-xs text-gray-400">(${b.type})</span></p>
+          <p class="font-medium text-sm">${b.name||''} ${b.is_default?'<span class="text-xs bg-brand-bluelight text-brand-bluedark px-1.5 py-0.5 rounded">Default</span>':''} <span class="text-xs text-gray-400">(${b.type})</span></p>
           <p class="text-xs text-gray-500">${[b.address,b.city,b.state,b.postcode].filter(Boolean).join(', ')}</p>
           ${b.tax_id?`<p class="text-xs text-gray-400">Tax ID: ${b.tax_id}</p>`:''}
         </div>

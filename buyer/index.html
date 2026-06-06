@@ -21,14 +21,16 @@
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="../translations.js"></script>
   <style>
-    :root { --accent-green: #46a338; --accent-green-hover: #3c8a30; }
+    :root { --accent-green: #46a338; --accent-green-hover: #3c8a30; --accent-blue: #1b75bc; --accent-blue-hover: #11537f; }
     .nav-bg { background: linear-gradient(90deg,#11537f 0%,#1b75bc 100%); }
     .btn-primary { background-color: var(--accent-green); }
     .btn-primary:hover { background-color: var(--accent-green-hover); }
+    .btn-blue { background-color: var(--accent-blue); color: white; }
+    .btn-blue:hover { background-color: var(--accent-blue-hover); }
     #toast-container { position: fixed; bottom: 1.5rem; right: 1rem; z-index: 9999; display: flex; flex-direction: column; gap: 0.5rem; }
     .toast { padding: 0.75rem 1.25rem; border-radius: 0.5rem; color: white; font-size: 0.875rem; max-width: 320px; animation: slideIn 0.3s ease; }
     @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
-    .tab-btn.active { background-color: #16a34a; color: white; }
+    .tab-btn.active { background-color: var(--accent-blue); color: white; }
     .status-pending { background:#fef3c7;color:#92400e; }
     .status-payment_uploaded { background:#cffafe;color:#0e7490; }
     .status-payment_verified { background:#e0e7ff;color:#3730a3; }
@@ -68,6 +70,7 @@
       </div>
     </div>
     <div class="flex items-center justify-center sm:justify-end gap-2 sm:gap-3">
+      <span class="bg-brand-blue text-white text-sm px-3 sm:px-4 py-1.5 rounded-full font-semibold">Buyer Portal</span>
       <button onclick="toggleCart()" class="relative btn-primary p-2 rounded-full text-white" aria-label="Cart" title="Cart">
         <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-1.5 6h13M10 19a1 1 0 100 2 1 1 0 000-2zm7 0a1 1 0 100 2 1 1 0 000-2z"/></svg>
         <span id="cart-badge" class="hidden absolute -top-1 -right-1 bg-red-500 text-white text-xs font-bold w-5 h-5 rounded-full flex items-center justify-center">0</span>
@@ -104,31 +107,31 @@
 </nav>
 
 <div class="max-w-4xl mx-auto px-4 py-6">
-  <h1 id="page-title" class="text-2xl font-bold text-green-900 mb-6">My Account</h1>
+  <h1 id="page-title" class="text-2xl font-bold text-brand-bluedark mb-6">My Account</h1>
 
   <!-- TABS -->
-  <div id="tabs-bar" class="flex border border-green-200 rounded-xl overflow-hidden mb-6">
-    <button onclick="switchTab('cart')" id="tab-cart" class="tab-btn flex-1 py-2.5 text-sm font-semibold bg-white text-green-700 transition"> Cart</button>
-    <button onclick="switchTab('orders')" id="tab-orders" class="tab-btn active flex-1 py-2.5 text-sm font-semibold transition"> Orders</button>
-    <button onclick="switchTab('profile')" id="tab-profile" class="tab-btn flex-1 py-2.5 text-sm font-semibold bg-white text-green-700 transition"> Profile</button>
+  <div id="tabs-bar" class="flex border border-gray-200 rounded-xl overflow-hidden mb-6">
+    <button onclick="switchTab('cart')" id="tab-cart" class="tab-btn flex-1 py-2.5 text-sm font-semibold bg-white text-brand-bluedark transition">Cart</button>
+    <button onclick="switchTab('orders')" id="tab-orders" class="tab-btn active flex-1 py-2.5 text-sm font-semibold transition">Orders</button>
+    <button onclick="switchTab('profile')" id="tab-profile" class="tab-btn flex-1 py-2.5 text-sm font-semibold bg-white text-brand-bluedark transition">Profile</button>
   </div>
 
   <!-- CART TAB -->
   <div id="panel-cart" class="hidden">
     <div class="flex items-center justify-between mb-5">
-      <h2 class="text-2xl font-bold text-green-900"> Your Cart</h2>
+      <h2 class="text-2xl font-bold text-brand-bluedark">Your Cart</h2>
       <a id="cart-close-btn" href="../marketplace/" class="hidden text-gray-400 hover:text-gray-700 text-3xl leading-none font-light">&times;</a>
     </div>
     <div id="cart-list" class="space-y-3 mb-4">
       <p class="text-gray-400 text-sm text-center py-8">Loading cart…</p>
     </div>
-    <div id="cart-summary" class="hidden bg-white rounded-xl p-5 shadow border border-green-100 space-y-4">
+    <div id="cart-summary" class="hidden bg-white rounded-xl p-5 shadow border border-gray-100 space-y-4">
       <!-- Coupon -->
       <div>
         <label class="block text-sm font-medium text-gray-700 mb-1">Coupon code</label>
         <div class="flex gap-2">
-          <input id="coupon-input" type="text" placeholder="e.g. HSIWELCOME" class="flex-1 border border-gray-300 rounded-lg px-3 py-2 text-sm uppercase focus:outline-none focus:border-green-500" />
-          <button onclick="applyCoupon()" class="bg-green-100 text-green-700 hover:bg-green-200 text-sm font-semibold px-4 rounded-lg transition">Apply</button>
+          <input id="coupon-input" type="text" placeholder="e.g. HSIWELCOME" class="flex-1 border border-gray-300 rounded-lg px-3 py-2 text-sm uppercase focus:outline-none focus:border-brand-blue" />
+          <button onclick="applyCoupon()" class="bg-brand-bluelight text-brand-bluedark hover:bg-brand-bluelight text-sm font-semibold px-4 rounded-lg transition">Apply</button>
         </div>
         <p id="coupon-msg" class="text-xs mt-1"></p>
       </div>
@@ -136,45 +139,45 @@
       <div id="points-redeem-block" class="hidden">
         <label class="block text-sm font-medium text-gray-700 mb-1">Redeem HSI Points (<span id="pts-available">0</span> available)</label>
         <div class="flex items-center gap-3">
-          <input id="points-slider" type="range" min="0" max="0" step="1" value="0" oninput="onPointsSlide()" class="flex-1 accent-green-600" />
-          <span id="points-redeem-label" class="text-sm font-semibold text-green-700 w-28 text-right">0 pts</span>
+          <input id="points-slider" type="range" min="0" max="0" step="1" value="0" oninput="onPointsSlide()" class="flex-1 accent-brand-blue" />
+          <span id="points-redeem-label" class="text-sm font-semibold text-brand-bluedark w-28 text-right">0 pts</span>
         </div>
       </div>
       <!-- Fulfillment method -->
       <div>
         <label class="block text-sm font-medium text-gray-700 mb-2">Fulfillment Method</label>
         <div class="grid grid-cols-2 gap-2">
-          <label class="flex items-center gap-2 cursor-pointer border rounded-lg p-3 border-green-500 bg-green-50" id="lbl-pickup">
-            <input type="radio" name="fulfillment" value="pickup" checked onchange="setFulfillment('pickup')" class="accent-green-600" />
-            <span class="text-sm font-medium"> Pickup</span>
+          <label class="flex items-center gap-2 cursor-pointer border rounded-lg p-3 border-brand-blue bg-brand-bluelight" id="lbl-pickup">
+            <input type="radio" name="fulfillment" value="pickup" checked onchange="setFulfillment('pickup')" class="accent-brand-blue" />
+            <span class="text-sm font-medium">Pickup</span>
           </label>
           <label class="flex items-center gap-2 cursor-pointer border rounded-lg p-3 border-gray-200" id="lbl-delivery">
-            <input type="radio" name="fulfillment" value="delivery" onchange="setFulfillment('delivery')" class="accent-green-600" />
-            <span class="text-sm font-medium"> Delivery</span>
+            <input type="radio" name="fulfillment" value="delivery" onchange="setFulfillment('delivery')" class="accent-brand-blue" />
+            <span class="text-sm font-medium">Delivery</span>
           </label>
         </div>
         <div id="delivery-address-wrap" class="hidden mt-2">
-          <textarea id="delivery-address" rows="2" placeholder="Enter your full delivery address…" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-green-500"></textarea>
+          <textarea id="delivery-address" rows="2" placeholder="Enter your full delivery address…" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-brand-blue"></textarea>
         </div>
       </div>
       <!-- Notes -->
       <div>
         <label class="block text-sm font-medium text-gray-700 mb-1">Notes (optional)</label>
-        <textarea id="delivery-notes" rows="2" placeholder="Any special instructions…" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-green-500"></textarea>
+        <textarea id="delivery-notes" rows="2" placeholder="Any special instructions…" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-brand-blue"></textarea>
       </div>
       <!-- Payment method -->
-      <div class="bg-green-50 border border-green-100 rounded-lg p-3">
-        <p class="text-sm font-medium text-green-800 mb-1"> Pay the seller directly</p>
+      <div class="bg-brand-bluelight border border-gray-100 rounded-lg p-3">
+        <p class="text-sm font-medium text-brand-bluedark mb-1">Pay the seller directly</p>
         <p class="text-xs text-gray-600">After placing your order, scan the seller's QR code to pay, then tap <span class="font-semibold">Send Slip on WhatsApp</span> from your Orders tab.</p>
       </div>
       <!-- Totals -->
-      <div class="border-t border-green-100 pt-3 text-sm space-y-1">
+      <div class="border-t border-gray-100 pt-3 text-sm space-y-1">
         <div class="flex justify-between text-gray-600"><span>Subtotal</span><span id="sum-subtotal">RM 0.00</span></div>
         <div id="sum-promo-row" class="flex justify-between text-green-600 hidden"><span>Promotions</span><span id="sum-promo">- RM 0.00</span></div>
         <div id="sum-coupon-row" class="flex justify-between text-green-600 hidden"><span>Coupon</span><span id="sum-coupon">- RM 0.00</span></div>
         <div id="sum-points-row" class="flex justify-between text-green-600 hidden"><span>Points</span><span id="sum-points">- RM 0.00</span></div>
         <div id="sum-delivery-row" class="flex justify-between text-blue-600 hidden"><span>Delivery fee</span><span id="sum-delivery">RM 0.00</span></div>
-        <div class="flex justify-between font-bold text-green-900 text-lg pt-1"><span>Total</span><span id="sum-total">RM 0.00</span></div>
+        <div class="flex justify-between font-bold text-brand-bluedark text-lg pt-1"><span>Total</span><span id="sum-total">RM 0.00</span></div>
       </div>
       <button onclick="placeOrder()" id="place-order-btn" class="w-full btn-primary text-white font-semibold py-3 rounded-xl transition">Place Order</button>
     </div>
@@ -184,20 +187,16 @@
   <div id="panel-orders" class="hidden">
     <div class="grid grid-cols-4 gap-1.5 mb-4">
       <button onclick="setOrderView('pending')" id="ordview-pending"
-        class="py-2 px-1 text-xs font-semibold rounded-lg bg-green-600 text-white transition text-center">
-         To Pay<span id="badge-pending" class="ml-1 hidden bg-white text-green-700 text-xs font-bold rounded-full px-1.5 py-0.5"></span>
+        class="py-2 px-1 text-xs font-semibold rounded-lg bg-brand-blue text-white transition text-center">To Pay<span id="badge-pending" class="ml-1 hidden bg-white text-brand-bluedark text-xs font-bold rounded-full px-1.5 py-0.5"></span>
       </button>
       <button onclick="setOrderView('payment_uploaded')" id="ordview-payment_uploaded"
-        class="py-2 px-1 text-xs font-semibold rounded-lg bg-white border border-green-200 text-green-700 transition text-center">
-         Paid<span id="badge-payment_uploaded" class="ml-1 hidden bg-teal-100 text-teal-700 text-xs font-bold rounded-full px-1.5 py-0.5"></span>
+        class="py-2 px-1 text-xs font-semibold rounded-lg bg-white border border-gray-200 text-brand-bluedark transition text-center">Paid<span id="badge-payment_uploaded" class="ml-1 hidden bg-teal-100 text-teal-700 text-xs font-bold rounded-full px-1.5 py-0.5"></span>
       </button>
       <button onclick="setOrderView('processing')" id="ordview-processing"
-        class="py-2 px-1 text-xs font-semibold rounded-lg bg-white border border-green-200 text-green-700 transition text-center">
-         In Delivery<span id="badge-processing" class="ml-1 hidden bg-sky-100 text-sky-700 text-xs font-bold rounded-full px-1.5 py-0.5"></span>
+        class="py-2 px-1 text-xs font-semibold rounded-lg bg-white border border-gray-200 text-brand-bluedark transition text-center">In Delivery<span id="badge-processing" class="ml-1 hidden bg-sky-100 text-sky-700 text-xs font-bold rounded-full px-1.5 py-0.5"></span>
       </button>
       <button onclick="setOrderView('completed')" id="ordview-completed"
-        class="py-2 px-1 text-xs font-semibold rounded-lg bg-white border border-green-200 text-green-700 transition text-center">
-         Completed
+        class="py-2 px-1 text-xs font-semibold rounded-lg bg-white border border-gray-200 text-brand-bluedark transition text-center">Completed
       </button>
     </div>
     <div id="orders-list" class="space-y-4">
@@ -207,16 +206,16 @@
 
   <!-- PROFILE TAB -->
   <div id="panel-profile" class="hidden space-y-5">
-    <div class="bg-white rounded-xl p-6 shadow border border-green-100">
-      <h3 class="text-lg font-bold text-green-900 mb-4">Edit Profile</h3>
+    <div class="bg-white rounded-xl p-6 shadow border border-gray-100">
+      <h3 class="text-lg font-bold text-brand-bluedark mb-4">Edit Profile</h3>
       <form onsubmit="saveProfile(event)" class="space-y-4">
         <div>
           <label class="block text-sm font-medium text-gray-700 mb-1">Full Name</label>
-          <input type="text" id="profile-name" class="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-green-500" />
+          <input type="text" id="profile-name" class="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-brand-blue" />
         </div>
         <div>
           <label class="block text-sm font-medium text-gray-700 mb-1">Phone</label>
-          <input type="tel" id="profile-phone" class="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-green-500" />
+          <input type="tel" id="profile-phone" class="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-brand-blue" />
         </div>
         <div>
           <label class="block text-sm font-medium text-gray-700 mb-1">Email</label>
@@ -227,22 +226,22 @@
     </div>
 
     <!-- Billing addresses -->
-    <div class="bg-white rounded-xl p-6 shadow border border-green-100">
+    <div class="bg-white rounded-xl p-6 shadow border border-gray-100">
       <div class="flex items-center justify-between mb-4">
-        <h3 class="text-lg font-bold text-green-900">Billing Addresses</h3>
+        <h3 class="text-lg font-bold text-brand-bluedark">Billing Addresses</h3>
         <button onclick="openBillingModal()" class="btn-primary text-white text-sm px-4 py-2 rounded-full transition">+ Add</button>
       </div>
       <div id="billing-list" class="space-y-3"><p class="text-gray-400 text-sm">Loading…</p></div>
     </div>
 
     <!-- Change password -->
-    <div class="bg-white rounded-xl p-6 shadow border border-green-100">
-      <h3 class="text-lg font-bold text-green-900 mb-4">Change Password</h3>
+    <div class="bg-white rounded-xl p-6 shadow border border-gray-100">
+      <h3 class="text-lg font-bold text-brand-bluedark mb-4">Change Password</h3>
       <form onsubmit="changePassword(event)" class="space-y-3">
-        <input type="password" id="new-password" minlength="6" placeholder="New password (min 6 chars)" class="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-green-500" />
+        <input type="password" id="new-password" minlength="6" placeholder="New password (min 6 chars)" class="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-brand-blue" />
         <button type="submit" class="btn-primary text-white font-semibold px-6 py-2.5 rounded-lg transition text-sm">Update Password</button>
       </form>
-      <hr class="my-5 border-green-100" />
+      <hr class="my-5 border-gray-100" />
       <button onclick="doLogout()" class="w-full bg-red-50 text-red-600 hover:bg-red-100 font-medium py-2.5 rounded-lg transition text-sm">Logout</button>
     </div>
   </div>
@@ -253,13 +252,13 @@
   <div class="absolute inset-0 bg-black bg-opacity-50" onclick="closePaymentModal()"></div>
   <div class="relative bg-white rounded-2xl w-full max-w-md p-6 shadow-2xl max-h-[90vh] overflow-y-auto">
     <button onclick="closePaymentModal()" class="absolute top-3 right-4 text-gray-400 hover:text-gray-600 text-2xl">&times;</button>
-    <h3 class="text-xl font-bold text-green-900 mb-4">Payment</h3>
+    <h3 class="text-xl font-bold text-brand-bluedark mb-4">Payment</h3>
     <div id="pay-bank-details" class="mb-4"></div>
     <form onsubmit="submitPayment(event)" class="space-y-4">
       <input type="hidden" id="pay-order-id" />
       <div>
         <label class="block text-sm font-medium text-gray-700 mb-1">Payment Method</label>
-        <select id="pay-method" class="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-green-500">
+        <select id="pay-method" class="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-brand-blue">
           <option value="Bank Transfer">Bank Transfer</option>
           <option value="DuitNow">DuitNow</option>
           <option value="Touch 'n Go eWallet">Touch 'n Go eWallet</option>
@@ -269,7 +268,7 @@
       </div>
       <div>
         <label class="block text-sm font-medium text-gray-700 mb-1">Payment Screenshot</label>
-        <input type="file" id="pay-proof" accept="image/*" required class="w-full text-sm text-gray-600 file:mr-3 file:py-2 file:px-4 file:rounded-full file:border-0 file:bg-green-100 file:text-green-700 file:font-medium hover:file:bg-green-200" />
+        <input type="file" id="pay-proof" accept="image/*" required class="w-full text-sm text-gray-600 file:mr-3 file:py-2 file:px-4 file:rounded-full file:border-0 file:bg-brand-bluelight file:text-brand-bluedark file:font-medium hover:file:bg-brand-bluelight" />
       </div>
       <button type="submit" class="w-full btn-primary text-white font-semibold py-3 rounded-xl transition">Submit Payment</button>
     </form>
@@ -290,23 +289,23 @@
   <div class="absolute inset-0 bg-black bg-opacity-50" onclick="closeBillingModal()"></div>
   <div class="relative bg-white rounded-2xl w-full max-w-md max-h-screen overflow-y-auto p-6 shadow-2xl">
     <button onclick="closeBillingModal()" class="absolute top-3 right-4 text-gray-400 hover:text-gray-600 text-2xl">&times;</button>
-    <h3 id="billing-modal-title" class="text-xl font-bold text-green-900 mb-4">Add Billing Address</h3>
+    <h3 id="billing-modal-title" class="text-xl font-bold text-brand-bluedark mb-4">Add Billing Address</h3>
     <form onsubmit="saveBilling(event)" class="space-y-3">
       <input type="hidden" id="bill-id" />
       <div class="flex gap-4 text-sm">
-        <label class="flex items-center gap-2"><input type="radio" name="bill-type" value="personal" checked class="accent-green-600" /> Personal</label>
-        <label class="flex items-center gap-2"><input type="radio" name="bill-type" value="company" class="accent-green-600" /> Company</label>
+        <label class="flex items-center gap-2"><input type="radio" name="bill-type" value="personal" checked class="accent-brand-blue" /> Personal</label>
+        <label class="flex items-center gap-2"><input type="radio" name="bill-type" value="company" class="accent-brand-blue" /> Company</label>
       </div>
-      <input id="bill-name" placeholder="Name / Company name" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-green-500" />
-      <input id="bill-phone" placeholder="Phone" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-green-500" />
-      <input id="bill-address" placeholder="Address" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-green-500" />
+      <input id="bill-name" placeholder="Name / Company name" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-brand-blue" />
+      <input id="bill-phone" placeholder="Phone" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-brand-blue" />
+      <input id="bill-address" placeholder="Address" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-brand-blue" />
       <div class="grid grid-cols-3 gap-2">
-        <input id="bill-city" placeholder="City" class="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-green-500" />
-        <input id="bill-state" placeholder="State" class="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-green-500" />
-        <input id="bill-postcode" placeholder="Postcode" class="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-green-500" />
+        <input id="bill-city" placeholder="City" class="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-brand-blue" />
+        <input id="bill-state" placeholder="State" class="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-brand-blue" />
+        <input id="bill-postcode" placeholder="Postcode" class="border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-brand-blue" />
       </div>
-      <input id="bill-tax" placeholder="Tax ID / SST (company)" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-green-500" />
-      <label class="flex items-center gap-2 text-sm"><input type="checkbox" id="bill-default" class="accent-green-600" /> Set as default</label>
+      <input id="bill-tax" placeholder="Tax ID / SST (company)" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-brand-blue" />
+      <label class="flex items-center gap-2 text-sm"><input type="checkbox" id="bill-default" class="accent-brand-blue" /> Set as default</label>
       <button type="submit" class="w-full btn-primary text-white font-semibold py-2.5 rounded-xl transition text-sm">Save</button>
     </form>
   </div>
@@ -317,10 +316,10 @@
   <div class="absolute inset-0 bg-black bg-opacity-50" onclick="closeRatingModal()"></div>
   <div class="relative bg-white rounded-2xl w-full max-w-sm p-6 shadow-2xl text-center">
     <button onclick="closeRatingModal()" class="absolute top-3 right-4 text-gray-400 hover:text-gray-600 text-2xl">&times;</button>
-    <h3 class="text-xl font-bold text-green-900 mb-4">Rate your order</h3>
+    <h3 class="text-xl font-bold text-brand-bluedark mb-4">Rate your order</h3>
     <input type="hidden" id="rate-order-id" />
     <div id="rate-stars" class="flex justify-center gap-1 mb-4"></div>
-    <textarea id="rate-comment" rows="3" placeholder="Tell us about your produce…" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm mb-4 focus:outline-none focus:border-green-500"></textarea>
+    <textarea id="rate-comment" rows="3" placeholder="Tell us about your produce…" class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm mb-4 focus:outline-none focus:border-brand-blue"></textarea>
     <button onclick="submitRating()" class="w-full btn-primary text-white font-semibold py-2.5 rounded-xl transition">Submit Review</button>
   </div>
 </div>
