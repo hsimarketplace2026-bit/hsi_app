@@ -213,10 +213,13 @@
 
   <!-- PROFILE TAB -->
   <div id="panel-profile" class="hidden space-y-5">
-    <div class="bg-white rounded-xl p-6 shadow border border-gray-100">
-      <div class="flex items-center justify-between mb-4">
-        <h3 class="text-lg font-bold text-brand-bluedark" data-i18n="buyer.profile.edit_profile_title">Edit Profile</h3>
-        <button type="button" id="profile-edit-btn" onclick="toggleProfileEdit()" class="text-brand-blue hover:text-brand-bluedark p-1.5 rounded-lg hover:bg-brand-bluelight transition" aria-label="Edit profile" title="Edit">
+    <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
+      <div class="flex items-start justify-between mb-4">
+        <div>
+          <span class="text-brand-green font-semibold text-xs uppercase tracking-widest" data-i18n="buyer.profile.tag_account">My Account</span>
+          <h3 class="text-lg font-bold text-brand-bluedark" data-i18n="buyer.profile.edit_profile_title">Edit Profile</h3>
+        </div>
+        <button type="button" id="profile-edit-btn" onclick="toggleProfileEdit()" class="text-brand-blue hover:text-brand-bluedark p-1.5 rounded-lg hover:bg-brand-bluelight transition shrink-0" aria-label="Edit profile" title="Edit">
           <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897L16.862 4.487zm0 0L19.5 7.125"/></svg>
         </button>
       </div>
@@ -241,7 +244,7 @@
     </div>
 
     <!-- Billing addresses -->
-    <div class="bg-white rounded-xl p-6 shadow border border-gray-100">
+    <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
       <div class="flex items-center justify-between mb-4">
         <h3 class="text-lg font-bold text-brand-bluedark" data-i18n="buyer.profile.billing_addresses_title">Billing Addresses</h3>
         <button onclick="openBillingModal()" class="btn-primary text-white text-sm px-4 py-2 rounded-full transition" data-i18n="buyer.profile.add_btn">+ Add</button>
@@ -250,8 +253,9 @@
     </div>
 
     <!-- Change password -->
-    <div class="bg-white rounded-xl p-6 shadow border border-gray-100">
-      <h3 class="text-lg font-bold text-brand-bluedark mb-4" data-i18n="buyer.profile.change_password_title">Change Password</h3>
+    <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
+      <span class="text-brand-green font-semibold text-xs uppercase tracking-widest" data-i18n="buyer.profile.tag_security">Security</span>
+      <h3 class="text-lg font-bold text-brand-bluedark mb-4 mt-0.5" data-i18n="buyer.profile.change_password_title">Change Password</h3>
       <form onsubmit="changePassword(event)" class="space-y-3">
         <input type="password" id="new-password" minlength="6" placeholder="New password (min 6 chars)" data-i18n-placeholder="buyer.profile.new_password_placeholder" class="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-brand-blue" />
         <button type="submit" class="btn-primary text-white font-semibold px-6 py-2.5 rounded-lg transition text-sm" data-i18n="buyer.profile.update_password_btn">Update Password</button>

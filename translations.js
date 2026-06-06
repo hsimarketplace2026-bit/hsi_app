@@ -232,6 +232,7 @@
 
       // Buyer profile
       'buyer.profile.edit_profile_title': 'Edit Profile',
+      'buyer.profile.tag_account': 'My Account',
       'buyer.profile.full_name_label': 'Full Name',
       'buyer.profile.phone_label': 'Phone',
       'buyer.profile.email_label': 'Email',
@@ -240,13 +241,16 @@
       'buyer.profile.billing_addresses_title': 'Billing Addresses',
       'buyer.profile.add_btn': '+ Add',
       'buyer.profile.change_password_title': 'Change Password',
+      'buyer.profile.tag_security': 'Security',
       'buyer.profile.new_password_placeholder': 'New password (min 6 chars)',
       'buyer.profile.update_password_btn': 'Update Password',
 
       // Seller profile
       'seller.profile.farmer_profile_title': 'Farmer Profile',
+      'seller.profile.tag_account': 'My Account',
       'seller.profile.farmer_profile_subtitle': 'This information is shown to buyers in the marketplace — tell your story!',
       'seller.profile.profile_photo_label': 'Profile Photo',
+      'seller.profile.upload_photo': 'Upload Photo',
       'seller.profile.profile_photo_help': 'JPG or PNG, shown on your products',
       'seller.profile.full_name_label': 'Full Name',
       'seller.profile.phone_label': 'Phone',
@@ -269,6 +273,7 @@
       'seller.profile.payment_details_title': 'Payment Details',
       'seller.profile.payment_details_subtitle': 'Buyers pay you directly. Upload your bank/DuitNow QR and set your WhatsApp so buyers can send payment slips.',
       'seller.profile.qr_label': 'Bank / DuitNow QR Code',
+      'seller.profile.upload_qr': 'Upload QR Code',
       'seller.profile.qr_help': 'Buyers scan this to pay you',
       'seller.profile.whatsapp_label': 'WhatsApp Number (for payment slips)',
       'seller.profile.whatsapp_placeholder': 'e.g. 60123456789 (with country code)',
@@ -516,6 +521,7 @@
 
       // Buyer profile
       'buyer.profile.edit_profile_title': 'Kemas Kini Profil',
+      'buyer.profile.tag_account': 'Akaun Saya',
       'buyer.profile.full_name_label': 'Nama Penuh',
       'buyer.profile.phone_label': 'Telefon',
       'buyer.profile.email_label': 'E-mel',
@@ -524,13 +530,16 @@
       'buyer.profile.billing_addresses_title': 'Alamat Penghantaran',
       'buyer.profile.add_btn': '+ Tambah',
       'buyer.profile.change_password_title': 'Tukar Kata Laluan',
+      'buyer.profile.tag_security': 'Keselamatan',
       'buyer.profile.new_password_placeholder': 'Kata laluan baharu (min 6 aksara)',
       'buyer.profile.update_password_btn': 'Kemas Kini Kata Laluan',
 
       // Seller profile
       'seller.profile.farmer_profile_title': 'Profil Petani',
+      'seller.profile.tag_account': 'Akaun Saya',
       'seller.profile.farmer_profile_subtitle': 'Maklumat ini dipaparkan kepada pembeli di pasaran — kongsikan kisah anda!',
       'seller.profile.profile_photo_label': 'Foto Profil',
+      'seller.profile.upload_photo': 'Muat Naik Foto',
       'seller.profile.profile_photo_help': 'JPG atau PNG, dipaparkan pada produk anda',
       'seller.profile.full_name_label': 'Nama Penuh',
       'seller.profile.phone_label': 'Telefon',
@@ -553,6 +562,7 @@
       'seller.profile.payment_details_title': 'Maklumat Pembayaran',
       'seller.profile.payment_details_subtitle': 'Pembeli membayar anda secara terus. Muat naik kod QR bank/DuitNow dan tetapkan WhatsApp anda supaya pembeli boleh menghantar slip pembayaran.',
       'seller.profile.qr_label': 'Kod QR Bank / DuitNow',
+      'seller.profile.upload_qr': 'Muat Naik Kod QR',
       'seller.profile.qr_help': 'Pembeli imbas ini untuk membayar anda',
       'seller.profile.whatsapp_label': 'Nombor WhatsApp (untuk slip pembayaran)',
       'seller.profile.whatsapp_placeholder': 'cth. 60123456789 (dengan kod negara)',

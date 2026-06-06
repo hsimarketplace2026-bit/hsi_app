@@ -717,12 +717,12 @@
 
   // ---------- PROFILE ----------
   async function loadProfile() {
+    setProfileEditing(false); // lock by default — editable only after clicking the pencil
     const { data: p } = await sb.from('shared_profiles').select('*').eq('id', currentUser.id).single();
     if (!p) return;
     document.getElementById('profile-name').value = p.full_name || '';
     document.getElementById('profile-phone').value = p.phone || '';
     document.getElementById('profile-email').value = p.email || currentUser.email;
-    setProfileEditing(false); // lock fields; user taps the pencil to edit
   }
   // Lock/unlock the profile form. Fields are read-only until the user clicks
   // the edit (pencil) icon; Save/Cancel appear only while editing.

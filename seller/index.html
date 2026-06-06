@@ -156,10 +156,11 @@
 
   <!-- PROFILE TAB -->
   <div id="panel-profile" class="hidden">
-    <div class="bg-white rounded-xl p-6 shadow border border-gray-100">
+    <div class="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
       <div class="flex items-start justify-between">
         <div>
-          <h3 class="text-lg font-bold text-brand-bluedark mb-1" data-i18n="seller.profile.farmer_profile_title">Farmer Profile</h3>
+          <span class="text-brand-green font-semibold text-xs uppercase tracking-widest" data-i18n="seller.profile.tag_account">My Account</span>
+          <h3 class="text-lg font-bold text-brand-bluedark mb-1 mt-0.5" data-i18n="seller.profile.farmer_profile_title">Farmer Profile</h3>
           <p class="text-xs text-gray-500 mb-5" data-i18n="seller.profile.farmer_profile_subtitle">This information is shown to buyers in the marketplace — tell your story!</p>
         </div>
         <button type="button" id="profile-edit-btn" onclick="toggleProfileEdit()" class="text-brand-blue hover:text-brand-bluedark p-1.5 rounded-lg hover:bg-brand-bluelight transition shrink-0" aria-label="Edit profile" title="Edit">
@@ -175,8 +176,11 @@
         </div>
         <div>
           <label class="block text-sm font-medium text-gray-700 mb-1" data-i18n="seller.profile.profile_photo_label">Profile Photo</label>
-          <input type="file" id="profile-photo" accept="image/*" onchange="previewPhoto(this)"
-            class="text-sm text-gray-600 file:mr-3 file:py-1.5 file:px-3 file:rounded-full file:border-0 file:bg-brand-bluelight file:text-brand-bluedark file:font-medium hover:file:bg-green-200" />
+          <input type="file" id="profile-photo" accept="image/*" onchange="previewPhoto(this)" class="hidden" />
+          <label for="profile-photo" id="profile-photo-label" class="inline-flex items-center gap-2 cursor-pointer bg-brand-bluelight text-brand-bluedark font-medium text-sm px-4 py-2 rounded-full hover:bg-green-200 transition">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5"/></svg>
+            <span data-i18n="seller.profile.upload_photo">Upload Photo</span>
+          </label>
           <p class="text-xs text-gray-400 mt-1" data-i18n="seller.profile.profile_photo_help">JPG or PNG, shown on your products</p>
         </div>
       </div>
@@ -261,8 +265,11 @@
             </div>
             <div class="flex-1">
               <label class="block text-sm font-medium text-gray-700 mb-1" data-i18n="seller.profile.qr_label">Bank / DuitNow QR Code</label>
-              <input type="file" id="profile-qr" accept="image/*" onchange="previewQr(this)"
-                class="text-sm text-gray-600 file:mr-3 file:py-1.5 file:px-3 file:rounded-full file:border-0 file:bg-brand-bluelight file:text-brand-bluedark file:font-medium hover:file:bg-green-200" />
+              <input type="file" id="profile-qr" accept="image/*" onchange="previewQr(this)" class="hidden" />
+              <label for="profile-qr" id="profile-qr-label" class="inline-flex items-center gap-2 cursor-pointer bg-brand-bluelight text-brand-bluedark font-medium text-sm px-4 py-2 rounded-full hover:bg-green-200 transition">
+                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5"/></svg>
+                <span data-i18n="seller.profile.upload_qr">Upload QR Code</span>
+              </label>
               <p class="text-xs text-gray-400 mt-1" data-i18n="seller.profile.qr_help">Buyers scan this to pay you</p>
             </div>
           </div>

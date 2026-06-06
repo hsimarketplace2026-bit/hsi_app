@@ -560,6 +560,7 @@
   }
 
   async function loadProfile() {
+    setProfileEditing(false); // lock by default — editable only after clicking the pencil
     const { data: p } = await sb.from('shared_profiles').select('*').eq('id', currentUser.id).single();
     if (!p) return;
     document.getElementById('profile-name').value = p.full_name || '';
@@ -587,7 +588,6 @@
       document.getElementById('qr-preview').classList.remove('hidden');
       document.getElementById('qr-placeholder').classList.add('hidden');
     }
-    setProfileEditing(false); // lock fields; user taps the pencil to edit
   }
   // Lock/unlock the farmer profile form. Fields stay read-only until the user
   // clicks the edit (pencil) icon; Save/Cancel appear only while editing.
@@ -598,6 +598,14 @@
     // Photo file input sits above the form — lock it too.
     const photo = document.getElementById('profile-photo');
     if (photo) photo.disabled = !on;
+    // Grey out the styled upload buttons while locked (their inputs are disabled
+    // so they can't fire, but make that visually clear).
+    ['profile-photo-label', 'profile-qr-label'].forEach(id => {
+      const l = document.getElementById(id);
+      if (!l) return;
+      l.classList.toggle('opacity-40', !on);
+      l.classList.toggle('pointer-events-none', !on);
+    });
     const actions = document.getElementById('profile-actions');
     const edit = document.getElementById('profile-edit-btn');
     if (actions) actions.classList.toggle('hidden', !on);
