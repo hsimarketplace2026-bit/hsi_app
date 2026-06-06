@@ -95,12 +95,13 @@ function toggleMobileMenu(){var m=document.getElementById('mobile-menu');if(m)m.
   function routeByRole(profile) {
     if (!profile) return;
     if (profile.role === 'admin') { window.location.href = 'admin/'; return; }
-    if (profile.role === 'seller') {
-      if (profile.status === 'active') { window.location.href = 'seller/'; return; }
+    if (profile.role === 'seller' && profile.status !== 'active') {
       showToast('Your seller account is pending admin approval.', 'warning');
       return;
     }
-    // Buyer: stay on the main landing page; just reflect the logged-in state.
+    // Buyers and active sellers: stay on the landing page; just reflect the
+    // logged-in state. Sellers can reach their dashboard from the Seller
+    // Portal pill in the header.
     closeAuth();
     initNav();
     showToast('Welcome back!');
