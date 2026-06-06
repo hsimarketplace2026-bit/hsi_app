@@ -224,7 +224,11 @@
       'partners.lions_role': 'Financial Steward &amp; Implementer',
       'partners.lions_name': 'Lions Club of Bintulu Kidurong',
       'partners.lions_body': 'Steward of the funds and resources, ensuring they are allocated effectively and aligned with the goals and objectives of the programme.',
-      'partners.upm_note': 'In partnership with <strong class="text-white">University Putra Malaysia (UPM)</strong> — project coordinator and technical expertise.',
+      'partners.upm_note': 'In partnership with <strong class="text-brand-bluedark">University Putra Malaysia (UPM)</strong> — project coordinator and technical expertise.',
+
+      // CTA band
+      'cta.ready_title': 'Ready to grow with us?',
+      'cta.ready_subtitle': 'Whether you\'re a farmer, a buyer, or just curious — there\'s a place for you in the HSI community.',
 
       // Buyer profile
       'buyer.profile.edit_profile_title': 'Edit Profile',
@@ -502,7 +506,11 @@
       'partners.lions_role': 'Pemegang Amanah Kewangan &amp; Pelaksana',
       'partners.lions_name': 'Lions Club of Bintulu Kidurong',
       'partners.lions_body': 'Pemegang amanah dana dan sumber, memastikan setiap peruntukan diagihkan dengan berkesan dan sejajar dengan matlamat program.',
-      'partners.upm_note': 'Dengan kerjasama <strong class="text-white">University Putra Malaysia (UPM)</strong> — penyelaras projek dan kepakaran teknikal.',
+      'partners.upm_note': 'Dengan kerjasama <strong class="text-brand-bluedark">University Putra Malaysia (UPM)</strong> — penyelaras projek dan kepakaran teknikal.',
+
+      // CTA band
+      'cta.ready_title': 'Sedia berkembang bersama kami?',
+      'cta.ready_subtitle': 'Sama ada anda seorang petani, pembeli, atau hanya ingin tahu — ada tempat untuk anda dalam komuniti HSI.',
 
       // Buyer profile
       'buyer.profile.edit_profile_title': 'Kemas Kini Profil',
