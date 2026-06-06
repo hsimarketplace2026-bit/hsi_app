@@ -561,5 +561,12 @@
   }
 
   if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('../sw.js').catch(() => {});
+    navigator.serviceWorker.register('../sw.js').then(reg => {
+      reg.addEventListener('updatefound', () => {
+        const nw = reg.installing;
+        nw && nw.addEventListener('statechange', () => {
+          if (nw.state === 'activated') window.location.reload();
+        });
+      });
+    }).catch(() => {});
   }
