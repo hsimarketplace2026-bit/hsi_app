@@ -2,6 +2,18 @@
 // Detects the current session and swaps the Login/Register button for a
 // role-specific Portal button (and a cart button when the user is a buyer).
 // Requires the @supabase/supabase-js CDN to be loaded first.
+
+// Close the mobile slide-down menu when the user taps anywhere outside it.
+document.addEventListener('click', function (e) {
+  var menu = document.getElementById('mobile-menu');
+  if (!menu || menu.classList.contains('hidden')) return;
+  if (menu.contains(e.target)) return;
+  // Ignore clicks on the hamburger button itself (it owns the toggle).
+  var trigger = e.target.closest && e.target.closest('[aria-label="Open menu"]');
+  if (trigger) return;
+  menu.classList.add('hidden');
+});
+
 (function () {
   const URL = 'https://kdhcxmzwgiwyskfamvkb.supabase.co';
   const KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImtkaGN4bXp3Z2l3eXNrZmFtdmtiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODAyODYzMDgsImV4cCI6MjA5NTg2MjMwOH0.gvvp2oKrkEPLtbjmBsj_u4Hby8nyy52qi7tSNaDU3Bk';

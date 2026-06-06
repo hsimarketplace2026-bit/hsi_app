@@ -1,4 +1,4 @@
-const CACHE = 'hsi-marketplace-v43';
+const CACHE = 'hsi-marketplace-v44';
 const PRECACHE = [
   './', './about/', './activities/', './partners/', './marketplace/',
   './manifest.json', './icon-192.png', './icon-512.png', './translations.js',
@@ -23,30 +23,17 @@ self.addEventListener('fetch', e => {
   const url = new URL(e.request.url);
   if (url.hostname.includes('supabase')) return;
 
-  const isHTML = e.request.mode === 'navigate'
-    || (e.request.headers.get('accept') || '').includes('text/html');
-
-  if (isHTML) {
-    // Network-first for HTML so app updates ship immediately
-    e.respondWith(
-      fetch(e.request).then(resp => {
-        if (resp && resp.status === 200) {
-          const clone = resp.clone();
-          caches.open(CACHE).then(c => c.put(e.request, clone));
-        }
-        return resp;
-      }).catch(() => caches.match(e.request))
-    );
-    return;
-  }
-
+  // Network-first for everything we own. Falls back to cache only when the
+  // network is unreachable. This guarantees the latest HTML, JS, and CSS ship
+  // on every reload — the previous cache-first behaviour was leaving users
+  // pinned to a stale app.js after a deploy.
   e.respondWith(
-    caches.match(e.request).then(cached => cached || fetch(e.request).then(resp => {
-      if (resp && resp.status === 200 && resp.type === 'basic') {
+    fetch(e.request).then(resp => {
+      if (resp && resp.status === 200 && (resp.type === 'basic' || resp.type === 'opaque')) {
         const clone = resp.clone();
-        caches.open(CACHE).then(c => c.put(e.request, clone));
+        caches.open(CACHE).then(c => c.put(e.request, clone)).catch(() => {});
       }
       return resp;
-    }))
+    }).catch(() => caches.match(e.request))
   );
 });

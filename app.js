@@ -351,6 +351,12 @@ function toggleMobileMenu(){var m=document.getElementById('mobile-menu');if(m)m.
   document.addEventListener('click', (e) => {
     const menu = document.getElementById('nav-user-menu');
     if (menu && !menu.classList.contains('hidden') && !menu.contains(e.target)) closeUserMenu();
+    // Also close the mobile slide-down menu when tapping outside.
+    const mobile = document.getElementById('mobile-menu');
+    if (mobile && !mobile.classList.contains('hidden') && !mobile.contains(e.target)) {
+      const trigger = e.target.closest && e.target.closest('[aria-label="Open menu"]');
+      if (!trigger) mobile.classList.add('hidden');
+    }
   });
 
   // POST-EMAIL-CONFIRMATION REDIRECT
