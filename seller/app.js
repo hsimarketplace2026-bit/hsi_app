@@ -13,6 +13,7 @@
   const { createClient } = supabase;
   const sb = createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
   let currentUser = null;
+  let currentUserName = '';
 
   (async () => {
     const { data: { session } } = await sb.auth.getSession();
@@ -20,7 +21,9 @@
     const { data: profile } = await sb.from('shared_profiles').select('*').eq('id', session.user.id).single();
     if (!profile || profile.role !== 'seller') { window.location.href = '../'; return; }
     currentUser = { ...session.user, ...profile };
-    document.getElementById('user-name').textContent = profile.farm_name || profile.full_name || session.user.email;
+    currentUserName = (profile.full_name || profile.farm_name || session.user.email || '').trim();
+    updateGreeting();
+    updateLangChecks();
     if (profile.status !== 'active') {
       document.getElementById('pending-banner').classList.remove('hidden');
       document.getElementById('main-content').classList.add('hidden');
@@ -28,6 +31,35 @@
     }
     initSellerApp();
   })();
+
+  // ---------- STANDARDIZED USER MENU ----------
+  function updateGreeting() {
+    const span = document.getElementById('nav-user-greeting');
+    if (!span) return;
+    const first = currentUserName.split(' ')[0] || currentUserName || '';
+    let hi = (typeof t === 'function') ? t('nav.greeting') : '';
+    if (!hi || hi === 'nav.greeting') hi = (typeof getLang === 'function' && getLang() === 'bm') ? 'Hai' : 'Hi';
+    span.textContent = first ? `${hi}, ${first}` : hi;
+  }
+  function toggleUserMenu() { document.getElementById('user-dropdown').classList.toggle('hidden'); }
+  function closeUserMenu() { document.getElementById('user-dropdown')?.classList.add('hidden'); }
+  function chooseLang(lang) {
+    if (typeof setLang === 'function') setLang(lang);
+    updateGreeting();
+    updateLangChecks();
+    closeUserMenu();
+  }
+  function updateLangChecks() {
+    const lang = (typeof getLang === 'function') ? getLang() : 'en';
+    const en = document.getElementById('lang-check-en');
+    const bm = document.getElementById('lang-check-bm');
+    if (en) en.textContent = lang === 'en' ? '' : '';
+    if (bm) bm.textContent = lang === 'bm' ? '' : '';
+  }
+  document.addEventListener('click', (e) => {
+    const menu = document.getElementById('nav-user-menu');
+    if (menu && !menu.classList.contains('hidden') && !menu.contains(e.target)) closeUserMenu();
+  });
 
 /* ----- next block ----- */
 
@@ -579,7 +611,11 @@
     const { error } = await sb.from('shared_profiles').update(payload).eq('id', currentUser.id);
     btn.disabled = false; btn.textContent = 'Save Profile';
     if (error) showToast('Save failed: ' + error.message, 'error');
-    else { showToast('Profile updated!'); document.getElementById('user-name').textContent = payload.farm_name || payload.full_name; }
+    else {
+      showToast('Profile updated!');
+      currentUserName = (payload.full_name || payload.farm_name || currentUserName || '').trim();
+      updateGreeting();
+    }
   }
 
   async function doLogout() {
