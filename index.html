@@ -126,10 +126,10 @@
 
 <!-- NAV -->
 <nav class="bg-white text-gray-800 sticky top-0 z-40 shadow-md border-b border-gray-100">
-  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-2 sm:py-3 flex flex-wrap items-center gap-2 sm:gap-3">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-2 sm:py-3 flex flex-wrap items-center justify-between gap-2">
     <div class="flex items-center gap-3 sm:gap-4 min-w-0">
       <a href="./" class="flex items-center gap-2 font-bold text-base sm:text-lg tracking-wide shrink-0">
-        <img src="assets/hsi-logo.png" alt="HSI Marketplace" class="hidden sm:block h-10 w-auto" onerror="this.style.display='none'" />
+        <img src="assets/hsi-logo.png" alt="HSI Marketplace" class="h-8 sm:h-10 w-auto" onerror="this.style.display='none'" />
         <span class="text-brand-bluedark">HSI Marketplace</span>
       </a>
       <a href="./" class="hidden md:inline text-brand-blue font-semibold text-sm font-medium transition" data-i18n="nav.home">Home</a>
@@ -137,14 +137,11 @@
       <a href="activities/" class="hidden md:inline text-gray-600 hover:text-brand-blue text-sm font-medium transition" data-i18n="nav.activities">Activities</a>
       <a href="partners/" class="hidden md:inline text-gray-600 hover:text-brand-blue text-sm font-medium transition" data-i18n="nav.partners">Partners</a>
     </div>
-    <!-- LINE 1 RIGHT: Auth (not logged in) OR Portal pill (logged in) -->
-    <button id="nav-auth-btn" onclick="openAuth()" class="ml-auto btn-primary text-white text-sm px-3 sm:px-4 py-1.5 rounded-full font-medium transition" data-i18n="nav.login_register">Login / Register</button>
-    <!-- PORTAL (shown when logged in — text depends on role: Buyer/Seller/Admin Portal) -->
-    <a id="nav-portal-btn" href="#" onclick="goToDashboard(); return false;" class="hidden ml-auto bg-brand-blue hover:bg-brand-bluedark text-white text-sm px-3 sm:px-4 py-1.5 rounded-full font-semibold transition">Portal</a>
-    <!-- Mobile wrap break — forces remaining items onto line 2 -->
-    <div class="basis-full sm:hidden"></div>
-    <div class="flex items-center justify-end gap-2 sm:gap-3 shrink-0 flex-wrap ml-auto">
+    <div class="flex items-center justify-end gap-2 sm:gap-3 shrink-0 flex-wrap">
       <button id="lang-toggle" onclick="toggleLang()" class="text-gray-600 hover:text-brand-blue border border-gray-300 hover:border-brand-blue text-xs px-2.5 py-1 rounded-full font-semibold transition">BM</button>
+      <button id="nav-auth-btn" onclick="openAuth()" class="btn-primary text-white text-sm px-3 sm:px-4 py-1.5 rounded-full font-medium transition" data-i18n="nav.login_register">Login / Register</button>
+      <!-- PORTAL (shown when logged in — text depends on role: Buyer/Seller/Admin Portal) -->
+      <a id="nav-portal-btn" href="#" onclick="goToDashboard(); return false;" class="hidden bg-brand-blue hover:bg-brand-bluedark text-white text-sm px-3 sm:px-4 py-1.5 rounded-full font-semibold transition">Portal</a>
       <!-- SHOP (shown when logged in as buyer) -->
       <a id="nav-shop-btn" href="marketplace/" class="hidden btn-primary text-white text-sm px-3 sm:px-4 py-1.5 rounded-full font-semibold transition" data-i18n="nav.shop">Shop</a>
       <!-- CART (shown when logged in) -->
@@ -182,7 +179,7 @@
     <a href="about/" class="block px-3 py-2 rounded-lg text-gray-700 font-medium hover:bg-brand-bluelight" data-i18n="nav.about">About</a>
     <a href="activities/" class="block px-3 py-2 rounded-lg text-gray-700 font-medium hover:bg-brand-bluelight" data-i18n="nav.activities">Activities</a>
     <a href="partners/" class="block px-3 py-2 rounded-lg text-gray-700 font-medium hover:bg-brand-bluelight" data-i18n="nav.partners">Partners</a>
-    <a href="#" id="mobile-contact-btn" class="block px-3 py-2 rounded-lg text-gray-700 font-medium hover:bg-brand-bluelight">Contact Us</a>
+    <a href="contact/" id="mobile-contact-btn" class="block px-3 py-2 rounded-lg text-gray-700 font-medium hover:bg-brand-bluelight">Contact Us</a>
   </div>
 </nav>
 <script src="app.js?v=65" defer></script>
