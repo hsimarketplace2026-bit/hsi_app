@@ -20,14 +20,16 @@
   </script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
-    :root { --accent-green: #46a338; --accent-green-hover: #3c8a30; }
+    :root { --accent-green: #46a338; --accent-green-hover: #3c8a30; --accent-blue: #1b75bc; --accent-blue-hover: #11537f; }
     .nav-bg { background: linear-gradient(90deg,#11537f 0%,#1b75bc 100%); }
     .btn-primary { background-color: var(--accent-green); }
     .btn-primary:hover { background-color: var(--accent-green-hover); }
+    .btn-blue { background-color: var(--accent-blue); color: white; }
+    .btn-blue:hover { background-color: var(--accent-blue-hover); }
     #toast-container { position: fixed; bottom: 1.5rem; right: 1rem; z-index: 9999; display: flex; flex-direction: column; gap: 0.5rem; }
     .toast { padding: 0.75rem 1.25rem; border-radius: 0.5rem; color: white; font-size: 0.875rem; max-width: 320px; animation: slideIn 0.3s ease; }
     @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
-    .tab-btn.active { background-color: #16a34a; color: white; }
+    .tab-btn.active { background-color: var(--accent-blue); color: white; }
     .status-pending { background:#fef3c7;color:#92400e; }
     .status-payment_uploaded { background:#cffafe;color:#0e7490; }
     .status-payment_verified { background:#e0e7ff;color:#3730a3; }
@@ -40,7 +42,7 @@
 
 <div id="toast-container"></div>
 
-<script src="app.js?v=48" defer></script>
+<script src="app.js?v=49" defer></script>
 
 <nav class="bg-white text-gray-800 sticky top-0 z-40 shadow-md border-b border-gray-100">
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-2 sm:py-3 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
@@ -54,7 +56,6 @@
         <a href="../about/" class="text-gray-600 hover:text-brand-blue text-sm font-medium transition">About</a>
         <a href="../activities/" class="text-gray-600 hover:text-brand-blue text-sm font-medium transition">Activities</a>
         <a href="../partners/" class="text-gray-600 hover:text-brand-blue text-sm font-medium transition">Partners</a>
-        <a href="../marketplace/" class="btn-primary text-white text-sm px-4 py-1.5 rounded-full font-semibold transition">SHOP</a>
       </div>
     </div>
     <div class="flex items-center justify-center sm:justify-end gap-3">
@@ -68,25 +69,25 @@
 <!-- PENDING BANNER -->
 <div id="pending-banner" class="hidden max-w-5xl mx-auto px-4 py-20 text-center">
   <svg class="w-16 h-16 mx-auto mb-4 text-amber-500" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/></svg>
-  <h2 class="text-2xl font-bold text-green-900 mb-2">Account Pending Approval</h2>
+  <h2 class="text-2xl font-bold text-brand-bluedark mb-2">Account Pending Approval</h2>
   <p class="text-gray-600 mb-6">Your seller account is awaiting admin review. You'll be notified once approved.</p>
   <a href="../" class="btn-primary text-white px-6 py-2.5 rounded-full transition font-medium inline-block">Back to Home</a>
 </div>
 
 <div id="main-content" class="max-w-5xl mx-auto px-4 py-6">
-  <h1 class="text-2xl font-bold text-green-900 mb-6">Seller Dashboard</h1>
+  <h1 class="text-2xl font-bold text-brand-bluedark mb-6">Seller Dashboard</h1>
 
-  <div class="flex border border-green-200 rounded-xl overflow-hidden mb-6">
-    <button onclick="switchTab('products')" id="tab-products" class="tab-btn active flex-1 py-2.5 text-sm font-semibold transition"> Products</button>
-    <button onclick="switchTab('orders')" id="tab-orders" class="tab-btn flex-1 py-2.5 text-sm font-semibold bg-white text-green-700 transition"> Orders</button>
-    <button onclick="switchTab('analytics')" id="tab-analytics" class="tab-btn flex-1 py-2.5 text-sm font-semibold bg-white text-green-700 transition"> Analytics</button>
-    <button onclick="switchTab('profile')" id="tab-profile" class="tab-btn flex-1 py-2.5 text-sm font-semibold bg-white text-green-700 transition"> Profile</button>
+  <div class="flex border border-gray-200 rounded-xl overflow-hidden mb-6">
+    <button onclick="switchTab('products')" id="tab-products" class="tab-btn active flex-1 py-2.5 text-sm font-semibold transition">Products</button>
+    <button onclick="switchTab('orders')" id="tab-orders" class="tab-btn flex-1 py-2.5 text-sm font-semibold bg-white text-brand-bluedark transition">Orders</button>
+    <button onclick="switchTab('analytics')" id="tab-analytics" class="tab-btn flex-1 py-2.5 text-sm font-semibold bg-white text-brand-bluedark transition">Analytics</button>
+    <button onclick="switchTab('profile')" id="tab-profile" class="tab-btn flex-1 py-2.5 text-sm font-semibold bg-white text-brand-bluedark transition">Profile</button>
   </div>
 
   <!-- PRODUCTS TAB -->
   <div id="panel-products">
     <div class="flex justify-between items-center mb-4">
-      <h2 class="text-lg font-bold text-green-900">My Products</h2>
+      <h2 class="text-lg font-bold text-brand-bluedark">My Products</h2>
       <button onclick="openProductModal()" class="btn-primary text-white text-sm px-5 py-2 rounded-full transition">+ Add Product</button>
     </div>
     <div id="products-list" class="grid sm:grid-cols-2 gap-4">
@@ -98,20 +99,16 @@
   <div id="panel-orders" class="hidden">
     <div class="grid grid-cols-4 gap-1.5 mb-4">
       <button onclick="setOrderView('pending')" id="ordview-pending"
-        class="py-2 px-1 text-xs font-semibold rounded-lg bg-green-600 text-white transition text-center">
-         To Pay<span id="badge-pending" class="ml-1 hidden bg-white text-green-700 text-xs font-bold rounded-full px-1.5 py-0.5"></span>
+        class="py-2 px-1 text-xs font-semibold rounded-lg bg-brand-blue text-white transition text-center">To Pay<span id="badge-pending" class="ml-1 hidden bg-white text-brand-bluedark text-xs font-bold rounded-full px-1.5 py-0.5"></span>
       </button>
       <button onclick="setOrderView('payment_uploaded')" id="ordview-payment_uploaded"
-        class="py-2 px-1 text-xs font-semibold rounded-lg bg-white border border-green-200 text-green-700 transition text-center">
-         Paid<span id="badge-payment_uploaded" class="ml-1 hidden bg-teal-100 text-teal-700 text-xs font-bold rounded-full px-1.5 py-0.5"></span>
+        class="py-2 px-1 text-xs font-semibold rounded-lg bg-white border border-gray-200 text-brand-bluedark transition text-center">Paid<span id="badge-payment_uploaded" class="ml-1 hidden bg-teal-100 text-teal-700 text-xs font-bold rounded-full px-1.5 py-0.5"></span>
       </button>
       <button onclick="setOrderView('processing')" id="ordview-processing"
-        class="py-2 px-1 text-xs font-semibold rounded-lg bg-white border border-green-200 text-green-700 transition text-center">
-         In Delivery<span id="badge-processing" class="ml-1 hidden bg-sky-100 text-sky-700 text-xs font-bold rounded-full px-1.5 py-0.5"></span>
+        class="py-2 px-1 text-xs font-semibold rounded-lg bg-white border border-gray-200 text-brand-bluedark transition text-center">In Delivery<span id="badge-processing" class="ml-1 hidden bg-sky-100 text-sky-700 text-xs font-bold rounded-full px-1.5 py-0.5"></span>
       </button>
       <button onclick="setOrderView('completed')" id="ordview-completed"
-        class="py-2 px-1 text-xs font-semibold rounded-lg bg-white border border-green-200 text-green-700 transition text-center">
-         Completed
+        class="py-2 px-1 text-xs font-semibold rounded-lg bg-white border border-gray-200 text-brand-bluedark transition text-center">Completed
       </button>
     </div>
     <div id="orders-list" class="space-y-4">
@@ -128,20 +125,20 @@
 
   <!-- PROFILE TAB -->
   <div id="panel-profile" class="hidden">
-    <div class="bg-white rounded-xl p-6 shadow border border-green-100">
-      <h3 class="text-lg font-bold text-green-900 mb-1">Farmer Profile</h3>
+    <div class="bg-white rounded-xl p-6 shadow border border-gray-100">
+      <h3 class="text-lg font-bold text-brand-bluedark mb-1">Farmer Profile</h3>
       <p class="text-xs text-gray-500 mb-5">This information is shown to buyers in the marketplace — tell your story!</p>
 
       <!-- Photo preview -->
       <div class="flex items-center gap-4 mb-6">
-        <div id="profile-photo-wrap" class="w-20 h-20 rounded-full bg-green-100 overflow-hidden flex items-center justify-center shrink-0">
+        <div id="profile-photo-wrap" class="w-20 h-20 rounded-full bg-brand-bluelight overflow-hidden flex items-center justify-center shrink-0">
           <span id="profile-photo-placeholder" class="text-3xl"></span>
           <img id="profile-photo-preview" src="" alt="Photo" class="hidden w-full h-full object-cover" />
         </div>
         <div>
           <label class="block text-sm font-medium text-gray-700 mb-1">Profile Photo</label>
           <input type="file" id="profile-photo" accept="image/*" onchange="previewPhoto(this)"
-            class="text-sm text-gray-600 file:mr-3 file:py-1.5 file:px-3 file:rounded-full file:border-0 file:bg-green-100 file:text-green-700 file:font-medium hover:file:bg-green-200" />
+            class="text-sm text-gray-600 file:mr-3 file:py-1.5 file:px-3 file:rounded-full file:border-0 file:bg-brand-bluelight file:text-brand-bluedark file:font-medium hover:file:bg-green-200" />
           <p class="text-xs text-gray-400 mt-1">JPG or PNG, shown on your products</p>
         </div>
       </div>
@@ -150,22 +147,22 @@
         <div class="grid sm:grid-cols-2 gap-4">
           <div>
             <label class="block text-sm font-medium text-gray-700 mb-1">Full Name</label>
-            <input type="text" id="profile-name" class="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-green-500" />
+            <input type="text" id="profile-name" class="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-brand-blue" />
           </div>
           <div>
             <label class="block text-sm font-medium text-gray-700 mb-1">Phone</label>
-            <input type="tel" id="profile-phone" class="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-green-500" />
+            <input type="tel" id="profile-phone" class="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-brand-blue" />
           </div>
         </div>
         <div class="grid sm:grid-cols-2 gap-4">
           <div>
             <label class="block text-sm font-medium text-gray-700 mb-1">Age</label>
             <input type="number" id="profile-age" min="16" max="99" placeholder="e.g. 35"
-              class="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-green-500" />
+              class="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-brand-blue" />
           </div>
           <div>
             <label class="block text-sm font-medium text-gray-700 mb-1">Ethnicity</label>
-            <select id="profile-ethnicity" class="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-green-500">
+            <select id="profile-ethnicity" class="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-brand-blue">
               <option value="">Prefer not to say</option>
               <option value="Malay">Malay</option>
               <option value="Chinese">Chinese</option>
@@ -183,51 +180,51 @@
           <div>
             <label class="block text-sm font-medium text-gray-700 mb-1">Farm Name</label>
             <input type="text" id="profile-farm-name" placeholder="e.g. Green Valley Hydroponics"
-              class="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-green-500" />
+              class="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-brand-blue" />
           </div>
           <div>
             <label class="block text-sm font-medium text-gray-700 mb-1">Farm Location</label>
             <input type="text" id="profile-farm-location" placeholder="e.g. Kuching, Sarawak"
-              class="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-green-500" />
+              class="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-brand-blue" />
           </div>
         </div>
         <div class="grid sm:grid-cols-2 gap-4">
           <div>
             <label class="block text-sm font-medium text-gray-700 mb-1">Farm Size</label>
             <input type="text" id="profile-farm-size" placeholder="e.g. 500 sq ft, 0.5 acre"
-              class="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-green-500" />
+              class="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-brand-blue" />
           </div>
           <div>
             <label class="block text-sm font-medium text-gray-700 mb-1">Farming Since (Year)</label>
             <input type="number" id="profile-farming-since" min="1980" max="2026" placeholder="e.g. 2020"
-              class="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-green-500" />
+              class="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-brand-blue" />
           </div>
         </div>
         <div>
           <label class="block text-sm font-medium text-gray-700 mb-1">Certifications / Awards</label>
           <input type="text" id="profile-certifications" placeholder="e.g. HSI Certified Farmer, Skim Agro"
-            class="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-green-500" />
+            class="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-brand-blue" />
         </div>
         <div>
           <label class="block text-sm font-medium text-gray-700 mb-1">My Farming Story</label>
           <textarea id="profile-story" rows="4" placeholder="Share your journey — why you started, what drives you, your farming values…"
-            class="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-green-500 resize-none"></textarea>
+            class="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-brand-blue resize-none"></textarea>
         </div>
 
         <!-- PAYMENT DETAILS -->
-        <div class="border-t border-green-100 pt-5 mt-2">
-          <h4 class="text-base font-bold text-green-900 mb-1"> Payment Details</h4>
+        <div class="border-t border-gray-100 pt-5 mt-2">
+          <h4 class="text-base font-bold text-brand-bluedark mb-1">Payment Details</h4>
           <p class="text-xs text-gray-500 mb-4">Buyers pay you directly. Upload your bank/DuitNow QR and set your WhatsApp so buyers can send payment slips.</p>
 
           <div class="flex items-start gap-4 mb-4">
-            <div id="qr-wrap" class="w-28 h-28 rounded-lg bg-green-50 border border-green-200 overflow-hidden flex items-center justify-center shrink-0">
+            <div id="qr-wrap" class="w-28 h-28 rounded-lg bg-brand-bluelight border border-gray-200 overflow-hidden flex items-center justify-center shrink-0">
               <span id="qr-placeholder" class="text-3xl"></span>
               <img id="qr-preview" src="" alt="QR" class="hidden w-full h-full object-contain" />
             </div>
             <div class="flex-1">
               <label class="block text-sm font-medium text-gray-700 mb-1">Bank / DuitNow QR Code</label>
               <input type="file" id="profile-qr" accept="image/*" onchange="previewQr(this)"
-                class="text-sm text-gray-600 file:mr-3 file:py-1.5 file:px-3 file:rounded-full file:border-0 file:bg-green-100 file:text-green-700 file:font-medium hover:file:bg-green-200" />
+                class="text-sm text-gray-600 file:mr-3 file:py-1.5 file:px-3 file:rounded-full file:border-0 file:bg-brand-bluelight file:text-brand-bluedark file:font-medium hover:file:bg-green-200" />
               <p class="text-xs text-gray-400 mt-1">Buyers scan this to pay you</p>
             </div>
           </div>
@@ -235,7 +232,7 @@
           <div class="mb-4">
             <label class="block text-sm font-medium text-gray-700 mb-1">WhatsApp Number (for payment slips)</label>
             <input type="tel" id="profile-whatsapp" placeholder="e.g. 60123456789 (with country code)"
-              class="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-green-500" />
+              class="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-brand-blue" />
             <p class="text-xs text-gray-400 mt-1">Include country code, no spaces or +. Buyers tap a button to send you their slip.</p>
           </div>
 
@@ -243,30 +240,30 @@
             <div>
               <label class="block text-sm font-medium text-gray-700 mb-1">Bank Name</label>
               <input type="text" id="profile-bank-name" placeholder="e.g. Maybank"
-                class="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-green-500" />
+                class="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-brand-blue" />
             </div>
             <div>
               <label class="block text-sm font-medium text-gray-700 mb-1">Account Holder Name</label>
               <input type="text" id="profile-bank-account-name" placeholder="As per bank account"
-                class="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-green-500" />
+                class="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-brand-blue" />
             </div>
           </div>
           <div class="mt-4">
             <label class="block text-sm font-medium text-gray-700 mb-1">Account Number</label>
             <input type="text" id="profile-bank-account-no" placeholder="e.g. 1234 5678 9012"
-              class="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-green-500" />
+              class="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-brand-blue" />
           </div>
           <div class="mt-4">
             <label class="block text-sm font-medium text-gray-700 mb-1">Delivery Fee (RM)</label>
             <input type="number" id="profile-delivery-fee" min="0" step="0.50" placeholder="e.g. 5.00"
-              class="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-green-500" />
+              class="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-brand-blue" />
             <p class="text-xs text-gray-400 mt-1">Added to order total when buyer chooses delivery. Set 0 for free delivery.</p>
           </div>
         </div>
 
         <button type="submit" class="btn-primary text-white font-semibold px-6 py-2.5 rounded-lg transition">Save Profile</button>
       </form>
-      <hr class="my-6 border-green-100" />
+      <hr class="my-6 border-gray-100" />
       <button onclick="doLogout()" class="w-full bg-red-50 text-red-600 hover:bg-red-100 font-medium py-2.5 rounded-lg transition text-sm">Logout</button>
     </div>
   </div>
@@ -278,7 +275,7 @@
   <div class="relative bg-white rounded-2xl w-full max-w-sm p-6 shadow-2xl text-center">
     <input type="hidden" id="delivery-confirm-order-id" />
     <svg class="w-14 h-14 mx-auto mb-3 text-brand-blue" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M16 11V7a4 4 0 00-8 0v4M5 9h14l-1 12H6L5 9z"/></svg>
-    <h3 class="text-lg font-bold text-green-900 mb-2">Confirm Delivery</h3>
+    <h3 class="text-lg font-bold text-brand-bluedark mb-2">Confirm Delivery</h3>
     <p class="text-sm text-gray-600 mb-6">Has this order been delivered to the buyer?</p>
     <div class="flex gap-3">
       <button onclick="closeDeliveryConfirm()" class="flex-1 border border-gray-300 text-gray-700 font-semibold py-2.5 rounded-xl transition hover:bg-gray-50">Cancel</button>
@@ -292,17 +289,17 @@
   <div class="absolute inset-0 bg-black bg-opacity-50" onclick="closeProductModal()"></div>
   <div class="relative bg-white rounded-2xl w-full max-w-lg max-h-screen overflow-y-auto p-6 shadow-2xl">
     <button onclick="closeProductModal()" class="absolute top-3 right-4 text-gray-400 hover:text-gray-600 text-2xl">&times;</button>
-    <h3 id="product-modal-title" class="text-xl font-bold text-green-900 mb-4">Add Product</h3>
+    <h3 id="product-modal-title" class="text-xl font-bold text-brand-bluedark mb-4">Add Product</h3>
     <form onsubmit="saveProduct(event)" class="space-y-4">
       <input type="hidden" id="product-id" />
       <div>
         <label class="block text-sm font-medium text-gray-700 mb-1">Product Name *</label>
         <input type="text" id="prod-name" required placeholder="e.g. Romaine Lettuce"
-          class="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-green-500" />
+          class="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-brand-blue" />
       </div>
       <div>
         <label class="block text-sm font-medium text-gray-700 mb-1">Category *</label>
-        <select id="prod-category" required class="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-green-500">
+        <select id="prod-category" required class="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-brand-blue">
           <option value="Vegetables">Vegetables</option>
           <option value="Fruits">Fruits</option>
           <option value="Herbs">Herbs</option>
@@ -312,36 +309,36 @@
       <div>
         <label class="block text-sm font-medium text-gray-700 mb-1">Description</label>
         <textarea id="prod-desc" rows="2" placeholder="Describe your product…"
-          class="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-green-500"></textarea>
+          class="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-brand-blue"></textarea>
       </div>
       <div class="grid grid-cols-2 gap-3">
         <div>
           <label class="block text-sm font-medium text-gray-700 mb-1">Price (RM) *</label>
           <input type="number" id="prod-price" required min="0" step="0.01" placeholder="0.00"
-            class="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-green-500" />
+            class="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-brand-blue" />
         </div>
         <div>
           <label class="block text-sm font-medium text-gray-700 mb-1">Unit *</label>
           <input type="text" id="prod-unit" required placeholder="kg / bundle / pc"
-            class="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-green-500" />
+            class="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-brand-blue" />
         </div>
       </div>
       <div class="grid grid-cols-2 gap-3">
         <div>
           <label class="block text-sm font-medium text-gray-700 mb-1">Quantity *</label>
           <input type="number" id="prod-quantity" required min="0" placeholder="0"
-            class="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-green-500" />
+            class="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-brand-blue" />
         </div>
         <div>
           <label class="block text-sm font-medium text-gray-700 mb-1">Harvest Date</label>
           <input type="date" id="prod-harvest"
-            class="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-green-500" />
+            class="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-brand-blue" />
         </div>
       </div>
       <div>
         <label class="block text-sm font-medium text-gray-700 mb-1">Product Image</label>
         <input type="file" id="prod-image" accept="image/*"
-          class="w-full text-sm text-gray-600 file:mr-3 file:py-2 file:px-4 file:rounded-full file:border-0 file:bg-green-100 file:text-green-700 file:font-medium hover:file:bg-green-200" />
+          class="w-full text-sm text-gray-600 file:mr-3 file:py-2 file:px-4 file:rounded-full file:border-0 file:bg-brand-bluelight file:text-brand-bluedark file:font-medium hover:file:bg-green-200" />
         <div id="prod-current-image" class="mt-2 hidden">
           <img id="prod-image-preview" src="" alt="Current" class="h-20 rounded-lg object-cover" />
         </div>

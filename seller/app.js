@@ -46,7 +46,7 @@
       const btn = document.getElementById(`tab-${t}`);
       btn.classList.toggle('active', t === tab);
       btn.classList.toggle('bg-white', t !== tab);
-      btn.classList.toggle('text-green-700', t !== tab);
+      btn.classList.toggle('text-brand-bluedark', t !== tab);
     });
     if (tab === 'orders') loadOrders();
     if (tab === 'analytics') loadAnalytics();
@@ -67,19 +67,19 @@
       return;
     }
     el.innerHTML = products.map(p => `
-      <div class="bg-white rounded-xl overflow-hidden shadow border border-green-100">
-        <div class="h-32 bg-green-100 overflow-hidden">
+      <div class="bg-white rounded-xl overflow-hidden shadow border border-gray-100">
+        <div class="h-32 bg-brand-bluelight overflow-hidden">
           ${p.image_url ? `<img src="${p.image_url}" alt="${p.name}" class="w-full h-full object-cover" />` : '<div class="w-full h-full flex items-center justify-center text-4xl"></div>'}
         </div>
         <div class="p-4">
           <div class="flex items-start justify-between mb-1">
             <h4 class="font-semibold text-sm text-gray-800">${p.name}</h4>
-            <span class="text-xs px-2 py-0.5 rounded-full font-medium ${p.status === 'active' ? 'bg-green-100 text-green-700' : 'bg-gray-100 text-gray-500'}">${p.status}</span>
+            <span class="text-xs px-2 py-0.5 rounded-full font-medium ${p.status === 'active' ? 'bg-brand-bluelight text-brand-bluedark' : 'bg-gray-100 text-gray-500'}">${p.status}</span>
           </div>
           <p class="text-xs text-gray-500 mb-2">${p.category} · ${p.quantity} ${p.unit} available</p>
-          <p class="text-green-700 font-bold text-sm mb-3">RM ${parseFloat(p.price).toFixed(2)} / ${p.unit}</p>
+          <p class="text-brand-bluedark font-bold text-sm mb-3">RM ${parseFloat(p.price).toFixed(2)} / ${p.unit}</p>
           <div class="flex gap-2">
-            <button onclick="openProductModal('${p.id}')" class="flex-1 bg-green-50 text-green-700 hover:bg-green-100 text-xs py-1.5 rounded-lg transition font-medium">Edit</button>
+            <button onclick="openProductModal('${p.id}')" class="flex-1 bg-brand-bluelight text-brand-bluedark hover:bg-brand-bluelight text-xs py-1.5 rounded-lg transition font-medium">Edit</button>
             <button onclick="toggleProductStatus('${p.id}', '${p.status}')" class="flex-1 bg-amber-50 text-amber-700 hover:bg-amber-100 text-xs py-1.5 rounded-lg transition font-medium">${p.status === 'active' ? 'Deactivate' : 'Activate'}</button>
             <button onclick="deleteProduct('${p.id}')" class="flex-1 bg-red-50 text-red-600 hover:bg-red-100 text-xs py-1.5 rounded-lg transition font-medium">Delete</button>
           </div>
@@ -188,8 +188,8 @@
       if (!btn) return;
       btn.className = `py-2 px-1 text-xs font-semibold rounded-lg transition text-center ${
         s === v
-          ? 'bg-green-600 text-white'
-          : 'bg-white border border-green-200 text-green-700'
+          ? 'bg-brand-blue text-white'
+          : 'bg-white border border-gray-200 text-brand-bluedark'
       }`;
     });
     loadOrders();
@@ -212,7 +212,7 @@
   async function loadOrders() {
     updateOrderBadges();
     const { data: orders } = await sb.from('mkt_orders')
-      .select('*, profiles:shared_profiles!buyer_id(full_name, phone), order_items:mkt_order_items(*, products:mkt_products(name, unit)), payments:mkt_payments(*)')
+      .select('*, profiles:shared_profiles!buyer_id(full_name, phone), order_items:mkt_order_items(*, products:mkt_products(name, unit, image_url)), payments:mkt_payments(*)')
       .eq('seller_id', currentUser.id)
       .eq('status', orderView)
       .order('created_at', { ascending: false });
@@ -234,30 +234,38 @@
       const statusLabels = { pending:'TO PAY', payment_uploaded:'PAID', processing:'IN DELIVERY', completed:'COMPLETED', cancelled:'CANCELLED' };
       const statusClass = `status-${o.status}`;
       return `
-        <div class="bg-white rounded-xl p-5 shadow border border-green-100">
+        <div class="bg-white rounded-xl p-5 shadow border border-gray-100">
           <div class="flex items-start justify-between mb-3">
             <div>
-              <p class="font-semibold text-green-900">${o.profiles?.full_name || 'Buyer'}</p>
+              <p class="font-semibold text-brand-bluedark">${o.profiles?.full_name || 'Buyer'}</p>
               <p class="text-xs text-gray-400">${new Date(o.created_at).toLocaleString()}${o.order_number ? ' · ' + o.order_number : ''}</p>
             </div>
             <span class="text-xs font-semibold px-2 py-1 rounded-full ${statusClass}">${statusLabels[o.status] || o.status.replace(/_/g,' ').toUpperCase()}</span>
           </div>
-          <div class="space-y-1 mb-3">
+          <div class="space-y-2 mb-3">
             ${(o.order_items || []).map(i => `
-              <div class="flex justify-between text-sm text-gray-600">
-                <span>${i.products?.name} × ${i.quantity}</span>
-                <span>RM ${(i.quantity * i.unit_price).toFixed(2)}</span>
+              <div class="flex items-center gap-3 text-sm">
+                <div class="w-12 h-12 rounded-lg bg-brand-bluelight overflow-hidden flex-shrink-0 flex items-center justify-center">
+                  ${i.products?.image_url
+                    ? `<img src="${i.products.image_url}" alt="" class="w-full h-full object-cover" onerror="this.style.display='none'" />`
+                    : `<svg class="w-6 h-6 text-brand-blue" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16l4-4a3 3 0 014 0l4 4M14 14l2-2a3 3 0 014 0M14 8h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>`}
+                </div>
+                <div class="flex-1 min-w-0">
+                  <p class="text-gray-700 truncate">${i.products?.name || ''}</p>
+                  <p class="text-xs text-gray-400">× ${i.quantity} ${i.products?.unit || ''}</p>
+                </div>
+                <span class="text-gray-700 font-medium whitespace-nowrap">RM ${(i.quantity * i.unit_price).toFixed(2)}</span>
               </div>`).join('')}
           </div>
           <div class="flex gap-2 mb-2 flex-wrap">
             ${o.fulfillment_type === 'delivery'
-              ? `<span class="text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full font-medium"> Delivery${o.delivery_fee > 0 ? ` +RM ${parseFloat(o.delivery_fee).toFixed(2)}` : ''}</span>`
-              : `<span class="text-xs bg-gray-100 text-gray-600 px-2 py-0.5 rounded-full font-medium"> Pickup</span>`}
+              ? `<span class="text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full font-medium">Delivery${o.delivery_fee > 0 ? ` +RM ${parseFloat(o.delivery_fee).toFixed(2)}` : ''}</span>`
+              : `<span class="text-xs bg-gray-100 text-gray-600 px-2 py-0.5 rounded-full font-medium">Pickup</span>`}
           </div>
           ${o.delivery_address ? `<p class="text-xs text-gray-500 mb-1"> ${o.delivery_address}</p>` : ''}
           ${o.delivery_notes ? `<p class="text-xs text-gray-500 italic mb-2">Note: ${o.delivery_notes}</p>` : ''}
 
-          ${o.status === 'pending' ? `<p class="text-xs text-amber-600 mb-3"> Waiting for buyer to upload payment slip.</p>` : ''}
+          ${o.status === 'pending' ? `<p class="text-xs text-amber-600 mb-3">Waiting for buyer to upload payment slip.</p>` : ''}
 
           ${o.status === 'payment_uploaded' ? `
             <div class="mb-3 p-3 bg-gray-50 rounded-xl border border-gray-100">
@@ -266,14 +274,14 @@
                 ${payment?.proof_url ? `
                   <a href="${payment.proof_url}" target="_blank" class="shrink-0">
                     <img src="${payment.proof_url}" alt="slip" class="h-24 w-24 rounded-lg object-cover border border-gray-200" />
-                  </a>` : `<p class="text-xs text-amber-600"> Slip image unavailable.</p>`}
+                  </a>` : `<p class="text-xs text-amber-600">Slip image unavailable.</p>`}
                 <div class="flex-1">
                   <label class="text-xs font-medium text-gray-700 block mb-1">Verify Payment Slip:</label>
                   <select onchange="handlePaymentAction(this,'${payment?.id || ''}','${o.id}')"
-                    class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-green-500 bg-white">
+                    class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-brand-blue bg-white">
                     <option value="">— Select action —</option>
-                    <option value="verified"> Verified</option>
-                    <option value="rejected"> Rejected</option>
+                    <option value="verified">Verified</option>
+                    <option value="rejected">Rejected</option>
                   </select>
                 </div>
               </div>
@@ -287,14 +295,13 @@
               </a>
             </div>` : ''}
 
-          <div class="flex items-center justify-between border-t border-green-50 pt-3 flex-wrap gap-2">
-            <span class="font-bold text-green-700">RM ${parseFloat(o.total_amount).toFixed(2)}</span>
+          <div class="flex items-center justify-between border-t border-gray-100 pt-3 flex-wrap gap-2">
+            <span class="font-bold text-brand-bluedark">RM ${parseFloat(o.total_amount).toFixed(2)}</span>
             <div class="flex gap-2 flex-wrap items-center">
-              <button onclick="openOrderDetail('${o.id}')" class="bg-green-50 text-green-700 text-xs px-3 py-1.5 rounded-full transition">View details</button>
+              <button onclick="openOrderDetail('${o.id}')" class="bg-brand-bluelight text-brand-bluedark text-xs px-3 py-1.5 rounded-full transition">View details</button>
               ${o.status === 'processing' ? `
                 <button onclick="confirmDelivery('${o.id}')"
-                  class="bg-green-700 hover:bg-green-800 text-white text-sm font-semibold px-5 py-2 rounded-full transition">
-                   Delivery Completed
+                  class="bg-green-700 hover:bg-green-800 text-white text-sm font-semibold px-5 py-2 rounded-full transition">Delivery Completed
                 </button>` : ''}
             </div>
           </div>
@@ -309,43 +316,52 @@
     document.getElementById('od-body').innerHTML = '<p class="text-gray-400 text-sm text-center py-8">Loading…</p>';
     document.getElementById('orderdetail-modal').classList.remove('hidden');
     const { data: o } = await sb.from('mkt_orders')
-      .select('*, buyer:shared_profiles!buyer_id(full_name,email,phone), seller:shared_profiles!seller_id(full_name,farm_name), order_items:mkt_order_items(*, products:mkt_products(name,unit))')
+      .select('*, buyer:shared_profiles!buyer_id(full_name,email,phone), seller:shared_profiles!seller_id(full_name,farm_name), order_items:mkt_order_items(*, products:mkt_products(name,unit,image_url))')
       .eq('id', orderId).single();
     if (!o) { document.getElementById('od-body').innerHTML = '<p class="text-red-500 text-sm text-center py-8">Order not found.</p>'; return; }
     const rows = (o.order_items || []).map(i => `
-      <tr class="border-b border-green-50">
-        <td class="py-2 pr-2">${i.product_name || i.products?.name || 'Item'}</td>
+      <tr class="border-b border-gray-100">
+        <td class="py-2 pr-2">
+          <div class="flex items-center gap-2">
+            <div class="w-10 h-10 rounded-lg bg-brand-bluelight overflow-hidden flex-shrink-0 flex items-center justify-center">
+              ${i.products?.image_url
+                ? `<img src="${i.products.image_url}" alt="" class="w-full h-full object-cover" onerror="this.style.display='none'" />`
+                : `<svg class="w-5 h-5 text-brand-blue" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16l4-4a3 3 0 014 0l4 4M14 14l2-2a3 3 0 014 0M14 8h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>`}
+            </div>
+            <span class="text-gray-700">${i.product_name || i.products?.name || 'Item'}</span>
+          </div>
+        </td>
         <td class="py-2 px-2 text-center whitespace-nowrap">${i.quantity} ${i.products?.unit || ''}</td>
         <td class="py-2 px-2 text-right whitespace-nowrap">${rm(i.unit_price)}</td>
         <td class="py-2 pl-2 text-right font-semibold whitespace-nowrap">${rm(i.quantity * i.unit_price)}</td>
       </tr>`).join('');
     const b = o.buyer || {}, s = o.seller || {};
     document.getElementById('od-body').innerHTML = `
-      <h3 class="text-lg font-bold text-green-900 mb-1">Order Details</h3>
+      <h3 class="text-lg font-bold text-brand-bluedark mb-1">Order Details</h3>
       <div class="flex items-center justify-between mb-4 flex-wrap gap-2">
         <p class="text-xs text-gray-400">${o.order_number ? o.order_number + ' · ' : ''}${new Date(o.created_at).toLocaleString()}</p>
         <span class="text-xs font-semibold px-2 py-1 rounded-full status-${o.status}">${o.status.replace(/_/g,' ').toUpperCase()}</span>
       </div>
       <div class="grid sm:grid-cols-2 gap-3 mb-4 text-sm">
-        <div class="bg-green-50/60 rounded-lg p-3">
+        <div class="bg-brand-bluelight/60 rounded-lg p-3">
           <p class="text-xs font-semibold text-gray-500 mb-1">Buyer</p>
           <p class="font-medium">${b.full_name || '—'}</p>
           ${b.email ? `<p class="text-xs text-gray-500 break-words">${b.email}</p>` : ''}
           ${b.phone ? `<p class="text-xs text-gray-500">${b.phone}</p>` : ''}
         </div>
-        <div class="bg-green-50/60 rounded-lg p-3">
+        <div class="bg-brand-bluelight/60 rounded-lg p-3">
           <p class="text-xs font-semibold text-gray-500 mb-1">Seller</p>
           <p class="font-medium">${s.farm_name || s.full_name || '—'}</p>
         </div>
       </div>
       <table class="w-full text-sm mb-3">
-        <thead><tr class="text-xs text-gray-400 border-b border-green-100"><th class="text-left py-1 pr-2 font-medium">Product</th><th class="py-1 px-2 font-medium">Qty</th><th class="text-right py-1 px-2 font-medium">Unit price</th><th class="text-right py-1 pl-2 font-medium">Total</th></tr></thead>
+        <thead><tr class="text-xs text-gray-400 border-b border-gray-100"><th class="text-left py-1 pr-2 font-medium">Product</th><th class="py-1 px-2 font-medium">Qty</th><th class="text-right py-1 px-2 font-medium">Unit price</th><th class="text-right py-1 pl-2 font-medium">Total</th></tr></thead>
         <tbody>${rows}</tbody>
       </table>
-      <div class="border-t border-green-100 pt-3 space-y-1 text-sm">
+      <div class="border-t border-gray-100 pt-3 space-y-1 text-sm">
         ${o.subtotal ? `<div class="flex justify-between text-gray-500"><span>Subtotal</span><span>${rm(o.subtotal)}</span></div>` : ''}
         ${o.discount_amount > 0 ? `<div class="flex justify-between text-green-600"><span>Discount${o.coupon_code ? ' (' + o.coupon_code + ')' : ''}</span><span>- ${rm(o.discount_amount)}</span></div>` : ''}
-        <div class="flex justify-between font-bold text-green-800 text-base"><span>Total</span><span>${rm(o.total_amount)}</span></div>
+        <div class="flex justify-between font-bold text-brand-bluedark text-base"><span>Total</span><span>${rm(o.total_amount)}</span></div>
       </div>
       ${o.payment_method ? `<p class="text-xs text-gray-500 mt-3">Payment method: ${o.payment_method}</p>` : ''}
       ${o.delivery_notes ? `<p class="text-xs text-gray-500 mt-1">Notes: ${o.delivery_notes}</p>` : ''}`;
@@ -422,26 +438,26 @@
 
     document.getElementById('analytics-content').innerHTML = `
       <div class="grid grid-cols-3 gap-4 mb-6">
-        <div class="bg-white rounded-xl p-5 shadow border border-green-100 text-center">
+        <div class="bg-white rounded-xl p-5 shadow border border-gray-100 text-center">
           <p class="text-xs text-gray-500 mb-1">Total Revenue</p>
-          <p class="text-2xl font-bold text-green-700">RM ${revenue.toFixed(2)}</p>
+          <p class="text-2xl font-bold text-brand-bluedark">RM ${revenue.toFixed(2)}</p>
         </div>
-        <div class="bg-white rounded-xl p-5 shadow border border-green-100 text-center">
+        <div class="bg-white rounded-xl p-5 shadow border border-gray-100 text-center">
           <p class="text-xs text-gray-500 mb-1">Total Orders</p>
-          <p class="text-2xl font-bold text-green-700">${totalOrders}</p>
+          <p class="text-2xl font-bold text-brand-bluedark">${totalOrders}</p>
         </div>
-        <div class="bg-white rounded-xl p-5 shadow border border-green-100 text-center">
+        <div class="bg-white rounded-xl p-5 shadow border border-gray-100 text-center">
           <p class="text-xs text-gray-500 mb-1">Pending Orders</p>
           <p class="text-2xl font-bold text-amber-600">${pendingOrders}</p>
         </div>
       </div>
-      <div class="bg-white rounded-xl p-5 shadow border border-green-100">
-        <h4 class="font-bold text-green-900 mb-3">Products by Order Volume</h4>
+      <div class="bg-white rounded-xl p-5 shadow border border-gray-100">
+        <h4 class="font-bold text-brand-bluedark mb-3">Products by Order Volume</h4>
         <div class="space-y-2">
           ${(products || []).sort((a, b) => (productCounts[b.id] || 0) - (productCounts[a.id] || 0)).map(p => `
-            <div class="flex items-center justify-between py-2 border-b border-green-50">
+            <div class="flex items-center justify-between py-2 border-b border-gray-100">
               <span class="text-sm text-gray-700">${p.name}</span>
-              <span class="text-sm font-semibold text-green-700">${productCounts[p.id] || 0} ordered</span>
+              <span class="text-sm font-semibold text-brand-bluedark">${productCounts[p.id] || 0} ordered</span>
             </div>
           `).join('')}
         </div>

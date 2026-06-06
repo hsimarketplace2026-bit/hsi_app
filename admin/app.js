@@ -631,21 +631,34 @@
   }
 
   // ---------- ORDERS ----------
-  let ordersFilter = 'all';
+  const ORDER_STATUSES = ['pending','payment_uploaded','processing','completed'];
+  let ordersFilter = 'pending';
   function setOrdersFilter(f) {
     ordersFilter = f;
-    ['all','pending','completed'].forEach(s => {
+    ORDER_STATUSES.forEach(s => {
       const btn = document.getElementById(`of-${s}`);
-      btn.classList.toggle('active', s === f);
-      btn.classList.toggle('bg-white', s !== f);
-      btn.classList.toggle('text-green-700', s !== f);
+      if (!btn) return;
+      if (s === f) {
+        btn.classList.add('bg-brand-blue','text-white');
+        btn.classList.remove('bg-white','text-brand-bluedark','border-gray-200');
+      } else {
+        btn.classList.remove('bg-brand-blue','text-white');
+        btn.classList.add('bg-white','text-brand-bluedark','border-gray-200');
+      }
     });
     loadAllOrders();
   }
   async function loadAllOrders() {
-    let q = sb.from('mkt_orders').select('*, buyer:shared_profiles!buyer_id(full_name,email), seller:shared_profiles!seller_id(full_name,farm_name)').order('created_at',{ascending:false});
-    if (ordersFilter !== 'all') q = q.eq('status', ordersFilter);
-    const { data: orders } = await q;
+    // Update per-status counts in card badges
+    ORDER_STATUSES.forEach(async s => {
+      const { count } = await sb.from('mkt_orders').select('*', { count:'exact', head:true }).eq('status', s);
+      const badge = document.getElementById(`badge-${s}`);
+      if (badge) { badge.textContent = count || 0; badge.classList.toggle('hidden', !count); }
+    });
+    const { data: orders } = await sb.from('mkt_orders')
+      .select('*, buyer:shared_profiles!buyer_id(full_name,email), seller:shared_profiles!seller_id(full_name,farm_name)')
+      .eq('status', ordersFilter)
+      .order('created_at',{ascending:false});
     const el = document.getElementById('orders-list');
     if (!orders || orders.length === 0) { el.innerHTML = '<p class="text-gray-400 text-sm text-center py-8">No orders.</p>'; return; }
     el.innerHTML = orders.map(o => `
@@ -653,7 +666,7 @@
         <div class="flex-1 min-w-0">
           <p class="font-semibold text-sm">${o.buyer?.full_name || 'Buyer'} → ${o.seller?.farm_name || o.seller?.full_name || 'Seller'}</p>
           <p class="text-xs text-gray-400">${o.order_number? o.order_number+' · ':''}${new Date(o.created_at).toLocaleString()}</p>
-          <p class="text-green-700 font-bold text-sm">${rm(o.total_amount)}</p>
+          <p class="text-brand-blue font-bold text-sm">${rm(o.total_amount)}</p>
         </div>
         <span class="text-xs font-semibold px-2 py-1 rounded-full status-${o.status}">${o.status.replace(/_/g,' ').toUpperCase()}</span>
         ${!['completed','cancelled'].includes(o.status) ? `<button onclick="cancelOrder('${o.id}')" class="bg-red-50 text-red-600 text-xs px-3 py-1.5 rounded-full transition">Cancel</button>` : ''}
