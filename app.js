@@ -117,6 +117,17 @@ function toggleMobileMenu(){var m=document.getElementById('mobile-menu');if(m)m.
     });
   }
 
+  function goToProfile() {
+    sb.auth.getSession().then(async ({ data: { session } }) => {
+      if (!session) return openAuth();
+      const { data: profile } = await sb.from('shared_profiles').select('role,status').eq('id', session.user.id).single();
+      if (!profile) return;
+      if (profile.role === 'admin') { window.location.href = 'admin/'; return; }
+      if (profile.role === 'seller' && profile.status === 'active') { window.location.href = 'seller/?tab=profile'; return; }
+      window.location.href = 'buyer/?tab=profile';
+    });
+  }
+
   async function doLogin() {
     const btn = document.getElementById('login-btn');
     const errBox = document.getElementById('login-error');

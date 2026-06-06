@@ -89,7 +89,16 @@
     if (tab === 'profile') loadProfile();
   }
 
-  async function initSellerApp() { loadProducts(); }
+  async function initSellerApp() {
+    const params = new URLSearchParams(window.location.search);
+    const initialTab = params.get('tab');
+    if (initialTab === 'profile') {
+      switchTab('profile');
+      history.replaceState({}, '', window.location.pathname);
+    } else {
+      loadProducts();
+    }
+  }
 
   // ---- PRODUCTS ----
   async function loadProducts() {

@@ -120,13 +120,18 @@
   }
 
   async function initBuyerApp() {
-    const openCart = new URLSearchParams(window.location.search).get('cart') === 'open';
+    const params = new URLSearchParams(window.location.search);
+    const openCart = params.get('cart') === 'open';
+    const initialTab = params.get('tab');
     history.replaceState({}, '', window.location.pathname);
     if (openCart) {
       document.body.classList.add('checkout-mode');
       document.getElementById('cart-close-btn').classList.remove('hidden');
     }
-    switchTab(openCart ? 'cart' : 'orders');
+    let startTab = 'orders';
+    if (openCart) startTab = 'cart';
+    else if (initialTab && ['orders','rewards','profile','cart'].includes(initialTab)) startTab = initialTab;
+    switchTab(startTab);
     updateCartBadge();
   }
 
