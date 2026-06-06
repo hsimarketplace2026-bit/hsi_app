@@ -41,6 +41,7 @@
       // Benefits of hydroponic farming
       'benefits.title': 'Benefits of Hydroponic Farming',
       'benefits.subtitle': 'A smarter, cleaner way to grow food — better for you, for the farmer, and for the planet.',
+      'benefits.tag': 'Why Hydroponics',
       'benefits.water_title': 'Saves Water',
       'benefits.water_body': 'Uses up to 90% less water than soil farming through closed-loop recirculation.',
       'benefits.pesticide_title': 'No Pesticides',
@@ -330,6 +331,7 @@
       // Benefits of hydroponic farming
       'benefits.title': 'Kelebihan Pertanian Hidroponik',
       'benefits.subtitle': 'Cara menanam makanan yang lebih bijak dan bersih — lebih baik untuk anda, petani, dan bumi.',
+      'benefits.tag': 'Mengapa Hidroponik',
       'benefits.water_title': 'Menjimatkan Air',
       'benefits.water_body': 'Menggunakan air sehingga 90% lebih sedikit berbanding pertanian tanah melalui sistem kitar semula tertutup.',
       'benefits.pesticide_title': 'Tanpa Pestisid',
