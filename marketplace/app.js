@@ -423,7 +423,9 @@
     }
   }
 
-  initNav();
+  initNav().then(() => {
+    if (new URLSearchParams(location.search).get('cart') === 'open') toggleCart();
+  });
   loadProducts();
 
   if ('serviceWorker' in navigator) {
