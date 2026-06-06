@@ -371,7 +371,7 @@
   // ---------- ORDERS ----------
   async function loadOrders() {
     const { data: orders } = await sb.from('mkt_orders')
-      .select('*, profiles:shared_profiles!seller_id(full_name, farm_name, whatsapp, bank_name, bank_account_no, bank_account_name, bank_qr_url, delivery_fee), order_items:mkt_order_items(*, products:mkt_products(name, unit)), payments:mkt_payments(*)')
+      .select('*, profiles:shared_profiles!seller_id(full_name, farm_name, whatsapp, bank_name, bank_account_no, bank_account_name, bank_qr_url, delivery_fee), order_items:mkt_order_items(*, products:mkt_products(name, unit, image_url)), payments:mkt_payments(*)')
       .eq('buyer_id', currentUser.id)
       .order('created_at', { ascending: false });
     const listEl = document.getElementById('orders-list');
@@ -458,11 +458,19 @@
               : `<span class="text-xs bg-gray-100 text-gray-600 px-2 py-0.5 rounded-full">Pickup</span>`}
             ${o.delivery_address ? `<span class="text-xs text-gray-500"> ${o.delivery_address}</span>` : ''}
           </div>
-          <div class="space-y-1 mb-3">
+          <div class="space-y-2 mb-3">
             ${(o.order_items || []).map(i => `
-              <div class="flex justify-between text-sm text-gray-600">
-                <span>${i.product_name || i.products?.name} × ${i.quantity} ${i.products?.unit||''}</span>
-                <span>${rm(i.quantity * i.unit_price)}</span>
+              <div class="flex items-center gap-3 text-sm">
+                <div class="w-12 h-12 rounded-lg bg-brand-bluelight overflow-hidden flex-shrink-0 flex items-center justify-center">
+                  ${i.products?.image_url
+                    ? `<img src="${i.products.image_url}" alt="" class="w-full h-full object-cover" onerror="this.parentNode.innerHTML='<svg class=\\'w-6 h-6 text-brand-blue\\' fill=\\'none\\' stroke=\\'currentColor\\' stroke-width=\\'1.5\\' viewBox=\\'0 0 24 24\\'><path stroke-linecap=\\'round\\' stroke-linejoin=\\'round\\' d=\\'M4 7h16M4 12h16M4 17h16\\'/></svg>'" />`
+                    : `<svg class="w-6 h-6 text-brand-blue" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16l4-4a3 3 0 014 0l4 4M14 14l2-2a3 3 0 014 0l0 0M14 8h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>`}
+                </div>
+                <div class="flex-1 min-w-0">
+                  <p class="text-gray-700 truncate">${i.product_name || i.products?.name || ''}</p>
+                  <p class="text-xs text-gray-400">× ${i.quantity} ${i.products?.unit || ''}</p>
+                </div>
+                <span class="text-gray-700 font-medium whitespace-nowrap">${rm(i.quantity * i.unit_price)}</span>
               </div>`).join('')}
           </div>
           ${o.discount_amount>0?`<p class="text-xs text-green-600 mb-1">Discount: -${rm(o.discount_amount)}</p>`:''}
@@ -511,13 +519,22 @@
     document.getElementById('od-body').innerHTML = '<p class="text-gray-400 text-sm text-center py-8">Loading…</p>';
     document.getElementById('orderdetail-modal').classList.remove('hidden');
     const { data: o } = await sb.from('mkt_orders')
-      .select('*, buyer:shared_profiles!buyer_id(full_name,email,phone), seller:shared_profiles!seller_id(full_name,farm_name), order_items:mkt_order_items(*, products:mkt_products(name,unit))')
+      .select('*, buyer:shared_profiles!buyer_id(full_name,email,phone), seller:shared_profiles!seller_id(full_name,farm_name), order_items:mkt_order_items(*, products:mkt_products(name,unit,image_url))')
       .eq('id', orderId).single();
     if (!o) { document.getElementById('od-body').innerHTML = '<p class="text-red-500 text-sm text-center py-8">Order not found.</p>'; return; }
     const items = o.order_items || [];
     const rows = items.map(i => `
       <tr class="border-b border-gray-100">
-        <td class="py-2 pr-2">${i.product_name || i.products?.name || 'Item'}</td>
+        <td class="py-2 pr-2">
+          <div class="flex items-center gap-2">
+            <div class="w-10 h-10 rounded-lg bg-brand-bluelight overflow-hidden flex-shrink-0 flex items-center justify-center">
+              ${i.products?.image_url
+                ? `<img src="${i.products.image_url}" alt="" class="w-full h-full object-cover" onerror="this.style.display='none'" />`
+                : `<svg class="w-5 h-5 text-brand-blue" fill="none" stroke="currentColor" stroke-width="1.5" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 16l4-4a3 3 0 014 0l4 4M14 14l2-2a3 3 0 014 0M14 8h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>`}
+            </div>
+            <span class="text-gray-700">${i.product_name || i.products?.name || 'Item'}</span>
+          </div>
+        </td>
         <td class="py-2 px-2 text-center whitespace-nowrap">${i.quantity} ${i.products?.unit || ''}</td>
         <td class="py-2 px-2 text-right whitespace-nowrap">${rm(i.unit_price)}</td>
         <td class="py-2 pl-2 text-right font-semibold whitespace-nowrap">${rm(i.quantity * i.unit_price)}</td>
