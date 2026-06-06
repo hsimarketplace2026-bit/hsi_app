@@ -270,6 +270,13 @@ function toggleMobileMenu(){var m=document.getElementById('mobile-menu');if(m)m.
       document.getElementById('nav-cart-btn').classList.remove('hidden');
       updateCartBadge();
     }
+    // Sellers and admins cannot place orders — hide all SHOP links.
+    if (role === 'seller' || role === 'admin') {
+      document.querySelectorAll('[data-i18n="nav.shop"]').forEach(el => {
+        el.classList.add('hidden');
+        el.style.display = 'none';
+      });
+    }
 
     updateGreeting();
     updateLangChecks();

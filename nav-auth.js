@@ -52,6 +52,15 @@ document.addEventListener('click', function (e) {
     portal.classList.remove('hidden');
     if (auth) auth.classList.add('hidden');
 
+    // Sellers and admins should not see the SHOP link in the header — they
+    // cannot place orders.
+    if (role === 'seller' || role === 'admin') {
+      document.querySelectorAll('[data-i18n="nav.shop"]').forEach(el => {
+        el.classList.add('hidden');
+        el.style.display = 'none';
+      });
+    }
+
     // Cart only for buyers (or sellers/admins who can still shop).
     if (cart && (role === 'buyer' || !role)) {
       cart.href = rel('buyer/?cart=open');
