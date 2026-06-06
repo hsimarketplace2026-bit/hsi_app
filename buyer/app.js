@@ -361,6 +361,11 @@
 
     btn.disabled = false; btn.textContent = 'Place Order';
 
+    for (const o of createdOrders) {
+      sendEmail('order_confirmation', { order_id: o.id });
+      sendEmail('new_order_seller',   { order_id: o.id });
+    }
+
     updateCartBadge();
     showToast('Order placed! Check your Orders tab to pay the seller.', 'success');
     document.body.classList.remove('checkout-mode');
@@ -588,9 +593,18 @@
     if (insErr) { showToast('Failed to save payment: ' + insErr.message, 'error'); if (btn) { btn.disabled = false; btn.textContent = 'Submit Payment Slip'; } return; }
     const { error: updErr } = await sb.from('mkt_orders').update({ status: 'payment_uploaded' }).eq('id', orderId);
     if (updErr) { showToast('Failed to update order: ' + updErr.message, 'error'); if (btn) { btn.disabled = false; btn.textContent = 'Submit Payment Slip'; } return; }
+    sendEmail('order_status', { order_id: orderId });
     showToast('Payment slip submitted! Awaiting seller verification.');
     closePaymentModal();
     loadOrders();
+  }
+
+  function sendEmail(type, data) {
+    fetch(`${SUPABASE_URL}/functions/v1/send-order-email`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'apikey': SUPABASE_ANON_KEY, 'Authorization': `Bearer ${SUPABASE_ANON_KEY}` },
+      body: JSON.stringify({ type, ...data }),
+    }).catch(() => {});
   }
 
   async function cancelOrder(orderId) {

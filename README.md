@@ -67,7 +67,24 @@ Sign up, then visit `setup/` while logged in with the admin email (configured in
 `setup/index.html` and `index.html` as `ADMIN_EMAIL`) and click **Activate Admin Access**.
 Or promote via SQL: `update public.shared_profiles set role='admin', status='active' where email='you@example.com';`
 
-### 4. Online payments — point Billplz at **your own account**
+### 4. Transactional email (Resend)
+The `send-order-email` edge function powers all transactional email:
+order confirmation to buyer, new-order alert to seller, order status
+updates, and seller approval/rejection emails.
+
+1. **Deploy the function:**
+   ```bash
+   supabase functions deploy send-order-email --no-verify-jwt
+   ```
+2. **Set the Resend secret** (from https://resend.com/api-keys):
+   ```bash
+   supabase secrets set RESEND_API_KEY=re_xxxxxxxx
+   ```
+3. **Configure From address** in Admin → Settings → Email Notifications
+   (`from_name`, `from_email`, `admin_emails`). The From address must be on
+   a verified Resend domain.
+
+### 5. Online payments — point Billplz at **your own account**
 Online payment is **off by default**. To enable it:
 
 1. **Deploy the edge functions:**
@@ -75,7 +92,6 @@ Online payment is **off by default**. To enable it:
    supabase functions deploy create-billplz-bill  --no-verify-jwt
    supabase functions deploy billplz-webhook       --no-verify-jwt
    supabase functions deploy verify-billplz-bill    --no-verify-jwt
-   supabase functions deploy send-order-email       --no-verify-jwt
    ```
 2. **Set your Billplz secrets** (from *your* Billplz dashboard):
    ```bash
@@ -83,7 +99,6 @@ Online payment is **off by default**. To enable it:
    supabase secrets set BILLPLZ_COLLECTION_ID=your_collection_id
    supabase secrets set BILLPLZ_X_SIGNATURE_KEY=your_x_signature_key
    supabase secrets set BILLPLZ_SANDBOX=false        # "true" while testing
-   supabase secrets set RESEND_API_KEY=re_xxx        # optional, for emails
    ```
 3. In the Billplz dashboard, set the collection **callback/webhook URL** to:
    `https://<your-project>.supabase.co/functions/v1/billplz-webhook`

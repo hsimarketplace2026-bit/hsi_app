@@ -386,6 +386,7 @@
       amount_paid_at: new Date().toISOString()
     }).eq('id', orderId);
     try { await sb.rpc('mkt_award_order_points', { p_order_id: orderId }); } catch (_) {}
+    sendEmail('order_status', { order_id: orderId });
     showToast('Payment verified — order is now In Delivery!');
     loadOrders();
   }
@@ -393,8 +394,17 @@
   async function rejectPayment(paymentId, orderId) {
     await sb.from('mkt_payments').update({ status: 'rejected' }).eq('id', paymentId);
     await sb.from('mkt_orders').update({ status: 'pending' }).eq('id', orderId);
+    sendEmail('order_status', { order_id: orderId });
     showToast('Payment rejected — order reset to pending', 'warning');
     loadOrders();
+  }
+
+  function sendEmail(type, data) {
+    fetch(`${SUPABASE_URL}/functions/v1/send-order-email`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'apikey': SUPABASE_ANON_KEY, 'Authorization': `Bearer ${SUPABASE_ANON_KEY}` },
+      body: JSON.stringify({ type, ...data }),
+    }).catch(() => {});
   }
 
   function confirmDelivery(orderId) {
@@ -410,6 +420,7 @@
     closeDeliveryConfirm();
     const { error } = await sb.rpc('mkt_complete_order', { p_order_id: orderId });
     if (error) { showToast('Failed to complete: ' + error.message, 'error'); return; }
+    sendEmail('order_status', { order_id: orderId });
     showToast('Delivery completed! Inventory updated.');
     loadOrders();
     loadProducts();

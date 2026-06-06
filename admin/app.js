@@ -413,7 +413,16 @@
   async function updateSellerStatus(id, status) {
     const { error } = await sb.from('shared_profiles').update({ status }).eq('id', id);
     if (error) { showToast('Update failed', 'error'); return; }
+    sendEmail('seller_status', { seller_id: id, status });
     showToast(`Seller ${status}`); loadSellers();
+  }
+
+  function sendEmail(type, data) {
+    fetch(`${SUPABASE_URL}/functions/v1/send-order-email`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json', 'apikey': SUPABASE_ANON_KEY, 'Authorization': `Bearer ${SUPABASE_ANON_KEY}` },
+      body: JSON.stringify({ type, ...data }),
+    }).catch(() => {});
   }
   async function openEditSeller(id) {
     const { data: s } = await sb.from('shared_profiles').select('*').eq('id', id).single();
@@ -703,6 +712,8 @@
     const { data: ord } = await sb.from('mkt_orders').select('total_amount').eq('id', orderId).single();
     await sb.from('mkt_orders').update({ status: 'payment_verified', amount_paid: ord?ord.total_amount:undefined, amount_paid_at: new Date().toISOString() }).eq('id', orderId);
     try { await sb.rpc('mkt_award_order_points', { p_order_id: orderId }); } catch (_) {}
+    sendEmail('order_confirmation', { order_id: orderId });
+    sendEmail('order_status', { order_id: orderId });
     showToast('Payment verified — points awarded!'); loadAllPayments();
   }
   async function rejectPayment(paymentId, orderId) {
