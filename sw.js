@@ -1,8 +1,8 @@
-const CACHE = 'hsi-marketplace-v112';
+const CACHE = 'hsi-marketplace-v113';
 const PRECACHE = [
   './', './about/', './activities/', './partners/', './marketplace/',
   './manifest.json', './icon-192.png', './icon-512.png', './translations.js',
-  './app.js', './nav-auth.js',
+  './app.js', './nav-auth.js', './enhance.css',
   './about/app.js', './activities/app.js', './partners/app.js', './marketplace/app.js'
 ];
 
