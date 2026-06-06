@@ -599,7 +599,11 @@
   }
 
   function toggleLang() {
-    setLang(getLang() === 'en' ? 'bm' : 'en');
+    // Persist the new language, then reload so every element (including
+    // those without data-i18n and any dynamically rendered content) picks
+    // up the change consistently across the whole page.
+    localStorage.setItem(LANG_KEY, getLang() === 'en' ? 'bm' : 'en');
+    location.reload();
   }
 
   // Expose globally
