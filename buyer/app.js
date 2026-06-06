@@ -62,13 +62,16 @@
   document.addEventListener('click', (e) => {
     const menu = document.getElementById('nav-user-menu');
     if (menu && !menu.classList.contains('hidden') && !menu.contains(e.target)) closeUserMenu();
-    // Close the mobile slide-down menu when tapping outside it.
-    const mobile = document.getElementById('mobile-menu');
-    if (mobile && !mobile.classList.contains('hidden') && !mobile.contains(e.target)) {
-      const trigger = e.target.closest && e.target.closest('[aria-label="Open menu"]');
-      if (!trigger) mobile.classList.add('hidden');
-    }
   });
+  // Close the mobile slide-down menu on any outside click. Capture phase so
+  // content elements that call stopPropagation can't swallow the event.
+  document.addEventListener('click', (e) => {
+    const mobile = document.getElementById('mobile-menu');
+    if (!mobile || mobile.classList.contains('hidden')) return;
+    if (mobile.contains(e.target)) return;
+    const trigger = e.target.closest && e.target.closest('[aria-label="Open menu"]');
+    if (!trigger) mobile.classList.add('hidden');
+  }, true);
 
   async function loadAppConfig() {
     const { data } = await sb.from('shared_app_settings').select('key,value').in('key', ['points_config','member_tiers','payment_config']);
