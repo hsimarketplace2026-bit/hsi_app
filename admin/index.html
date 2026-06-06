@@ -4,7 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Admin Panel — HSI Marketplace</title>
-  <meta name="theme-color" content="#14532d" />
+  <meta name="theme-color" content="#1b75bc" />
   <link rel="manifest" href="../manifest.json" />
   <link rel="apple-touch-icon" href="../icon-192.png" />
   <meta name="apple-mobile-web-app-capable" content="yes" />
@@ -12,34 +12,40 @@
   <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent" />
   <meta name="apple-mobile-web-app-title" content="HSI Market" />
   <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = { theme: { extend: { colors: {
+      brand: { blue:'#1b75bc', bluedark:'#11537f', bluelight:'#e8f3fb', green:'#56b947', greendark:'#3c8a30', greenlight:'#eef8e8', yellow:'#cfdb2e' },
+      green: { 50:'#f1f9ee',100:'#dcf0d3',200:'#bce3aa',300:'#95d27c',400:'#74c455',500:'#56b947',600:'#46a338',700:'#3c8a30',800:'#336f29',900:'#285a22' }
+    }}}}
+  </script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <style>
-    :root { --green-nav: #14532d; --green-accent: #16a34a; --green-hover: #15803d; }
-    .nav-bg { background-color: var(--green-nav); }
-    .btn-primary { background-color: var(--green-accent); }
-    .btn-primary:hover { background-color: var(--green-hover); }
+    :root { --accent-green: #46a338; --accent-green-hover: #3c8a30; }
+    .btn-primary { background-color: var(--accent-green); }
+    .btn-primary:hover { background-color: var(--accent-green-hover); }
     #toast-container { position: fixed; bottom: 1.5rem; right: 1rem; z-index: 9999; display: flex; flex-direction: column; gap: 0.5rem; }
     .toast { padding: 0.75rem 1.25rem; border-radius: 0.5rem; color: white; font-size: 0.875rem; max-width: 320px; animation: slideIn 0.3s ease; }
     @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
-    .tab-btn.active { background-color: #16a34a; color: white; }
-    .side-btn { display:flex; align-items:center; gap:.6rem; width:100%; padding:.6rem .85rem; border-radius:.7rem; font-size:.875rem; font-weight:600; color:#15803d; text-align:left; transition:all .15s; }
-    .side-btn:hover { background:#dcfce7; }
-    .side-btn.active { background:#16a34a; color:#fff; box-shadow:0 1px 4px rgba(22,163,74,.35); }
-    .side-locked { opacity:.45; }
-    .side-locked:hover { opacity:.9; }
+    .tab-btn.active { background-color: #1b75bc; color: white; }
+    .top-tab { display:inline-flex; align-items:center; gap:.4rem; padding:.55rem 1rem; border-radius:9999px; font-size:.8rem; font-weight:600; color:#4b5563; background:#fff; border:1px solid #e5e7eb; white-space:nowrap; transition:all .15s; }
+    .top-tab:hover { background:#e8f3fb; color:#11537f; border-color:#1b75bc; }
+    .top-tab.active { background:#1b75bc; color:#fff; border-color:#1b75bc; box-shadow:0 1px 4px rgba(27,117,188,.35); }
+    .top-tab.locked { opacity:.55; }
+    .top-tab.locked:hover { opacity:.85; }
+    .top-tab-divider { width:1px; align-self:stretch; background:#e5e7eb; margin:0 .25rem; }
+    .top-tab-section { font-size:.65rem; text-transform:uppercase; letter-spacing:.06em; color:#9ca3af; padding:0 .25rem; align-self:center; font-weight:700; }
     /* Subscribe-only modules: viewable but not interactive */
     .panel-locked > *:not(#preview-banner) { opacity:.6; pointer-events:none; }
-    .side-section-label { font-size:.65rem; text-transform:uppercase; letter-spacing:.06em; color:#9ca3af; padding:.7rem .85rem .3rem; }
     .status-pending { background:#fef3c7;color:#92400e; }
     .status-payment_uploaded { background:#dbeafe;color:#1e40af; }
     .status-payment_verified { background:#e0e7ff;color:#3730a3; }
     .status-processing { background:#ffedd5;color:#9a3412; }
     .status-completed { background:#dcfce7;color:#166534; }
     .status-cancelled { background:#fee2e2;color:#991b1b; }
-    .filter-btn.active { background-color: #16a34a; color: white; }
+    .filter-btn.active { background-color: #1b75bc; color: white; }
   </style>
 </head>
-<body class="bg-green-50 text-gray-800 font-sans">
+<body class="bg-gray-50 text-gray-800 font-sans">
 
 <div id="toast-container"></div>
 
@@ -63,56 +69,53 @@
   })();
 </script>
 
-<nav class="nav-bg text-white sticky top-0 z-40 shadow-lg">
-  <div class="max-w-6xl mx-auto px-4 py-3 flex items-center justify-between">
-    <a href="../" class="flex items-center gap-2 font-bold">
-      <img src="../applogo.png" alt="HSI" class="w-7 h-7 rounded" onerror="this.style.display='none'" />
-      <span class="text-sm sm:text-base">HSI Marketplace Admin Portal</span>
+<nav class="bg-white text-gray-800 sticky top-0 z-40 shadow-md border-b border-gray-100">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex items-center justify-between">
+    <a href="../" class="flex items-center gap-2 font-bold text-lg tracking-wide shrink-0">
+      <img src="../assets/hsi-logo.png" alt="HSI Marketplace" class="h-9 sm:h-10 w-auto" onerror="this.style.display='none'" />
+      <span class="text-brand-bluedark text-sm sm:text-base hidden sm:inline">HSI Marketplace <span class="text-brand-blue">Admin</span></span>
     </a>
     <div class="flex items-center gap-3">
-      <span id="admin-name" class="text-green-100 text-sm font-medium hidden sm:inline"></span>
-      <button onclick="doLogout()" class="bg-green-800 hover:bg-green-700 text-sm px-3 py-1.5 rounded-full transition">Logout</button>
+      <span id="admin-name" class="text-gray-600 text-sm font-medium hidden sm:inline"></span>
+      <button onclick="doLogout()" class="text-red-600 border border-red-300 hover:bg-red-50 text-sm px-3 py-1.5 rounded-full transition">Logout</button>
+    </div>
+  </div>
+  <!-- TOP TABS BAR (replaces sidebar) -->
+  <div class="border-t border-gray-100 bg-white">
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-2 flex items-center gap-2 overflow-x-auto">
+      <button onclick="switchTab('orders')"    id="tab-orders"    class="top-tab active">Orders</button>
+      <button onclick="switchTab('customers')" id="tab-customers" class="top-tab">Customers</button>
+      <button onclick="switchTab('sellers')"   id="tab-sellers"   class="top-tab">Sellers &amp; Products</button>
+      <button onclick="switchTab('settings')"  id="tab-settings"  class="top-tab">Settings</button>
+      <button onclick="switchTab('staff')"     id="tab-staff"     class="top-tab hidden">User Access</button>
+      <div class="top-tab-divider"></div>
+      <span class="top-tab-section">Subscribe</span>
+      <button onclick="switchTab('reports')"       id="tab-reports"       class="top-tab locked">Reports</button>
+      <button onclick="switchTab('points')"        id="tab-points"        class="top-tab locked">Points &amp; Membership</button>
+      <button onclick="switchTab('payments')"      id="tab-payments"      class="top-tab locked">Payments</button>
+      <button onclick="switchTab('coupons')"       id="tab-coupons"       class="top-tab locked">Coupons</button>
+      <button onclick="switchTab('promotions')"    id="tab-promotions"    class="top-tab locked">Promotions</button>
+      <button onclick="switchTab('announcements')" id="tab-announcements" class="top-tab locked">Announcements</button>
     </div>
   </div>
 </nav>
 
 <div class="max-w-7xl mx-auto px-3 sm:px-4 py-4 sm:py-6">
-  <button onclick="toggleSidebar()" class="sm:hidden mb-3 flex items-center gap-2 bg-white border border-green-200 text-green-800 font-semibold text-sm px-4 py-2 rounded-xl shadow-sm">☰ <span id="sidebar-current">Menu</span></button>
-
-  <div class="flex flex-col sm:flex-row gap-4 sm:gap-6">
-    <!-- SIDEBAR -->
-    <aside id="sidebar" class="hidden sm:block w-full sm:w-60 flex-shrink-0">
-      <nav class="bg-white rounded-2xl shadow border border-green-100 p-2 sm:sticky sm:top-20 space-y-0.5">
-        <button onclick="switchTab('orders')"    id="tab-orders"    class="side-btn active"><span>📦</span><span>Orders</span></button>
-        <button onclick="switchTab('customers')" id="tab-customers" class="side-btn"><span>🧑</span><span>Customers</span></button>
-        <button onclick="switchTab('sellers')"   id="tab-sellers"   class="side-btn"><span>🌾</span><span>Sellers &amp; Products</span></button>
-        <button onclick="switchTab('settings')"  id="tab-settings"  class="side-btn"><span>⚙️</span><span>Settings</span></button>
-        <button onclick="switchTab('staff')"     id="tab-staff"     class="side-btn hidden"><span>🛡️</span><span>User Access</span></button>
-
-        <div class="side-section-label">More modules to subscribe:</div>
-        <button onclick="switchTab('reports')"       id="tab-reports"       class="side-btn side-locked"><span>📊</span><span>Reports</span></button>
-        <button onclick="switchTab('points')"        id="tab-points"        class="side-btn side-locked"><span>💎</span><span>Points &amp; Membership</span></button>
-        <button onclick="switchTab('payments')"      id="tab-payments"      class="side-btn side-locked"><span>💰</span><span>Payments</span></button>
-        <button onclick="switchTab('coupons')"       id="tab-coupons"       class="side-btn side-locked"><span>🎟️</span><span>Coupons</span></button>
-        <button onclick="switchTab('promotions')"    id="tab-promotions"    class="side-btn side-locked"><span>🏷️</span><span>Promotions</span></button>
-        <button onclick="switchTab('announcements')" id="tab-announcements" class="side-btn side-locked"><span>📢</span><span>Announcements</span></button>
-      </nav>
-    </aside>
-
+  <div>
     <!-- MAIN CONTENT -->
     <main class="flex-1 min-w-0">
 
   <!-- SELLERS -->
   <div id="panel-sellers" class="hidden">
     <div class="flex justify-between items-center mb-4 gap-2 flex-wrap">
-      <h2 class="text-lg font-bold text-green-900">Sellers &amp; Products</h2>
+      <h2 class="text-lg font-bold text-brand-bluedark">Sellers &amp; Products</h2>
       <button onclick="openAddSeller()" class="btn-primary text-white text-sm px-4 py-2 rounded-full transition">+ Add Seller</button>
     </div>
     <div class="flex gap-2 mb-4 flex-wrap">
-      <button onclick="setSellersFilter('all')"       id="sf-all"       class="filter-btn active text-sm px-4 py-1.5 rounded-full border border-green-200 transition">All</button>
-      <button onclick="setSellersFilter('pending')"   id="sf-pending"   class="filter-btn text-sm px-4 py-1.5 rounded-full border border-green-200 bg-white text-green-700 transition">Pending</button>
-      <button onclick="setSellersFilter('active')"    id="sf-active"    class="filter-btn text-sm px-4 py-1.5 rounded-full border border-green-200 bg-white text-green-700 transition">Active</button>
-      <button onclick="setSellersFilter('suspended')" id="sf-suspended" class="filter-btn text-sm px-4 py-1.5 rounded-full border border-green-200 bg-white text-green-700 transition">Suspended</button>
+      <button onclick="setSellersFilter('all')"       id="sf-all"       class="filter-btn active text-sm px-4 py-1.5 rounded-full border border-gray-200 transition">All</button>
+      <button onclick="setSellersFilter('pending')"   id="sf-pending"   class="filter-btn text-sm px-4 py-1.5 rounded-full border border-gray-200 bg-white text-green-700 transition">Pending</button>
+      <button onclick="setSellersFilter('active')"    id="sf-active"    class="filter-btn text-sm px-4 py-1.5 rounded-full border border-gray-200 bg-white text-green-700 transition">Active</button>
+      <button onclick="setSellersFilter('suspended')" id="sf-suspended" class="filter-btn text-sm px-4 py-1.5 rounded-full border border-gray-200 bg-white text-green-700 transition">Suspended</button>
     </div>
     <div id="sellers-list" class="space-y-3"><p class="text-gray-400 text-sm text-center py-8">Loading sellers…</p></div>
   </div>
@@ -120,9 +123,9 @@
   <!-- REPORTS -->
   <div id="panel-reports" class="hidden">
     <div class="flex justify-between items-center mb-4 gap-2 flex-wrap">
-      <h2 class="text-lg font-bold text-green-900">Reports</h2>
+      <h2 class="text-lg font-bold text-brand-bluedark">Reports</h2>
     </div>
-    <div class="bg-white rounded-xl p-4 shadow border border-green-100 mb-5">
+    <div class="bg-white rounded-xl p-4 shadow border border-gray-100 mb-5">
       <div class="flex items-end gap-3 flex-wrap">
         <div>
           <label class="block text-xs text-gray-500 mb-1">From</label>
@@ -135,24 +138,24 @@
         <button onclick="loadReports()" class="btn-primary text-white text-sm px-5 py-2 rounded-lg transition">Apply</button>
         <button onclick="exportReportCSV()" class="bg-white border border-green-300 text-green-700 text-sm px-5 py-2 rounded-lg hover:bg-green-50 transition">⬇ Export CSV</button>
         <div class="flex gap-1.5 ml-auto">
-          <button onclick="setReportRange(7)"  class="text-xs px-3 py-1.5 rounded-full border border-green-200 bg-white text-green-700 hover:bg-green-50 transition">7d</button>
-          <button onclick="setReportRange(30)" class="text-xs px-3 py-1.5 rounded-full border border-green-200 bg-white text-green-700 hover:bg-green-50 transition">30d</button>
-          <button onclick="setReportRange(90)" class="text-xs px-3 py-1.5 rounded-full border border-green-200 bg-white text-green-700 hover:bg-green-50 transition">90d</button>
+          <button onclick="setReportRange(7)"  class="text-xs px-3 py-1.5 rounded-full border border-gray-200 bg-white text-green-700 hover:bg-green-50 transition">7d</button>
+          <button onclick="setReportRange(30)" class="text-xs px-3 py-1.5 rounded-full border border-gray-200 bg-white text-green-700 hover:bg-green-50 transition">30d</button>
+          <button onclick="setReportRange(90)" class="text-xs px-3 py-1.5 rounded-full border border-gray-200 bg-white text-green-700 hover:bg-green-50 transition">90d</button>
         </div>
       </div>
     </div>
     <div id="rep-kpis" class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6"></div>
     <div class="grid lg:grid-cols-2 gap-6">
-      <div class="bg-white rounded-xl p-5 shadow border border-green-100">
-        <h3 class="font-bold text-green-900 mb-3">Orders by Status</h3>
+      <div class="bg-white rounded-xl p-5 shadow border border-gray-100">
+        <h3 class="font-bold text-brand-bluedark mb-3">Orders by Status</h3>
         <div id="rep-status"></div>
       </div>
-      <div class="bg-white rounded-xl p-5 shadow border border-green-100">
-        <h3 class="font-bold text-green-900 mb-3">Top Sellers (by sales)</h3>
+      <div class="bg-white rounded-xl p-5 shadow border border-gray-100">
+        <h3 class="font-bold text-brand-bluedark mb-3">Top Sellers (by sales)</h3>
         <div id="rep-sellers"></div>
       </div>
-      <div class="bg-white rounded-xl p-5 shadow border border-green-100 lg:col-span-2">
-        <h3 class="font-bold text-green-900 mb-3">Top Products (by quantity sold)</h3>
+      <div class="bg-white rounded-xl p-5 shadow border border-gray-100 lg:col-span-2">
+        <h3 class="font-bold text-brand-bluedark mb-3">Top Products (by quantity sold)</h3>
         <div id="rep-products"></div>
       </div>
     </div>
@@ -161,13 +164,13 @@
   <!-- ORDERS -->
   <div id="panel-orders">
     <div class="flex justify-between items-center mb-4 gap-2 flex-wrap">
-      <h2 class="text-lg font-bold text-green-900">Orders</h2>
+      <h2 class="text-lg font-bold text-brand-bluedark">Orders</h2>
       <button onclick="openAddOrder()" class="btn-primary text-white text-sm px-5 py-2 rounded-full transition">+ Add Order</button>
     </div>
     <div class="flex gap-2 mb-4 flex-wrap">
-      <button onclick="setOrdersFilter('all')"       id="of-all"       class="filter-btn active text-sm px-4 py-1.5 rounded-full border border-green-200 transition">All</button>
-      <button onclick="setOrdersFilter('pending')"   id="of-pending"   class="filter-btn text-sm px-4 py-1.5 rounded-full border border-green-200 bg-white text-green-700 transition">Pending</button>
-      <button onclick="setOrdersFilter('completed')" id="of-completed" class="filter-btn text-sm px-4 py-1.5 rounded-full border border-green-200 bg-white text-green-700 transition">Completed</button>
+      <button onclick="setOrdersFilter('all')"       id="of-all"       class="filter-btn active text-sm px-4 py-1.5 rounded-full border border-gray-200 transition">All</button>
+      <button onclick="setOrdersFilter('pending')"   id="of-pending"   class="filter-btn text-sm px-4 py-1.5 rounded-full border border-gray-200 bg-white text-green-700 transition">Pending</button>
+      <button onclick="setOrdersFilter('completed')" id="of-completed" class="filter-btn text-sm px-4 py-1.5 rounded-full border border-gray-200 bg-white text-green-700 transition">Completed</button>
     </div>
     <div id="orders-list" class="space-y-3"><p class="text-gray-400 text-sm text-center py-8">Loading orders…</p></div>
   </div>
@@ -180,7 +183,7 @@
   <!-- CUSTOMERS -->
   <div id="panel-customers" class="hidden">
     <div class="flex justify-between items-center mb-4 gap-2 flex-wrap">
-      <h2 class="text-lg font-bold text-green-900">Customers</h2>
+      <h2 class="text-lg font-bold text-brand-bluedark">Customers</h2>
       <button onclick="openAddCustomer()" class="btn-primary text-white text-sm px-5 py-2 rounded-full transition">+ Add Customer</button>
     </div>
     <input id="cust-search" oninput="renderCustomers()" placeholder="Search customers…" class="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm mb-4 focus:outline-none focus:border-green-500" />
@@ -189,8 +192,8 @@
 
   <!-- POINTS & MEMBERSHIP -->
   <div id="panel-points" class="hidden space-y-6">
-    <div class="bg-white rounded-xl p-6 shadow border border-green-100">
-      <h3 class="text-lg font-bold text-green-900 mb-4">Loyalty Points</h3>
+    <div class="bg-white rounded-xl p-6 shadow border border-gray-100">
+      <h3 class="text-lg font-bold text-brand-bluedark mb-4">Loyalty Points</h3>
       <div class="grid sm:grid-cols-2 gap-4 text-sm">
         <label class="flex items-center gap-2"><input type="checkbox" id="set-pts-enabled" class="accent-green-600" /> Points enabled</label>
         <div></div>
@@ -203,9 +206,9 @@
       <div class="mt-4 flex justify-end"><button onclick="savePointsConfig()" class="btn-primary text-white font-semibold px-5 py-2 rounded-lg text-sm transition">Save</button></div>
     </div>
 
-    <div class="bg-white rounded-xl p-6 shadow border border-green-100">
+    <div class="bg-white rounded-xl p-6 shadow border border-gray-100">
       <div class="flex items-center justify-between mb-3">
-        <h3 class="text-lg font-bold text-green-900">Membership Tiers</h3>
+        <h3 class="text-lg font-bold text-brand-bluedark">Membership Tiers</h3>
         <button onclick="addTierRow()" class="text-sm text-green-600 hover:underline">+ Add tier</button>
       </div>
       <div id="tiers-rows" class="space-y-2"></div>
@@ -216,7 +219,7 @@
   <!-- COUPONS -->
   <div id="panel-coupons" class="hidden">
     <div class="flex justify-between items-center mb-4">
-      <h2 class="text-lg font-bold text-green-900">Coupons</h2>
+      <h2 class="text-lg font-bold text-brand-bluedark">Coupons</h2>
       <button onclick="openCouponModal()" class="btn-primary text-white text-sm px-5 py-2 rounded-full transition">+ New Coupon</button>
     </div>
     <div id="coupons-list" class="space-y-3"><p class="text-gray-400 text-sm text-center py-8">Loading coupons…</p></div>
@@ -225,7 +228,7 @@
   <!-- PROMOTIONS -->
   <div id="panel-promotions" class="hidden">
     <div class="flex justify-between items-center mb-4">
-      <h2 class="text-lg font-bold text-green-900">Promotions</h2>
+      <h2 class="text-lg font-bold text-brand-bluedark">Promotions</h2>
       <button onclick="openPromoModal()" class="btn-primary text-white text-sm px-5 py-2 rounded-full transition">+ New Promotion</button>
     </div>
     <div id="promotions-list" class="space-y-3"><p class="text-gray-400 text-sm text-center py-8">Loading promotions…</p></div>
@@ -234,7 +237,7 @@
   <!-- ANNOUNCEMENTS -->
   <div id="panel-announcements" class="hidden">
     <div class="flex justify-between items-center mb-4">
-      <h2 class="text-lg font-bold text-green-900">Announcements</h2>
+      <h2 class="text-lg font-bold text-brand-bluedark">Announcements</h2>
       <button onclick="openAnnouncementModal()" class="btn-primary text-white text-sm px-5 py-2 rounded-full transition">+ New</button>
     </div>
     <div id="announcements-list" class="space-y-3"><p class="text-gray-400 text-sm text-center py-8">Loading announcements…</p></div>
@@ -242,12 +245,12 @@
 
   <!-- SETTINGS -->
   <div id="panel-settings" class="hidden space-y-6">
-    <div class="bg-green-50 text-green-800 text-sm rounded-xl p-4 border border-green-100">
+    <div class="bg-green-50 text-green-800 text-sm rounded-xl p-4 border border-gray-100">
       <p class="font-semibold mb-1">💳 Payments are handled by each seller</p>
       <p class="text-xs text-gray-600">Buyers pay each seller directly. Sellers set up their own bank account and DuitNow QR code in their <strong>Seller Dashboard → Profile → Payment Details</strong>; buyers scan the QR / transfer and upload their payment slip.</p>
     </div>
-    <div class="bg-white rounded-xl p-6 shadow border border-green-100">
-      <h3 class="text-lg font-bold text-green-900 mb-4">Email Notifications</h3>
+    <div class="bg-white rounded-xl p-6 shadow border border-gray-100">
+      <h3 class="text-lg font-bold text-brand-bluedark mb-4">Email Notifications</h3>
       <div class="grid sm:grid-cols-2 gap-3 text-sm">
         <div><label class="block text-gray-600 mb-1">From name</label><input id="set-from-name" class="w-full border border-gray-300 rounded-lg px-3 py-2" /></div>
         <div><label class="block text-gray-600 mb-1">From email</label><input id="set-from-email" class="w-full border border-gray-300 rounded-lg px-3 py-2" /></div>
@@ -260,8 +263,8 @@
 
   <!-- STAFF / USER ACCESS -->
   <div id="panel-staff" class="hidden space-y-4">
-    <div class="bg-white rounded-xl p-5 shadow border border-green-100">
-      <h3 class="font-bold text-green-900 mb-1">Add staff member</h3>
+    <div class="bg-white rounded-xl p-5 shadow border border-gray-100">
+      <h3 class="font-bold text-brand-bluedark mb-1">Add staff member</h3>
       <p class="text-xs text-gray-500 mb-3">Enter the email of an existing registered user to give them admin-panel access. You choose which tabs they can see.</p>
       <div class="flex gap-2">
         <input id="staff-email" type="email" placeholder="person@example.com" class="flex-1 border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-green-500" />
@@ -280,14 +283,14 @@
   <div class="absolute inset-0 bg-black bg-opacity-50" onclick="closeStaffModal()"></div>
   <div class="relative bg-white rounded-2xl w-full max-w-md max-h-screen overflow-y-auto p-6 shadow-2xl">
     <button onclick="closeStaffModal()" class="absolute top-3 right-4 text-gray-400 hover:text-gray-600 text-2xl">&times;</button>
-    <h3 class="text-xl font-bold text-green-900 mb-1">Edit Access</h3>
+    <h3 class="text-xl font-bold text-brand-bluedark mb-1">Edit Access</h3>
     <p id="staff-modal-name" class="text-sm text-gray-500 mb-4"></p>
     <input type="hidden" id="staff-user-id" />
     <div class="flex gap-4 text-sm mb-3">
       <label class="flex items-center gap-2"><input type="radio" name="staff-level" value="admin" onchange="toggleStaffTabs()" class="accent-green-600" /> Full admin</label>
       <label class="flex items-center gap-2"><input type="radio" name="staff-level" value="staff" onchange="toggleStaffTabs()" class="accent-green-600" /> Staff (limited)</label>
     </div>
-    <div id="staff-tabs-box" class="hidden border border-green-100 rounded-lg p-3 mb-4">
+    <div id="staff-tabs-box" class="hidden border border-gray-100 rounded-lg p-3 mb-4">
       <p class="text-xs text-gray-500 mb-2">Tabs this staff can access:</p>
       <div id="staff-tabs-checks" class="grid grid-cols-2 gap-2 text-sm"></div>
     </div>
@@ -301,7 +304,7 @@
   <div class="absolute inset-0 bg-black bg-opacity-50" onclick="closeAnnouncementModal()"></div>
   <div class="relative bg-white rounded-2xl w-full max-w-lg p-6 shadow-2xl">
     <button onclick="closeAnnouncementModal()" class="absolute top-3 right-4 text-gray-400 hover:text-gray-600 text-2xl">&times;</button>
-    <h3 id="ann-modal-title" class="text-xl font-bold text-green-900 mb-4">New Announcement</h3>
+    <h3 id="ann-modal-title" class="text-xl font-bold text-brand-bluedark mb-4">New Announcement</h3>
     <form onsubmit="saveAnnouncement(event)" class="space-y-4">
       <input type="hidden" id="ann-id" />
       <input type="text" id="ann-title" required placeholder="Title" class="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-green-500" />
@@ -321,7 +324,7 @@
   <div class="absolute inset-0 bg-black bg-opacity-50" onclick="closeCouponModal()"></div>
   <div class="relative bg-white rounded-2xl w-full max-w-lg max-h-screen overflow-y-auto p-6 shadow-2xl">
     <button onclick="closeCouponModal()" class="absolute top-3 right-4 text-gray-400 hover:text-gray-600 text-2xl">&times;</button>
-    <h3 id="coupon-modal-title" class="text-xl font-bold text-green-900 mb-4">New Coupon</h3>
+    <h3 id="coupon-modal-title" class="text-xl font-bold text-brand-bluedark mb-4">New Coupon</h3>
     <form onsubmit="saveCoupon(event)" class="space-y-3 text-sm">
       <input type="hidden" id="coupon-id" />
       <div class="flex gap-2">
@@ -359,7 +362,7 @@
   <div class="absolute inset-0 bg-black bg-opacity-50" onclick="closePromoModal()"></div>
   <div class="relative bg-white rounded-2xl w-full max-w-lg max-h-screen overflow-y-auto p-6 shadow-2xl">
     <button onclick="closePromoModal()" class="absolute top-3 right-4 text-gray-400 hover:text-gray-600 text-2xl">&times;</button>
-    <h3 id="promo-modal-title" class="text-xl font-bold text-green-900 mb-4">New Promotion</h3>
+    <h3 id="promo-modal-title" class="text-xl font-bold text-brand-bluedark mb-4">New Promotion</h3>
     <form onsubmit="savePromo(event)" class="space-y-3 text-sm">
       <input type="hidden" id="promo-id" />
       <input id="promo-title" required placeholder="Title" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:border-green-500" />
@@ -395,11 +398,11 @@
   <div class="absolute inset-0 bg-black bg-opacity-50" onclick="closeCustomerModal()"></div>
   <div class="relative bg-white rounded-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto p-6 shadow-2xl">
     <button onclick="closeCustomerModal()" class="absolute top-3 right-4 text-gray-400 hover:text-gray-600 text-2xl">&times;</button>
-    <h3 id="cm-name" class="text-xl font-bold text-green-900"></h3>
+    <h3 id="cm-name" class="text-xl font-bold text-brand-bluedark"></h3>
     <p id="cm-contact" class="text-sm text-gray-500"></p>
     <p id="cm-joined" class="text-xs text-gray-400 mb-4"></p>
     <div id="cm-stats"></div>
-    <h4 class="font-semibold text-green-900 mb-2 text-sm">Order History</h4>
+    <h4 class="font-semibold text-brand-bluedark mb-2 text-sm">Order History</h4>
     <div id="cm-orders" class="space-y-2"></div>
   </div>
 </div>
@@ -409,7 +412,7 @@
   <div class="absolute inset-0 bg-black bg-opacity-50" onclick="closeAdd('addcust')"></div>
   <div class="relative bg-white rounded-2xl w-full max-w-md p-6 shadow-2xl max-h-screen overflow-y-auto">
     <button onclick="closeAdd('addcust')" class="absolute top-3 right-4 text-gray-400 hover:text-gray-600 text-2xl">&times;</button>
-    <h3 class="text-xl font-bold text-green-900 mb-4">Add Customer</h3>
+    <h3 class="text-xl font-bold text-brand-bluedark mb-4">Add Customer</h3>
     <form onsubmit="saveNewCustomer(event)" class="space-y-3 text-sm">
       <input id="nc-name" required placeholder="Full name" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:border-green-500" />
       <input id="nc-email" type="email" required placeholder="Email" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:border-green-500" />
@@ -430,7 +433,7 @@
   <div class="absolute inset-0 bg-black bg-opacity-50" onclick="closeAdd('addseller')"></div>
   <div class="relative bg-white rounded-2xl w-full max-w-md p-6 shadow-2xl max-h-screen overflow-y-auto">
     <button onclick="closeAdd('addseller')" class="absolute top-3 right-4 text-gray-400 hover:text-gray-600 text-2xl">&times;</button>
-    <h3 class="text-xl font-bold text-green-900 mb-4">Add Seller</h3>
+    <h3 class="text-xl font-bold text-brand-bluedark mb-4">Add Seller</h3>
     <form onsubmit="saveNewSeller(event)" class="space-y-3 text-sm">
       <input id="ns-name" required placeholder="Full name" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:border-green-500" />
       <input id="ns-email" type="email" required placeholder="Email" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:border-green-500" />
@@ -456,7 +459,7 @@
   <div class="absolute inset-0 bg-black bg-opacity-50" onclick="closeAdd('addprod')"></div>
   <div class="relative bg-white rounded-2xl w-full max-w-md p-6 shadow-2xl max-h-screen overflow-y-auto">
     <button onclick="closeAdd('addprod')" class="absolute top-3 right-4 text-gray-400 hover:text-gray-600 text-2xl">&times;</button>
-    <h3 id="addprod-title" class="text-xl font-bold text-green-900 mb-4">Add Product</h3>
+    <h3 id="addprod-title" class="text-xl font-bold text-brand-bluedark mb-4">Add Product</h3>
     <form onsubmit="saveNewProduct(event)" class="space-y-3 text-sm">
       <input type="hidden" id="np-id" />
       <input type="hidden" id="np-image-url" />
@@ -489,7 +492,7 @@
   <div class="absolute inset-0 bg-black bg-opacity-50" onclick="closeAdd('addorder')"></div>
   <div class="relative bg-white rounded-2xl w-full max-w-lg p-6 shadow-2xl max-h-screen overflow-y-auto">
     <button onclick="closeAdd('addorder')" class="absolute top-3 right-4 text-gray-400 hover:text-gray-600 text-2xl">&times;</button>
-    <h3 class="text-xl font-bold text-green-900 mb-4">Add Order</h3>
+    <h3 class="text-xl font-bold text-brand-bluedark mb-4">Add Order</h3>
     <form onsubmit="saveNewOrder(event)" class="space-y-3 text-sm">
       <div class="grid grid-cols-2 gap-2">
         <div><label class="block text-gray-600 text-xs mb-1">Buyer</label><select id="no-buyer" class="w-full border border-gray-300 rounded-lg px-3 py-2"></select></div>
@@ -525,7 +528,7 @@
   <div class="absolute inset-0 bg-black bg-opacity-50" onclick="closeAdd('editseller')"></div>
   <div class="relative bg-white rounded-2xl w-full max-w-lg p-6 shadow-2xl max-h-screen overflow-y-auto">
     <button onclick="closeAdd('editseller')" class="absolute top-3 right-4 text-gray-400 hover:text-gray-600 text-2xl">&times;</button>
-    <h3 class="text-xl font-bold text-green-900 mb-4">Edit Seller Details</h3>
+    <h3 class="text-xl font-bold text-brand-bluedark mb-4">Edit Seller Details</h3>
     <form onsubmit="saveSellerDetails(event)" class="space-y-3 text-sm">
       <input type="hidden" id="es-id" />
       <div class="grid grid-cols-2 gap-2">
@@ -553,7 +556,7 @@
   <div class="absolute inset-0 bg-black bg-opacity-50" onclick="closeAdd('editpay')"></div>
   <div class="relative bg-white rounded-2xl w-full max-w-md p-6 shadow-2xl max-h-screen overflow-y-auto">
     <button onclick="closeAdd('editpay')" class="absolute top-3 right-4 text-gray-400 hover:text-gray-600 text-2xl">&times;</button>
-    <h3 class="text-xl font-bold text-green-900 mb-4">Edit Payment Details</h3>
+    <h3 class="text-xl font-bold text-brand-bluedark mb-4">Edit Payment Details</h3>
     <form onsubmit="savePay(event)" class="space-y-3 text-sm">
       <input type="hidden" id="ep-id" />
       <div><label class="block text-gray-600 text-xs mb-1">Bank name</label><input id="ep-bank-name" class="w-full border border-gray-300 rounded-lg px-3 py-2" /></div>
@@ -589,12 +592,12 @@
     t.textContent = msg; c.appendChild(t); setTimeout(() => t.remove(), 3500);
   }
   const TABS = ['sellers','reports','orders','payments','customers','points','coupons','promotions','announcements','settings','staff'];
-  const TAB_LABELS = { orders:'📦 Orders', customers:'🧑 Customers', sellers:'🌾 Sellers & Products', reports:'📊 Reports', points:'💎 Points & Membership', settings:'⚙️ Settings', staff:'🛡️ User Access', payments:'💰 Payments', coupons:'🎟️ Coupons', promotions:'🏷️ Promotions', announcements:'📢 Announcements' };
+  const TAB_LABELS = { orders:'Orders', customers:'Customers', sellers:'Sellers & Products', reports:'Reports', points:'Points & Membership', settings:'Settings', staff:'User Access', payments:'Payments', coupons:'Coupons', promotions:'Promotions', announcements:'Announcements' };
   const MANAGEABLE_TABS = [
-    ['orders','📦 Orders'],['customers','🧑 Customers'],['sellers','🌾 Sellers & Products'],
-    ['reports','📊 Reports'],
-    ['points','💎 Points & Membership'],['settings','⚙️ Settings'],['payments','💰 Payments'],
-    ['coupons','🎟️ Coupons'],['promotions','🏷️ Promotions'],['announcements','📢 Announcements']
+    ['orders','Orders'],['customers','Customers'],['sellers','Sellers & Products'],
+    ['reports','Reports'],
+    ['points','Points & Membership'],['settings','Settings'],['payments','Payments'],
+    ['coupons','Coupons'],['promotions','Promotions'],['announcements','Announcements']
   ];
   const SUPER_ADMIN_EMAIL = 'hsimarketplace2026@gmail.com';
   let myAccess = null;                              // null => full admin
@@ -604,8 +607,6 @@
       document.getElementById(`panel-${t}`).classList.toggle('hidden', t !== tab);
       document.getElementById(`tab-${t}`).classList.toggle('active', t === tab);
     });
-    const cur = document.getElementById('sidebar-current'); if (cur) cur.textContent = TAB_LABELS[tab] || 'Menu';
-    if (window.innerWidth < 640) document.getElementById('sidebar').classList.add('hidden');
     if (tab === 'sellers') loadSellers();
     if (tab === 'reports') loadReports();
     if (tab === 'orders') loadAllOrders();
@@ -629,7 +630,7 @@
       b = document.createElement('div');
       b.id = 'preview-banner';
       b.className = 'mb-4 flex items-center gap-3 bg-amber-50 border border-amber-200 text-amber-800 rounded-xl px-4 py-3';
-      b.innerHTML = '<span class="text-lg">🔒</span><div>'
+      b.innerHTML = '<svg class="w-5 h-5 text-amber-600 shrink-0" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"/></svg><div>'
         + '<p class="font-semibold text-sm">Preview only — this module requires a subscription.</p>'
         + '<p class="text-xs text-amber-700">You can view it here, but saving and changes are disabled. Contact your sales representative to unlock.</p></div>';
     }
@@ -646,8 +647,6 @@
       banner.parentNode.removeChild(banner);
     }
   }
-  function toggleSidebar(){ document.getElementById('sidebar').classList.toggle('hidden'); }
-
   // ---------- STAFF / USER ACCESS ----------
   async function initAdminAccess() {
     const { data } = await sb.from('mkt_admin_access').select('*').eq('user_id', currentUser.id).maybeSingle();
@@ -676,7 +675,7 @@
       const tabs = level === 'staff' ? (acc.tabs || []) : [];
       const locked = a.id === currentUser.id || (a.email||'').toLowerCase() === SUPER_ADMIN_EMAIL;
       return `
-      <div class="bg-white rounded-xl p-4 shadow border border-green-100 flex items-center gap-3 flex-wrap">
+      <div class="bg-white rounded-xl p-4 shadow border border-gray-100 flex items-center gap-3 flex-wrap">
         <div class="flex-1 min-w-0">
           <p class="font-semibold text-sm">${a.full_name || 'Unnamed'} ${a.id===currentUser.id?'<span class="text-xs text-gray-400">(you)</span>':''}</p>
           <p class="text-xs text-gray-500">${a.email}</p>
@@ -768,7 +767,7 @@
       const name = (s.farm_name || s.full_name || 'Seller').replace(/'/g, '’');
       const tabs = [['products','🌿 Products'],['details','👤 Seller Details'],['payment','💳 Payment'],['orders','📦 Orders']];
       return `
-      <div class="bg-white rounded-xl shadow border border-green-100 overflow-hidden">
+      <div class="bg-white rounded-xl shadow border border-gray-100 overflow-hidden">
         <!-- ROW (click to expand) -->
         <div class="p-3 flex items-center gap-3 cursor-pointer hover:bg-green-50/50 transition" onclick="toggleSellerRow('${sid}')">
           <div class="w-11 h-11 rounded-full bg-green-100 overflow-hidden shrink-0 flex items-center justify-center">
@@ -788,7 +787,7 @@
         <!-- EXPAND -->
         <div id="exp-${sid}" class="hidden border-t border-green-50">
           <div class="flex gap-1 px-3 pt-3 flex-wrap">
-            ${tabs.map(([k,lab],idx) => `<button onclick="sellerTab('${sid}','${k}')" id="st-${sid}-${k}" class="text-xs font-semibold px-3 py-1.5 rounded-t-lg border border-green-100 ${idx===0?'bg-green-600 text-white':'bg-white text-green-700'}">${lab}</button>`).join('')}
+            ${tabs.map(([k,lab],idx) => `<button onclick="sellerTab('${sid}','${k}')" id="st-${sid}-${k}" class="text-xs font-semibold px-3 py-1.5 rounded-t-lg border border-gray-100 ${idx===0?'bg-green-600 text-white':'bg-white text-green-700'}">${lab}</button>`).join('')}
           </div>
           <div class="p-4 bg-green-50/40">
             <div id="sp-${sid}-products">${renderSellerProducts(list, sid, name)}</div>
@@ -838,7 +837,7 @@
           ${rows.map(r => `<div class="flex justify-between gap-2 border-b border-green-50 py-1"><span class="text-gray-400">${r[0]}</span><span class="font-medium text-gray-800 text-right break-words">${r[1]}</span></div>`).join('')}
         </div>
       </div>
-      ${s.story ? `<div class="bg-white border border-green-100 rounded-lg p-3 text-sm text-gray-600 italic">“${s.story}”</div>` : ''}`;
+      ${s.story ? `<div class="bg-white border border-gray-100 rounded-lg p-3 text-sm text-gray-600 italic">“${s.story}”</div>` : ''}`;
   }
   function renderSellerPayment(s) {
     const editBtn = `<div class="flex justify-end mb-3"><button onclick="openEditPay('${s.id}')" class="bg-green-50 text-green-700 text-xs font-semibold px-3 py-1.5 rounded-full">✏️ Edit Payment</button></div>`;
@@ -846,7 +845,7 @@
       return editBtn + '<p class="text-xs text-amber-600">This seller has not set up payment details yet.</p>';
     return editBtn + `
       <div class="flex items-start gap-4 flex-wrap">
-        ${s.bank_qr_url ? `<a href="${s.bank_qr_url}" target="_blank" class="shrink-0"><img src="${s.bank_qr_url}" class="w-32 h-32 object-contain rounded-lg border border-green-200 bg-white" /><span class="block text-center text-xs text-green-600 mt-1">QR · tap to enlarge</span></a>` : ''}
+        ${s.bank_qr_url ? `<a href="${s.bank_qr_url}" target="_blank" class="shrink-0"><img src="${s.bank_qr_url}" class="w-32 h-32 object-contain rounded-lg border border-gray-200 bg-white" /><span class="block text-center text-xs text-green-600 mt-1">QR · tap to enlarge</span></a>` : ''}
         <div class="flex-1 min-w-[220px] text-sm">
           ${s.bank_name ? `<div class="flex justify-between border-b border-green-50 py-1"><span class="text-gray-400">Bank</span><span class="font-medium">${s.bank_name}</span></div>` : ''}
           ${s.bank_account_name ? `<div class="flex justify-between border-b border-green-50 py-1"><span class="text-gray-400">Account name</span><span class="font-medium">${s.bank_account_name}</span></div>` : ''}
@@ -864,7 +863,7 @@
       .eq('seller_id', id).order('created_at', { ascending: false });
     if (!orders || !orders.length) { box.innerHTML = '<p class="text-gray-400 text-sm text-center py-4">No orders for this seller yet.</p>'; return; }
     box.innerHTML = orders.map(o => `
-      <div class="bg-white rounded-lg border border-green-100 p-3 mb-2">
+      <div class="bg-white rounded-lg border border-gray-100 p-3 mb-2">
         <div class="cursor-pointer" onclick="openOrderDetail('${o.id}')">
           <div class="flex items-center justify-between gap-2 flex-wrap">
             <div class="min-w-0">
@@ -926,7 +925,7 @@
       </tr>`).join('');
     const b = o.buyer || {}, s = o.seller || {};
     return `
-      <h3 class="text-lg font-bold text-green-900 mb-1">Order Details</h3>
+      <h3 class="text-lg font-bold text-brand-bluedark mb-1">Order Details</h3>
       <div class="flex items-center justify-between mb-4 flex-wrap gap-2">
         <p class="text-xs text-gray-400">${o.order_number ? o.order_number + ' · ' : ''}${new Date(o.created_at).toLocaleString()}</p>
         <span class="text-xs font-semibold px-2 py-1 rounded-full status-${o.status}">${o.status.replace(/_/g,' ').toUpperCase()}</span>
@@ -944,10 +943,10 @@
         </div>
       </div>
       <table class="w-full text-sm mb-3">
-        <thead><tr class="text-xs text-gray-400 border-b border-green-100"><th class="text-left py-1 pr-2 font-medium">Product</th><th class="py-1 px-2 font-medium">Qty</th><th class="text-right py-1 px-2 font-medium">Unit price</th><th class="text-right py-1 pl-2 font-medium">Total</th></tr></thead>
+        <thead><tr class="text-xs text-gray-400 border-b border-gray-100"><th class="text-left py-1 pr-2 font-medium">Product</th><th class="py-1 px-2 font-medium">Qty</th><th class="text-right py-1 px-2 font-medium">Unit price</th><th class="text-right py-1 pl-2 font-medium">Total</th></tr></thead>
         <tbody>${rows}</tbody>
       </table>
-      <div class="border-t border-green-100 pt-3 space-y-1 text-sm">
+      <div class="border-t border-gray-100 pt-3 space-y-1 text-sm">
         ${o.subtotal ? `<div class="flex justify-between text-gray-500"><span>Subtotal</span><span>${rm(o.subtotal)}</span></div>` : ''}
         ${o.discount_amount > 0 ? `<div class="flex justify-between text-green-600"><span>Discount${o.coupon_code ? ' (' + o.coupon_code + ')' : ''}</span><span>- ${rm(o.discount_amount)}</span></div>` : ''}
         ${o.points_discount_rm > 0 ? `<div class="flex justify-between text-green-600"><span>Points redeemed</span><span>- ${rm(o.points_discount_rm)}</span></div>` : ''}
@@ -966,7 +965,7 @@
         <p class="text-xs font-bold text-green-800 uppercase tracking-wide mb-1.5">${c} <span class="text-gray-400 font-normal">(${groups[c].length})</span></p>
         <div class="grid sm:grid-cols-2 gap-2">
           ${groups[c].map(p => `
-            <div class="flex items-center gap-2 bg-white rounded-lg border border-green-100 p-2">
+            <div class="flex items-center gap-2 bg-white rounded-lg border border-gray-100 p-2">
               ${p.image_url ? `<img src="${p.image_url}" class="w-10 h-10 rounded object-cover flex-shrink-0" onerror="this.style.display='none'" />` : '<div class="w-10 h-10 rounded bg-green-100 flex items-center justify-center text-sm flex-shrink-0">🥬</div>'}
               <div class="flex-1 min-w-0">
                 <p class="text-xs font-semibold truncate">${p.name}</p>
@@ -1029,7 +1028,7 @@
   // ---- Edit payment (per seller) ----
   function renderEpQr(url) {
     document.getElementById('ep-qr-preview').innerHTML = url
-      ? `<img src="${url}" class="h-24 rounded-lg border border-green-100 object-contain bg-white" />`
+      ? `<img src="${url}" class="h-24 rounded-lg border border-gray-100 object-contain bg-white" />`
       : '<p class="text-xs text-gray-400">No QR uploaded.</p>';
   }
   async function openEditPay(id) {
@@ -1122,9 +1121,9 @@
   }
 
   function kpiCard(label, val, sub) {
-    return `<div class="bg-white rounded-xl p-4 shadow border border-green-100">
+    return `<div class="bg-white rounded-xl p-4 shadow border border-gray-100">
       <p class="text-xs text-gray-500">${label}</p>
-      <p class="text-xl font-bold text-green-900 mt-1">${val}</p>
+      <p class="text-xl font-bold text-brand-bluedark mt-1">${val}</p>
       ${sub ? `<p class="text-xs text-gray-400 mt-0.5">${sub}</p>` : ''}</div>`;
   }
   function renderKpis(k) {
@@ -1217,7 +1216,7 @@
     const el = document.getElementById('orders-list');
     if (!orders || orders.length === 0) { el.innerHTML = '<p class="text-gray-400 text-sm text-center py-8">No orders.</p>'; return; }
     el.innerHTML = orders.map(o => `
-      <div class="bg-white rounded-xl p-4 shadow border border-green-100 flex items-center gap-3 flex-wrap">
+      <div class="bg-white rounded-xl p-4 shadow border border-gray-100 flex items-center gap-3 flex-wrap">
         <div class="flex-1 min-w-0">
           <p class="font-semibold text-sm">${o.buyer?.full_name || 'Buyer'} → ${o.seller?.farm_name || o.seller?.full_name || 'Seller'}</p>
           <p class="text-xs text-gray-400">${o.order_number? o.order_number+' · ':''}${new Date(o.created_at).toLocaleString()}</p>
@@ -1240,7 +1239,7 @@
     if (!payments || payments.length === 0) { el.innerHTML = '<p class="text-gray-400 text-sm text-center py-8">No payments.</p>'; return; }
     const sorted = [...payments].sort((a,b) => (a.status==='pending'?-1:1));
     el.innerHTML = sorted.map(p => `
-      <div class="bg-white rounded-xl p-4 shadow border border-green-100">
+      <div class="bg-white rounded-xl p-4 shadow border border-gray-100">
         <div class="flex items-start justify-between mb-3 flex-wrap gap-2">
           <div>
             <p class="font-semibold text-sm">${p.profiles?.full_name || 'Buyer'} — ${p.method}</p>
@@ -1249,7 +1248,7 @@
           </div>
           <span class="text-xs font-semibold px-2 py-1 rounded-full ${p.status==='verified'?'bg-green-100 text-green-700':p.status==='rejected'?'bg-red-100 text-red-700':'bg-yellow-100 text-yellow-700'}">${p.status.toUpperCase()}</span>
         </div>
-        ${p.proof_url ? `<a href="${p.proof_url}" target="_blank" class="block mb-3"><img src="${p.proof_url}" class="h-28 rounded-lg object-cover border border-green-100" /></a>` : '<p class="text-xs text-gray-400 mb-3">No proof uploaded</p>'}
+        ${p.proof_url ? `<a href="${p.proof_url}" target="_blank" class="block mb-3"><img src="${p.proof_url}" class="h-28 rounded-lg object-cover border border-gray-100" /></a>` : '<p class="text-xs text-gray-400 mb-3">No proof uploaded</p>'}
         ${p.status === 'pending' ? `<div class="flex gap-2"><button onclick="verifyPayment('${p.id}','${p.order_id}')" class="btn-primary text-white text-xs px-4 py-1.5 rounded-full transition">Verify</button><button onclick="rejectPayment('${p.id}','${p.order_id}')" class="bg-red-50 text-red-600 text-xs px-4 py-1.5 rounded-full transition">Reject</button></div>` : ''}
       </div>`).join('');
   }
@@ -1280,7 +1279,7 @@
     const el = document.getElementById('customers-list');
     if (!list.length) { el.innerHTML = '<p class="text-gray-400 text-sm text-center py-8">No customers.</p>'; return; }
     el.innerHTML = list.map(c => `
-      <button onclick="openCustomerModal('${c.id}')" class="w-full text-left bg-white rounded-xl p-4 shadow border border-green-100 hover:border-green-300 transition flex items-center gap-3">
+      <button onclick="openCustomerModal('${c.id}')" class="w-full text-left bg-white rounded-xl p-4 shadow border border-gray-100 hover:border-green-300 transition flex items-center gap-3">
         <div class="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center text-lg shrink-0">👤</div>
         <div class="flex-1 min-w-0">
           <p class="font-semibold text-sm">${c.full_name || 'Unnamed'}</p>
@@ -1311,7 +1310,7 @@
         <div class="bg-green-50 rounded-lg p-3"><p class="text-base font-bold text-green-700">${rm(spent)}</p><p class="text-xs text-gray-500">Total spent</p></div>
       </div>`;
     document.getElementById('cm-orders').innerHTML = list.length ? list.map(o => `
-      <div class="border border-green-100 rounded-lg p-3">
+      <div class="border border-gray-100 rounded-lg p-3">
         <div class="flex items-center justify-between mb-1 gap-2">
           <p class="text-sm font-semibold">${o.order_number || o.id.slice(0,8)} <span class="text-xs text-gray-400 font-normal">· ${new Date(o.created_at).toLocaleDateString()}</span></p>
           <span class="text-[10px] font-semibold px-2 py-0.5 rounded-full status-${o.status}">${o.status.replace(/_/g,' ').toUpperCase()}</span>
@@ -1338,7 +1337,7 @@
       else if (c.start_date && c.start_date > today) status='scheduled';
       else if (c.usage_limit>0 && c.usage_count>=c.usage_limit) status='exhausted';
       return `
-      <div class="bg-white rounded-xl p-4 shadow border border-green-100 flex items-center gap-3 flex-wrap">
+      <div class="bg-white rounded-xl p-4 shadow border border-gray-100 flex items-center gap-3 flex-wrap">
         <div class="flex-1 min-w-0">
           <p class="font-bold text-sm"><code class="bg-green-50 text-green-700 px-2 py-0.5 rounded">${c.code}</code> <span class="text-gray-500 font-normal">${c.name||''}</span></p>
           <p class="text-xs text-gray-500">${c.discount_type==='percentage'? c.discount_value+'% off':rm(c.discount_value)+' off'} · used ${c.usage_count}${c.usage_limit>0?'/'+c.usage_limit:''}${c.min_order_value>0?' · min '+rm(c.min_order_value):''}${c.expiry_date?' · exp '+c.expiry_date:''}</p>
@@ -1414,7 +1413,7 @@
     const el = document.getElementById('promotions-list');
     if (!data || !data.length) { el.innerHTML = '<p class="text-gray-400 text-sm text-center py-8">No promotions yet.</p>'; return; }
     el.innerHTML = data.map(p => `
-      <div class="bg-white rounded-xl p-4 shadow border border-green-100 flex items-center gap-3 flex-wrap">
+      <div class="bg-white rounded-xl p-4 shadow border border-gray-100 flex items-center gap-3 flex-wrap">
         <div class="flex-1 min-w-0">
           <p class="font-bold text-sm">${p.banner_emoji||'🏷️'} ${p.title}</p>
           <p class="text-xs text-gray-500">${p.discount_type==='percentage'? p.discount_value+'% off':rm(p.discount_value)+' off'} · ${p.target==='category'? (p.target_categories||[]).join(', '):'all products'}${p.end_date?' · ends '+p.end_date:''}</p>
@@ -1484,10 +1483,10 @@
     const el = document.getElementById('announcements-list');
     if (!items || !items.length) { el.innerHTML = '<p class="text-gray-400 text-sm text-center py-8">No announcements yet.</p>'; return; }
     el.innerHTML = items.map(a => `
-      <div class="bg-white rounded-xl p-4 shadow border border-green-100 flex items-start gap-4">
+      <div class="bg-white rounded-xl p-4 shadow border border-gray-100 flex items-start gap-4">
         <div class="flex-1 min-w-0">
           <div class="flex items-center gap-2 mb-1 flex-wrap">
-            <h4 class="font-semibold text-sm text-green-900">${a.title}</h4>
+            <h4 class="font-semibold text-sm text-brand-bluedark">${a.title}</h4>
             ${a.is_featured?'<span class="text-xs bg-amber-100 text-amber-700 px-2 py-0.5 rounded-full">Featured</span>':''}
             ${a.is_active?'<span class="text-xs bg-green-100 text-green-700 px-2 py-0.5 rounded-full">Active</span>':'<span class="text-xs bg-gray-100 text-gray-500 px-2 py-0.5 rounded-full">Inactive</span>'}
           </div>
@@ -1665,7 +1664,7 @@
   }
   function renderNpImage(url) {
     document.getElementById('np-image-preview').innerHTML = url
-      ? `<img src="${url}" class="h-24 rounded-lg border border-green-100 object-cover" onerror="this.style.display='none'" />`
+      ? `<img src="${url}" class="h-24 rounded-lg border border-gray-100 object-cover" onerror="this.style.display='none'" />`
       : '<p class="text-xs text-gray-400">No image yet.</p>';
   }
   async function uploadProductImage(e) {
