@@ -32,7 +32,8 @@
     #toast-container { position: fixed; bottom: 1.5rem; right: 1rem; z-index: 9999; display: flex; flex-direction: column; gap: 0.5rem; }
     .toast { padding: 0.75rem 1.25rem; border-radius: 0.5rem; color: white; font-size: 0.875rem; max-width: 320px; animation: slideIn 0.3s ease; }
     @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
-    .tab-btn.active { background-color: var(--accent-blue); color: white; }
+    .tab-btn.active { background-image: linear-gradient(to right, #1b75bc, #11537f); background-color: transparent; color: white; }
+    .tab-btn.active:hover { background-image: linear-gradient(to right, #11537f, #1b75bc); }
     .status-pending { background:#fef3c7;color:#92400e; }
     .status-payment_uploaded { background:#cffafe;color:#0e7490; }
     .status-payment_verified { background:#e0e7ff;color:#3730a3; }
@@ -130,7 +131,7 @@
   <div id="panel-orders" class="hidden">
     <div class="grid grid-cols-4 gap-1.5 mb-4">
       <button onclick="setOrderView('pending')" id="ordview-pending"
-        class="py-2 px-1 text-xs font-semibold rounded-lg bg-brand-blue text-white transition text-center">To Pay<span id="badge-pending" class="ml-1 hidden bg-white text-brand-bluedark text-xs font-bold rounded-full px-1.5 py-0.5"></span>
+        class="py-2 px-1 text-xs font-semibold rounded-lg bg-gradient-to-r from-brand-blue to-brand-bluedark text-white transition text-center">To Pay<span id="badge-pending" class="ml-1 hidden bg-white text-brand-bluedark text-xs font-bold rounded-full px-1.5 py-0.5"></span>
       </button>
       <button onclick="setOrderView('payment_uploaded')" id="ordview-payment_uploaded"
         class="py-2 px-1 text-xs font-semibold rounded-lg bg-white border border-gray-200 text-brand-bluedark transition text-center">Paid<span id="badge-payment_uploaded" class="ml-1 hidden bg-teal-100 text-teal-700 text-xs font-bold rounded-full px-1.5 py-0.5"></span>

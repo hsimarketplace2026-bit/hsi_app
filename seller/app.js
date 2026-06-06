@@ -237,7 +237,7 @@
       if (!btn) return;
       btn.className = `py-2 px-1 text-xs font-semibold rounded-lg transition text-center ${
         s === v
-          ? 'bg-brand-blue text-white'
+          ? 'bg-gradient-to-r from-brand-blue to-brand-bluedark text-white'
           : 'bg-white border border-gray-200 text-brand-bluedark'
       }`;
     });

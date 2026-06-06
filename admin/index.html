@@ -29,10 +29,12 @@
     #toast-container { position: fixed; bottom: 1.5rem; right: 1rem; z-index: 9999; display: flex; flex-direction: column; gap: 0.5rem; }
     .toast { padding: 0.75rem 1.25rem; border-radius: 0.5rem; color: white; font-size: 0.875rem; max-width: 320px; animation: slideIn 0.3s ease; }
     @keyframes slideIn { from { transform: translateX(100%); opacity: 0; } to { transform: translateX(0); opacity: 1; } }
-    .tab-btn.active { background-color: #1b75bc; color: white; }
+    .tab-btn.active { background-image: linear-gradient(to right, #1b75bc, #11537f); background-color: transparent; color: white; }
+    .tab-btn.active:hover { background-image: linear-gradient(to right, #11537f, #1b75bc); }
     .top-tab { display:inline-flex; align-items:center; gap:.4rem; padding:.55rem 1rem; border-radius:9999px; font-size:.8rem; font-weight:600; color:#4b5563; background:#fff; border:1px solid #e5e7eb; white-space:nowrap; transition:all .15s; }
     .top-tab:hover { background:#e8f3fb; color:#11537f; border-color:#1b75bc; }
-    .top-tab.active { background:#1b75bc; color:#fff; border-color:#1b75bc; box-shadow:0 1px 4px rgba(27,117,188,.35); }
+    .top-tab.active { background-image: linear-gradient(to right, #1b75bc, #11537f); color:#fff; border-color:#11537f; box-shadow:0 1px 4px rgba(27,117,188,.35); }
+    .top-tab.active:hover { background-image: linear-gradient(to right, #11537f, #1b75bc); }
     .top-tab.locked { opacity:.55; }
     .top-tab.locked:hover { opacity:.85; }
     .top-tab-divider { width:1px; align-self:stretch; background:#e5e7eb; margin:0 .25rem; }
@@ -45,7 +47,8 @@
     .status-processing { background:#ffedd5;color:#9a3412; }
     .status-completed { background:#dcfce7;color:#166534; }
     .status-cancelled { background:#fee2e2;color:#991b1b; }
-    .filter-btn.active { background-color: #1b75bc; color: white; }
+    .filter-btn.active { background-image: linear-gradient(to right, #1b75bc, #11537f); background-color: transparent; color: white; }
+    .filter-btn.active:hover { background-image: linear-gradient(to right, #11537f, #1b75bc); }
   </style>
 </head>
 <body class="bg-gray-50 text-gray-800 font-sans">
@@ -155,7 +158,7 @@
     </div>
     <div class="grid grid-cols-2 sm:grid-cols-4 gap-2 mb-5">
       <button onclick="setOrdersFilter('pending')" id="of-pending"
-        class="py-2.5 px-2 text-xs font-semibold rounded-xl bg-brand-blue text-white transition text-center">
+        class="py-2.5 px-2 text-xs font-semibold rounded-xl bg-gradient-to-r from-brand-blue to-brand-bluedark text-white transition text-center">
         To Pay<span id="badge-pending" class="ml-1 hidden bg-white text-brand-bluedark text-xs font-bold rounded-full px-1.5 py-0.5"></span>
       </button>
       <button onclick="setOrdersFilter('payment_uploaded')" id="of-payment_uploaded"
