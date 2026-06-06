@@ -6,6 +6,20 @@
   <title>HSI Marketplace — Hydro Sprout Initiative</title>
   <meta name="description" content="Hydro Sprout Initiative (HSI) — a hydroponic community development program in Bintulu. Fresh, pesticide-free produce direct from community farmers." />
   <meta name="theme-color" content="#1b75bc" />
+  <!-- Social / SEO -->
+  <link rel="preconnect" href="https://cdn.tailwindcss.com" />
+  <link rel="preconnect" href="https://cdn.jsdelivr.net" />
+  <link rel="preconnect" href="https://kdhcxmzwgiwyskfamvkb.supabase.co" />
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="HSI Marketplace" />
+  <meta property="og:title" content="HSI Marketplace — Fresh Hydroponic Produce" />
+  <meta property="og:description" content="Connect directly with HSI community farmers in Bintulu for fresh, pesticide-free hydroponic produce — grown clean, delivered fresh." />
+  <meta property="og:url" content="https://hsimarketplace2026-bit.github.io/hsi_app/" />
+  <meta property="og:image" content="https://hsimarketplace2026-bit.github.io/hsi_app/assets/og-image.png" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="HSI Marketplace — Fresh Hydroponic Produce" />
+  <meta name="twitter:description" content="Connect directly with HSI community farmers in Bintulu for fresh, pesticide-free hydroponic produce — grown clean, delivered fresh." />
+  <meta name="twitter:image" content="https://hsimarketplace2026-bit.github.io/hsi_app/assets/og-image.png" />
   <link rel="manifest" href="manifest.json" />
   <link rel="icon" type="image/png" sizes="32x32" href="favicon-32.png?v=3" />
   <link rel="icon" type="image/png" sizes="192x192" href="icon-192.png?v=3" />
@@ -74,7 +88,7 @@
   </div>
   <div class="flex items-center gap-2">
     <button id="install-btn" onclick="handleInstall()" class="bg-gradient-to-r from-brand-green to-brand-greendark hover:from-brand-greendark hover:to-brand-green text-white text-sm font-semibold px-4 py-2 rounded-full transition" data-i18n="home.install_btn">Install</button>
-    <button onclick="document.getElementById('pwa-install-banner').classList.add('hidden')" class="text-gray-400 hover:text-gray-600 text-2xl leading-none px-2">&times;</button>
+    <button aria-label="Close" onclick="document.getElementById('pwa-install-banner').classList.add('hidden')" class="text-gray-400 hover:text-gray-600 text-2xl leading-none px-2">&times;</button>
   </div>
 </div>
 
@@ -82,7 +96,7 @@
 <div id="install-modal" class="hidden fixed inset-0 z-[60] flex items-end justify-center">
   <div class="absolute inset-0 bg-black bg-opacity-60" onclick="document.getElementById('install-modal').classList.add('hidden')"></div>
   <div class="relative bg-white rounded-t-2xl w-full max-w-sm p-6 shadow-2xl">
-    <button onclick="document.getElementById('install-modal').classList.add('hidden')" class="absolute top-3 right-4 text-gray-400 text-2xl">&times;</button>
+    <button aria-label="Close" onclick="document.getElementById('install-modal').classList.add('hidden')" class="absolute top-3 right-4 text-gray-400 text-2xl">&times;</button>
     <div class="text-center mb-5">
       <img src="assets/hsi-logo.png" alt="Hydro Sprout Initiative" class="w-16 h-16 object-contain rounded-2xl mx-auto mb-3 shadow bg-white p-1.5" onerror="this.style.display='none'" />
       <h3 class="text-lg font-bold text-gray-900" data-i18n="home.install_modal_title">Add to Home Screen</h3>
@@ -189,7 +203,7 @@
   <div class="p-5">
     <div class="flex items-center justify-between mb-5">
       <h3 class="text-xl font-bold text-brand-bluedark" data-i18n="mkt.your_cart">Your Cart</h3>
-      <button onclick="toggleCart()" class="text-gray-400 hover:text-gray-600 text-2xl">&times;</button>
+      <button aria-label="Close" onclick="toggleCart()" class="text-gray-400 hover:text-gray-600 text-2xl">&times;</button>
     </div>
     <div id="cart-items-list">
       <p class="text-gray-400 text-sm text-center py-10" data-i18n="mkt.cart_empty">Your cart is empty.</p>
@@ -225,9 +239,9 @@
     <p class="font-bold text-white text-lg mb-1">HSI Marketplace</p>
     <p class="text-sm" data-i18n="footer.tagline">Hydro Sprout Initiative — Fresh produce, community grown</p>
     <div class="flex flex-wrap items-center justify-center gap-6 bg-white rounded-2xl px-6 py-4 my-6 max-w-2xl mx-auto">
-      <img src="assets/sponsors/pttep.png" alt="PTTEP" class="h-12 w-auto" onerror="this.style.display='none'" />
-      <img src="assets/sponsors/bda.png" alt="BDA" class="h-12 w-auto" onerror="this.style.display='none'" />
-      <img src="assets/sponsors/lions.png" alt="Lions Club of Bintulu Kidurong" class="h-12 w-auto" onerror="this.style.display='none'" />
+      <img loading="lazy" src="assets/sponsors/pttep.png" alt="PTTEP" class="h-12 w-auto" onerror="this.style.display='none'" />
+      <img loading="lazy" src="assets/sponsors/bda.png" alt="BDA" class="h-12 w-auto" onerror="this.style.display='none'" />
+      <img loading="lazy" src="assets/sponsors/lions.png" alt="Lions Club of Bintulu Kidurong" class="h-12 w-auto" onerror="this.style.display='none'" />
     </div>
     <p class="text-xs text-blue-200" data-i18n="footer.supported_by">Supported by PTTEP · Bintulu Development Authority · Lions Club of Bintulu Kidurong · University Putra Malaysia</p>
     <p class="text-xs text-blue-300 mt-4" data-i18n="footer.copyright">&copy; 2025 HSI Program. All rights reserved.</p>
@@ -242,7 +256,7 @@
   <div class="p-6">
     <div class="flex items-center justify-between mb-6">
       <h2 class="text-2xl font-bold text-brand-bluedark" data-i18n="auth.welcome">Welcome</h2>
-      <button onclick="closeAuth()" class="text-gray-400 hover:text-gray-600 text-2xl leading-none">&times;</button>
+      <button aria-label="Close" onclick="closeAuth()" class="text-gray-400 hover:text-gray-600 text-2xl leading-none">&times;</button>
     </div>
 
     <!-- LOGIN FORM -->

@@ -5,6 +5,22 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Admin Panel — HSI Marketplace</title>
   <meta name="theme-color" content="#1b75bc" />
+  <!-- Social / SEO -->
+  <meta name="description" content="HSI Marketplace administration panel." />
+  <meta name="robots" content="noindex" />
+  <link rel="preconnect" href="https://cdn.tailwindcss.com" />
+  <link rel="preconnect" href="https://cdn.jsdelivr.net" />
+  <link rel="preconnect" href="https://kdhcxmzwgiwyskfamvkb.supabase.co" />
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="HSI Marketplace" />
+  <meta property="og:title" content="Admin — HSI Marketplace" />
+  <meta property="og:description" content="HSI Marketplace administration panel." />
+  <meta property="og:url" content="https://hsimarketplace2026-bit.github.io/hsi_app/admin/" />
+  <meta property="og:image" content="https://hsimarketplace2026-bit.github.io/hsi_app/assets/og-image.png" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Admin — HSI Marketplace" />
+  <meta name="twitter:description" content="HSI Marketplace administration panel." />
+  <meta name="twitter:image" content="https://hsimarketplace2026-bit.github.io/hsi_app/assets/og-image.png" />
   <link rel="manifest" href="../manifest.json" />
   <link rel="icon" type="image/png" sizes="32x32" href="../favicon-32.png?v=3" />
   <link rel="icon" type="image/png" sizes="192x192" href="../icon-192.png?v=3" />
@@ -283,7 +299,7 @@
 <div id="staff-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4">
   <div class="absolute inset-0 bg-black bg-opacity-50" onclick="closeStaffModal()"></div>
   <div class="relative bg-white rounded-2xl w-full max-w-md max-h-screen overflow-y-auto p-6 shadow-2xl">
-    <button onclick="closeStaffModal()" class="absolute top-3 right-4 text-gray-400 hover:text-gray-600 text-2xl">&times;</button>
+    <button aria-label="Close" onclick="closeStaffModal()" class="absolute top-3 right-4 text-gray-400 hover:text-gray-600 text-2xl">&times;</button>
     <h3 class="text-xl font-bold text-brand-bluedark mb-1">Edit Access</h3>
     <p id="staff-modal-name" class="text-sm text-gray-500 mb-4"></p>
     <input type="hidden" id="staff-user-id" />
@@ -304,7 +320,7 @@
 <div id="announcement-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4">
   <div class="absolute inset-0 bg-black bg-opacity-50" onclick="closeAnnouncementModal()"></div>
   <div class="relative bg-white rounded-2xl w-full max-w-lg p-6 shadow-2xl">
-    <button onclick="closeAnnouncementModal()" class="absolute top-3 right-4 text-gray-400 hover:text-gray-600 text-2xl">&times;</button>
+    <button aria-label="Close" onclick="closeAnnouncementModal()" class="absolute top-3 right-4 text-gray-400 hover:text-gray-600 text-2xl">&times;</button>
     <h3 id="ann-modal-title" class="text-xl font-bold text-brand-bluedark mb-4">New Announcement</h3>
     <form onsubmit="saveAnnouncement(event)" class="space-y-4">
       <input type="hidden" id="ann-id" />
@@ -324,7 +340,7 @@
 <div id="coupon-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4">
   <div class="absolute inset-0 bg-black bg-opacity-50" onclick="closeCouponModal()"></div>
   <div class="relative bg-white rounded-2xl w-full max-w-lg max-h-screen overflow-y-auto p-6 shadow-2xl">
-    <button onclick="closeCouponModal()" class="absolute top-3 right-4 text-gray-400 hover:text-gray-600 text-2xl">&times;</button>
+    <button aria-label="Close" onclick="closeCouponModal()" class="absolute top-3 right-4 text-gray-400 hover:text-gray-600 text-2xl">&times;</button>
     <h3 id="coupon-modal-title" class="text-xl font-bold text-brand-bluedark mb-4">New Coupon</h3>
     <form onsubmit="saveCoupon(event)" class="space-y-3 text-sm">
       <input type="hidden" id="coupon-id" />
@@ -362,7 +378,7 @@
 <div id="promo-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4">
   <div class="absolute inset-0 bg-black bg-opacity-50" onclick="closePromoModal()"></div>
   <div class="relative bg-white rounded-2xl w-full max-w-lg max-h-screen overflow-y-auto p-6 shadow-2xl">
-    <button onclick="closePromoModal()" class="absolute top-3 right-4 text-gray-400 hover:text-gray-600 text-2xl">&times;</button>
+    <button aria-label="Close" onclick="closePromoModal()" class="absolute top-3 right-4 text-gray-400 hover:text-gray-600 text-2xl">&times;</button>
     <h3 id="promo-modal-title" class="text-xl font-bold text-brand-bluedark mb-4">New Promotion</h3>
     <form onsubmit="savePromo(event)" class="space-y-3 text-sm">
       <input type="hidden" id="promo-id" />
@@ -398,7 +414,7 @@
 <div id="customer-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4">
   <div class="absolute inset-0 bg-black bg-opacity-50" onclick="closeCustomerModal()"></div>
   <div class="relative bg-white rounded-2xl w-full max-w-lg max-h-[90vh] overflow-y-auto p-6 shadow-2xl">
-    <button onclick="closeCustomerModal()" class="absolute top-3 right-4 text-gray-400 hover:text-gray-600 text-2xl">&times;</button>
+    <button aria-label="Close" onclick="closeCustomerModal()" class="absolute top-3 right-4 text-gray-400 hover:text-gray-600 text-2xl">&times;</button>
     <h3 id="cm-name" class="text-xl font-bold text-brand-bluedark"></h3>
     <p id="cm-contact" class="text-sm text-gray-500"></p>
     <p id="cm-joined" class="text-xs text-gray-400 mb-4"></p>
@@ -412,7 +428,7 @@
 <div id="addcust-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4">
   <div class="absolute inset-0 bg-black bg-opacity-50" onclick="closeAdd('addcust')"></div>
   <div class="relative bg-white rounded-2xl w-full max-w-md p-6 shadow-2xl max-h-screen overflow-y-auto">
-    <button onclick="closeAdd('addcust')" class="absolute top-3 right-4 text-gray-400 hover:text-gray-600 text-2xl">&times;</button>
+    <button aria-label="Close" onclick="closeAdd('addcust')" class="absolute top-3 right-4 text-gray-400 hover:text-gray-600 text-2xl">&times;</button>
     <h3 class="text-xl font-bold text-brand-bluedark mb-4">Add Customer</h3>
     <form onsubmit="saveNewCustomer(event)" class="space-y-3 text-sm">
       <input id="nc-name" required placeholder="Full name" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:border-green-500" />
@@ -433,7 +449,7 @@
 <div id="addseller-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4">
   <div class="absolute inset-0 bg-black bg-opacity-50" onclick="closeAdd('addseller')"></div>
   <div class="relative bg-white rounded-2xl w-full max-w-md p-6 shadow-2xl max-h-screen overflow-y-auto">
-    <button onclick="closeAdd('addseller')" class="absolute top-3 right-4 text-gray-400 hover:text-gray-600 text-2xl">&times;</button>
+    <button aria-label="Close" onclick="closeAdd('addseller')" class="absolute top-3 right-4 text-gray-400 hover:text-gray-600 text-2xl">&times;</button>
     <h3 class="text-xl font-bold text-brand-bluedark mb-4">Add Seller</h3>
     <form onsubmit="saveNewSeller(event)" class="space-y-3 text-sm">
       <input id="ns-name" required placeholder="Full name" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:border-green-500" />
@@ -459,7 +475,7 @@
 <div id="addprod-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4">
   <div class="absolute inset-0 bg-black bg-opacity-50" onclick="closeAdd('addprod')"></div>
   <div class="relative bg-white rounded-2xl w-full max-w-md p-6 shadow-2xl max-h-screen overflow-y-auto">
-    <button onclick="closeAdd('addprod')" class="absolute top-3 right-4 text-gray-400 hover:text-gray-600 text-2xl">&times;</button>
+    <button aria-label="Close" onclick="closeAdd('addprod')" class="absolute top-3 right-4 text-gray-400 hover:text-gray-600 text-2xl">&times;</button>
     <h3 id="addprod-title" class="text-xl font-bold text-brand-bluedark mb-4">Add Product</h3>
     <form onsubmit="saveNewProduct(event)" class="space-y-3 text-sm">
       <input type="hidden" id="np-id" />
@@ -492,7 +508,7 @@
 <div id="addorder-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4">
   <div class="absolute inset-0 bg-black bg-opacity-50" onclick="closeAdd('addorder')"></div>
   <div class="relative bg-white rounded-2xl w-full max-w-lg p-6 shadow-2xl max-h-screen overflow-y-auto">
-    <button onclick="closeAdd('addorder')" class="absolute top-3 right-4 text-gray-400 hover:text-gray-600 text-2xl">&times;</button>
+    <button aria-label="Close" onclick="closeAdd('addorder')" class="absolute top-3 right-4 text-gray-400 hover:text-gray-600 text-2xl">&times;</button>
     <h3 class="text-xl font-bold text-brand-bluedark mb-4">Add Order</h3>
     <form onsubmit="saveNewOrder(event)" class="space-y-3 text-sm">
       <div class="grid grid-cols-2 gap-2">
@@ -528,7 +544,7 @@
 <div id="editseller-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4">
   <div class="absolute inset-0 bg-black bg-opacity-50" onclick="closeAdd('editseller')"></div>
   <div class="relative bg-white rounded-2xl w-full max-w-lg p-6 shadow-2xl max-h-screen overflow-y-auto">
-    <button onclick="closeAdd('editseller')" class="absolute top-3 right-4 text-gray-400 hover:text-gray-600 text-2xl">&times;</button>
+    <button aria-label="Close" onclick="closeAdd('editseller')" class="absolute top-3 right-4 text-gray-400 hover:text-gray-600 text-2xl">&times;</button>
     <h3 class="text-xl font-bold text-brand-bluedark mb-4">Edit Seller Details</h3>
     <form onsubmit="saveSellerDetails(event)" class="space-y-3 text-sm">
       <input type="hidden" id="es-id" />
@@ -556,7 +572,7 @@
 <div id="editpay-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4">
   <div class="absolute inset-0 bg-black bg-opacity-50" onclick="closeAdd('editpay')"></div>
   <div class="relative bg-white rounded-2xl w-full max-w-md p-6 shadow-2xl max-h-screen overflow-y-auto">
-    <button onclick="closeAdd('editpay')" class="absolute top-3 right-4 text-gray-400 hover:text-gray-600 text-2xl">&times;</button>
+    <button aria-label="Close" onclick="closeAdd('editpay')" class="absolute top-3 right-4 text-gray-400 hover:text-gray-600 text-2xl">&times;</button>
     <h3 class="text-xl font-bold text-brand-bluedark mb-4">Edit Payment Details</h3>
     <form onsubmit="savePay(event)" class="space-y-3 text-sm">
       <input type="hidden" id="ep-id" />
@@ -580,7 +596,7 @@
 <div id="orderdetail-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4">
   <div class="absolute inset-0 bg-black bg-opacity-50" onclick="closeOrderDetail()"></div>
   <div class="relative bg-white rounded-2xl w-full max-w-lg p-6 shadow-2xl max-h-[90vh] overflow-y-auto">
-    <button onclick="closeOrderDetail()" class="absolute top-3 right-4 text-gray-400 hover:text-gray-600 text-2xl">&times;</button>
+    <button aria-label="Close" onclick="closeOrderDetail()" class="absolute top-3 right-4 text-gray-400 hover:text-gray-600 text-2xl">&times;</button>
     <div id="od-body"><p class="text-gray-400 text-sm text-center py-8">Loading…</p></div>
   </div>
 </div>

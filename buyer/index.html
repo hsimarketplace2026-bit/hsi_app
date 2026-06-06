@@ -5,6 +5,22 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Buyer Dashboard — HSI Marketplace</title>
   <meta name="theme-color" content="#1b75bc" />
+  <!-- Social / SEO -->
+  <meta name="description" content="Manage your HSI Marketplace orders, cart, rewards and profile." />
+  <meta name="robots" content="noindex" />
+  <link rel="preconnect" href="https://cdn.tailwindcss.com" />
+  <link rel="preconnect" href="https://cdn.jsdelivr.net" />
+  <link rel="preconnect" href="https://kdhcxmzwgiwyskfamvkb.supabase.co" />
+  <meta property="og:type" content="website" />
+  <meta property="og:site_name" content="HSI Marketplace" />
+  <meta property="og:title" content="Buyer Dashboard — HSI Marketplace" />
+  <meta property="og:description" content="Manage your HSI Marketplace orders, cart, rewards and profile." />
+  <meta property="og:url" content="https://hsimarketplace2026-bit.github.io/hsi_app/buyer/" />
+  <meta property="og:image" content="https://hsimarketplace2026-bit.github.io/hsi_app/assets/og-image.png" />
+  <meta name="twitter:card" content="summary_large_image" />
+  <meta name="twitter:title" content="Buyer Dashboard — HSI Marketplace" />
+  <meta name="twitter:description" content="Manage your HSI Marketplace orders, cart, rewards and profile." />
+  <meta name="twitter:image" content="https://hsimarketplace2026-bit.github.io/hsi_app/assets/og-image.png" />
   <link rel="manifest" href="../manifest.json" />
   <link rel="icon" type="image/png" sizes="32x32" href="../favicon-32.png?v=3" />
   <link rel="icon" type="image/png" sizes="192x192" href="../icon-192.png?v=3" />
@@ -270,7 +286,7 @@
 <div id="payment-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4">
   <div class="absolute inset-0 bg-black bg-opacity-50" onclick="closePaymentModal()"></div>
   <div class="relative bg-white rounded-2xl w-full max-w-md p-6 shadow-2xl max-h-[90vh] overflow-y-auto">
-    <button onclick="closePaymentModal()" class="absolute top-3 right-4 text-gray-400 hover:text-gray-600 text-2xl">&times;</button>
+    <button aria-label="Close" onclick="closePaymentModal()" class="absolute top-3 right-4 text-gray-400 hover:text-gray-600 text-2xl">&times;</button>
     <h3 class="text-xl font-bold text-brand-bluedark mb-4">Payment</h3>
     <div id="pay-bank-details" class="mb-4"></div>
     <form onsubmit="submitPayment(event)" class="space-y-4">
@@ -298,7 +314,7 @@
 <div id="orderdetail-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4">
   <div class="absolute inset-0 bg-black bg-opacity-50" onclick="closeOrderDetail()"></div>
   <div class="relative bg-white rounded-2xl w-full max-w-lg p-6 shadow-2xl max-h-[90vh] overflow-y-auto">
-    <button onclick="closeOrderDetail()" class="absolute top-3 right-4 text-gray-400 hover:text-gray-600 text-2xl">&times;</button>
+    <button aria-label="Close" onclick="closeOrderDetail()" class="absolute top-3 right-4 text-gray-400 hover:text-gray-600 text-2xl">&times;</button>
     <div id="od-body"><p class="text-gray-400 text-sm text-center py-8">Loading…</p></div>
   </div>
 </div>
@@ -307,7 +323,7 @@
 <div id="billing-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4">
   <div class="absolute inset-0 bg-black bg-opacity-50" onclick="closeBillingModal()"></div>
   <div class="relative bg-white rounded-2xl w-full max-w-md max-h-screen overflow-y-auto p-6 shadow-2xl">
-    <button onclick="closeBillingModal()" class="absolute top-3 right-4 text-gray-400 hover:text-gray-600 text-2xl">&times;</button>
+    <button aria-label="Close" onclick="closeBillingModal()" class="absolute top-3 right-4 text-gray-400 hover:text-gray-600 text-2xl">&times;</button>
     <h3 id="billing-modal-title" class="text-xl font-bold text-brand-bluedark mb-4">Add Billing Address</h3>
     <form onsubmit="saveBilling(event)" class="space-y-3">
       <input type="hidden" id="bill-id" />
@@ -334,7 +350,7 @@
 <div id="rating-modal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4">
   <div class="absolute inset-0 bg-black bg-opacity-50" onclick="closeRatingModal()"></div>
   <div class="relative bg-white rounded-2xl w-full max-w-sm p-6 shadow-2xl text-center">
-    <button onclick="closeRatingModal()" class="absolute top-3 right-4 text-gray-400 hover:text-gray-600 text-2xl">&times;</button>
+    <button aria-label="Close" onclick="closeRatingModal()" class="absolute top-3 right-4 text-gray-400 hover:text-gray-600 text-2xl">&times;</button>
     <h3 class="text-xl font-bold text-brand-bluedark mb-4">Rate your order</h3>
     <input type="hidden" id="rate-order-id" />
     <div id="rate-stars" class="flex justify-center gap-1 mb-4"></div>
