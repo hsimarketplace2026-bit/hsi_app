@@ -258,7 +258,6 @@ function toggleMobileMenu(){var m=document.getElementById('mobile-menu');if(m)m.
     if (!session) return;
     // Logged in: swap Login/Register + standalone lang toggle for the user menu
     document.getElementById('nav-auth-btn').classList.add('hidden');
-    document.getElementById('lang-toggle').classList.add('hidden');
     document.getElementById('nav-user-menu').classList.remove('hidden');
     const { data: profile } = await sb.from('shared_profiles')
       .select('full_name, role, status').eq('id', session.user.id).single();

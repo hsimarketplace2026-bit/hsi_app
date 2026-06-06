@@ -53,30 +53,34 @@
 <div id="toast-container"></div>
 
 <!-- AUTH GUARD -->
-<script src="app.js?v=65" defer></script>
+<script src="app.js?v=66" defer></script>
+<script>function toggleMobileMenu(){var m=document.getElementById('mobile-menu');if(m)m.classList.toggle('hidden');}</script>
 
 <!-- NAV -->
 <nav id="site-nav" class="bg-white text-gray-800 sticky top-0 z-40 shadow-md border-b border-gray-100">
-  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-2 sm:py-3 flex flex-wrap items-center gap-2 sm:gap-3">
-    <a href="../" class="flex items-center gap-2 font-bold text-lg tracking-wide shrink-0">
-      <img src="../assets/hsi-logo.png" alt="HSI Marketplace" class="hidden sm:block h-10 w-auto" onerror="this.style.display='none'" />
-      <span class="text-brand-bluedark">HSI Marketplace</span>
-    </a>
-    <div class="hidden md:flex items-center gap-3">
-      <a href="../" class="text-gray-600 hover:text-brand-blue text-sm font-medium transition">Home</a>
-      <a href="../about/" class="text-gray-600 hover:text-brand-blue text-sm font-medium transition">About</a>
-      <a href="../activities/" class="text-gray-600 hover:text-brand-blue text-sm font-medium transition">Activities</a>
-      <a href="../partners/" class="text-gray-600 hover:text-brand-blue text-sm font-medium transition">Partners</a>
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-2 sm:py-3 flex flex-wrap items-center justify-between gap-2">
+    <div class="flex items-center gap-3 sm:gap-4 min-w-0">
+      <a href="../" class="flex items-center gap-2 font-bold text-base sm:text-lg tracking-wide shrink-0">
+        <img src="../assets/hsi-logo.png" alt="HSI Marketplace" class="h-8 sm:h-10 w-auto" onerror="this.style.display='none'" />
+        <span class="text-brand-bluedark">HSI Marketplace</span>
+      </a>
+      <a href="../" class="hidden md:inline text-gray-600 hover:text-brand-blue text-sm font-medium transition" data-i18n="nav.home">Home</a>
+      <a href="../about/" class="hidden md:inline text-gray-600 hover:text-brand-blue text-sm font-medium transition" data-i18n="nav.about">About</a>
+      <a href="../activities/" class="hidden md:inline text-gray-600 hover:text-brand-blue text-sm font-medium transition" data-i18n="nav.activities">Activities</a>
+      <a href="../partners/" class="hidden md:inline text-gray-600 hover:text-brand-blue text-sm font-medium transition" data-i18n="nav.partners">Partners</a>
     </div>
-    <a href="./" class="ml-auto bg-brand-blue hover:bg-brand-bluedark text-white text-sm px-3 sm:px-4 py-1.5 rounded-full font-semibold transition">Buyer Portal</a>
-    <div class="flex items-center gap-2 sm:gap-3 basis-full sm:basis-auto justify-end flex-wrap">
+    <div class="flex items-center justify-end gap-2 sm:gap-3 shrink-0 flex-wrap">
       <button id="lang-toggle" onclick="toggleLang()" class="text-gray-600 hover:text-brand-blue border border-gray-300 hover:border-brand-blue text-xs px-2.5 py-1 rounded-full font-semibold transition">BM</button>
-      <a href="../marketplace/" class="btn-primary text-white text-sm px-3 sm:px-4 py-1.5 rounded-full font-semibold transition" data-i18n="nav.shop">SHOP</a>
-      <button onclick="toggleCart()" class="relative btn-primary p-2 rounded-full text-white" aria-label="Cart" title="Cart">
+      <!-- PORTAL (always shown — buyer is always logged in here) -->
+      <a id="nav-portal-btn" href="./" class="bg-brand-blue hover:bg-brand-bluedark text-white text-sm px-3 sm:px-4 py-1.5 rounded-full font-semibold transition">Buyer Portal</a>
+      <!-- SHOP -->
+      <a id="nav-shop-btn" href="../marketplace/" class="btn-primary text-white text-sm px-3 sm:px-4 py-1.5 rounded-full font-semibold transition" data-i18n="nav.shop">Shop</a>
+      <!-- CART (inline drawer — buyer/app.js relies on toggleCart()) -->
+      <button id="nav-cart-btn" onclick="toggleCart()" class="relative btn-primary p-2 rounded-full text-white" aria-label="Cart" title="Cart">
         <svg class="w-5 h-5" viewBox="0 0 24 24" fill="currentColor"><path d="M2.25 2.25a.75.75 0 000 1.5h1.386c.17 0 .318.114.362.278l2.558 9.592a3.752 3.752 0 00-2.806 3.63c0 .414.336.75.75.75h15.75a.75.75 0 000-1.5H5.378A2.25 2.25 0 017.5 15h11.218a.75.75 0 00.674-.421 60.358 60.358 0 002.96-7.228.75.75 0 00-.525-.965A60.864 60.864 0 005.68 4.509l-.232-.867A1.875 1.875 0 003.636 2.25H2.25zM3.75 20.25a1.5 1.5 0 113 0 1.5 1.5 0 01-3 0zM16.5 20.25a1.5 1.5 0 113 0 1.5 1.5 0 01-3 0z"/></svg>
         <span id="cart-badge" class="hidden absolute -top-1 -right-1 bg-red-500 text-white text-xs font-bold w-5 h-5 rounded-full flex items-center justify-center">0</span>
       </button>
-      <!-- USER MENU -->
+      <!-- USER MENU (always shown — buyer is always logged in) -->
       <div id="nav-user-menu" class="relative">
         <button id="nav-user-btn" onclick="toggleUserMenu()" class="btn-primary text-white text-sm px-4 py-1.5 rounded-full font-medium transition flex items-center gap-1.5">
           <span id="nav-user-greeting">Hi</span>
@@ -95,7 +99,19 @@
           <button onclick="doLogout()" class="w-full text-left px-4 py-2.5 text-sm text-red-600 hover:bg-red-50 font-medium" data-i18n="nav.logout">Logout</button>
         </div>
       </div>
+      <button onclick="toggleMobileMenu()" class="md:hidden text-brand-bluedark p-2 -mr-1" aria-label="Open menu">
+        <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16"/></svg>
+      </button>
     </div>
+  </div>
+  <!-- MOBILE MENU -->
+  <div id="mobile-menu" class="hidden md:hidden absolute left-0 right-0 top-full border-t border-gray-100 bg-white px-4 py-3 space-y-1 shadow-lg z-40">
+    <a href="../" class="block px-3 py-2 rounded-lg text-gray-700 font-medium hover:bg-brand-bluelight" data-i18n="nav.home">Home</a>
+    <a href="../about/" class="block px-3 py-2 rounded-lg text-gray-700 font-medium hover:bg-brand-bluelight" data-i18n="nav.about">About</a>
+    <a href="../activities/" class="block px-3 py-2 rounded-lg text-gray-700 font-medium hover:bg-brand-bluelight" data-i18n="nav.activities">Activities</a>
+    <a href="../partners/" class="block px-3 py-2 rounded-lg text-gray-700 font-medium hover:bg-brand-bluelight" data-i18n="nav.partners">Partners</a>
+    <a href="../marketplace/" class="block px-3 py-2 rounded-lg text-center text-white btn-primary font-semibold" data-i18n="nav.shop">SHOP</a>
+    <a href="../contact/" id="mobile-contact-btn" class="block px-3 py-2 rounded-lg text-gray-700 font-medium hover:bg-brand-bluelight">Contact Us</a>
   </div>
 </nav>
 

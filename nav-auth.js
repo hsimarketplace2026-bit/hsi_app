@@ -154,7 +154,6 @@ document.addEventListener('click', function (e) {
       portal.classList.remove('hidden');
     }
     if (auth) auth.classList.add('hidden');
-    if (lang) lang.classList.add('hidden');
 
     // Shop + cart are only meaningful for buyers (or profiles missing a role).
     if (role === 'buyer' || !role) {
