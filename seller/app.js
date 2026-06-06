@@ -81,6 +81,9 @@
       btn.classList.toggle('bg-white', t !== tab);
       btn.classList.toggle('text-brand-bluedark', t !== tab);
     });
+    const profileOnly = tab === 'profile';
+    document.getElementById('seller-page-title')?.classList.toggle('hidden', profileOnly);
+    document.getElementById('seller-tabs-bar')?.classList.toggle('hidden', profileOnly);
     if (tab === 'orders') loadOrders();
     if (tab === 'analytics') loadAnalytics();
     if (tab === 'profile') loadProfile();
