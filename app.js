@@ -449,6 +449,11 @@ function toggleMobileMenu(){var m=document.getElementById('mobile-menu');if(m)m.
 
   initNav();
 
+  // Auto-open login modal when redirected from another page with ?login=1
+  if (new URLSearchParams(window.location.search).get('login') === '1') {
+    openAuth('login');
+  }
+
   // PWA install logic
   let deferredPrompt = null;
   const isStandalone = window.matchMedia('(display-mode: standalone)').matches || navigator.standalone === true;
