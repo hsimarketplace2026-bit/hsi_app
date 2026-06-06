@@ -392,6 +392,8 @@
     if (session) {
       document.getElementById('nav-auth-btn').classList.add('hidden');
       document.getElementById('nav-user-menu').classList.remove('hidden');
+      const cartBtn = document.getElementById('nav-cart-btn');
+      if (cartBtn) cartBtn.classList.remove('hidden');
       const { data: p } = await sb.from('shared_profiles').select('full_name, role, status').eq('id', session.user.id).single();
       const first = ((p && p.full_name) || session.user.email || '').trim().split(' ')[0];
       document.getElementById('nav-user-greeting').textContent = first ? ('Hi, ' + first) : 'Hi';
@@ -405,6 +407,10 @@
         portal.classList.remove('hidden');
       }
       loadCart();
+    } else {
+      // Logged out: hide portal pill (Login pill stays visible by default in HTML)
+      const portal = document.getElementById('nav-portal-btn');
+      if (portal) portal.classList.add('hidden');
     }
   }
 
