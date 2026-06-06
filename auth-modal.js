@@ -10,13 +10,15 @@
   if (!window.supabase) return;
   var sb = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
 
-  // Depth-aware root path (same logic as nav-auth.js rel())
+  // One-level-up root path — all app pages sit exactly one directory deep
+  // under the repo root (e.g. /hsi_app/marketplace/ → ../). Mirrors rel()
+  // in nav-auth.js so redirects land on /hsi_app/, not the server root.
   function rootHref() {
     var segs = window.location.pathname.split('/').filter(Boolean);
     var last = segs[segs.length - 1] || '';
     var isFile = last.indexOf('.') !== -1;
     var depth = isFile ? segs.length - 1 : segs.length;
-    return depth > 0 ? '../'.repeat(depth) : './';
+    return depth > 0 ? '../' : './';
   }
 
   // ── Inject panel HTML + slide-in CSS once ──────────────────────────────
