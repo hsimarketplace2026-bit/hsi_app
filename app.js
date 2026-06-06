@@ -248,13 +248,31 @@ function toggleMobileMenu(){var m=document.getElementById('mobile-menu');if(m)m.
     document.getElementById('nav-auth-btn').classList.add('hidden');
     document.getElementById('lang-toggle').classList.add('hidden');
     document.getElementById('nav-user-menu').classList.remove('hidden');
-    document.getElementById('nav-cart-btn').classList.remove('hidden');
     const { data: profile } = await sb.from('shared_profiles')
-      .select('full_name').eq('id', session.user.id).single();
+      .select('full_name, role, status').eq('id', session.user.id).single();
     currentUserName = (profile?.full_name || session.user.email || '').trim();
+
+    // Show the role-specific portal button and, for buyers, the cart.
+    const portalBtn = document.getElementById('nav-portal-btn');
+    const role = profile?.role;
+    if (role === 'admin') {
+      portalBtn.textContent = 'Admin Portal';
+      portalBtn.href = 'admin/';
+    } else if (role === 'seller' && profile?.status === 'active') {
+      portalBtn.textContent = 'Seller Portal';
+      portalBtn.href = 'seller/';
+    } else {
+      portalBtn.textContent = 'Buyer Portal';
+      portalBtn.href = 'buyer/';
+    }
+    portalBtn.classList.remove('hidden');
+    if (role === 'buyer' || !role) {
+      document.getElementById('nav-cart-btn').classList.remove('hidden');
+      updateCartBadge();
+    }
+
     updateGreeting();
     updateLangChecks();
-    updateCartBadge();
   }
 
   // CART (view-anytime drawer)

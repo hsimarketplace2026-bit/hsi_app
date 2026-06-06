@@ -139,6 +139,8 @@
     <div class="flex items-center gap-2 sm:gap-3 shrink-0">
       <button id="lang-toggle" onclick="toggleLang()" class="hidden sm:inline-block text-gray-600 hover:text-brand-blue border border-gray-300 hover:border-brand-blue text-xs px-2.5 py-1 rounded-full font-semibold transition">BM</button>
       <button id="nav-auth-btn" onclick="openAuth()" class="btn-primary text-white text-sm px-3 sm:px-4 py-1.5 rounded-full font-medium transition" data-i18n="nav.login_register">Login / Register</button>
+      <!-- PORTAL (shown when logged in — text depends on role: Buyer/Seller/Admin Portal) -->
+      <a id="nav-portal-btn" href="#" onclick="goToDashboard(); return false;" class="hidden bg-brand-blue hover:bg-brand-bluedark text-white text-sm px-3 sm:px-4 py-1.5 rounded-full font-semibold transition">Portal</a>
       <!-- CART (shown when logged in) -->
       <button id="nav-cart-btn" onclick="toggleCart()" class="hidden relative btn-primary p-2 rounded-full" aria-label="Cart" title="Cart">
         <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-1.5 6h13M10 19a1 1 0 100 2 1 1 0 000-2zm7 0a1 1 0 100 2 1 1 0 000-2z"/></svg>
