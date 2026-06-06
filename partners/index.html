@@ -17,7 +17,7 @@
   </script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="../translations.js"></script>
-  <script src="../nav-auth.js?v=51" defer></script>
+  <script src="../nav-auth.js?v=52" defer></script>
   <style>
     .nav-bg { background: linear-gradient(90deg, #11537f 0%, #1b75bc 100%); }
     .btn-primary { background-color: #46a338; }
@@ -35,10 +35,10 @@
         <img src="../assets/hsi-logo.png" alt="HSI Marketplace" class="hidden sm:block h-10 w-auto" onerror="this.style.display='none'" />
         <span class="text-brand-bluedark">HSI Marketplace</span>
       </a>
-      <a href="../" class="hidden md:inline text-gray-600 hover:text-brand-blue text-sm font-medium transition">Home</a>
-      <a href="../about/" class="hidden md:inline text-gray-600 hover:text-brand-blue text-sm font-medium transition">About</a>
-      <a href="../activities/" class="hidden md:inline text-gray-600 hover:text-brand-blue text-sm font-medium transition">Activities</a>
-      <a href="../partners/" class="hidden md:inline text-brand-blue font-semibold text-sm font-medium transition">Partners</a>
+      <a href="../" class="hidden md:inline text-gray-600 hover:text-brand-blue text-sm font-medium transition" data-i18n="nav.home">Home</a>
+      <a href="../about/" class="hidden md:inline text-gray-600 hover:text-brand-blue text-sm font-medium transition" data-i18n="nav.about">About</a>
+      <a href="../activities/" class="hidden md:inline text-gray-600 hover:text-brand-blue text-sm font-medium transition" data-i18n="nav.activities">Activities</a>
+      <a href="../partners/" class="hidden md:inline text-brand-blue font-semibold text-sm font-medium transition" data-i18n="nav.partners">Partners</a>
       <a href="../marketplace/" class="hidden md:inline btn-primary text-white text-sm px-4 py-1.5 rounded-full font-semibold tracking-wide transition" data-i18n="nav.shop">Shop</a>
     </div>
     <div class="flex items-center justify-center sm:justify-end gap-2 sm:gap-3 shrink-0 flex-wrap">
@@ -47,8 +47,8 @@
         <svg class="w-5 h-5" viewBox="0 0 24 24" fill="currentColor"><path d="M2.25 2.25a.75.75 0 000 1.5h1.386c.17 0 .318.114.362.278l2.558 9.592a3.752 3.752 0 00-2.806 3.63c0 .414.336.75.75.75h15.75a.75.75 0 000-1.5H5.378A2.25 2.25 0 017.5 15h11.218a.75.75 0 00.674-.421 60.358 60.358 0 002.96-7.228.75.75 0 00-.525-.965A60.864 60.864 0 005.68 4.509l-.232-.867A1.875 1.875 0 003.636 2.25H2.25zM3.75 20.25a1.5 1.5 0 113 0 1.5 1.5 0 01-3 0zM16.5 20.25a1.5 1.5 0 113 0 1.5 1.5 0 01-3 0z"/></svg>
         <span id="cart-badge" class="hidden absolute -top-1 -right-1 bg-red-500 text-white text-xs font-bold w-5 h-5 rounded-full flex items-center justify-center">0</span>
       </a>
-      <a id="nav-auth-btn" href="../" class="btn-primary text-white text-sm px-3 sm:px-4 py-1.5 rounded-full font-medium transition">Login / Register</a>
-      <a id="nav-portal-btn" href="#" class="hidden bg-brand-blue hover:bg-brand-bluedark text-white text-sm px-3 sm:px-4 py-1.5 rounded-full font-semibold transition">Portal</a>
+      <a id="nav-auth-btn" href="../" class="btn-primary text-white text-sm px-3 sm:px-4 py-1.5 rounded-full font-medium transition" data-i18n="nav.login_register">Login / Register</a>
+      <a id="nav-portal-btn" href="#" class="hidden bg-brand-blue hover:bg-brand-bluedark text-white text-sm px-3 sm:px-4 py-1.5 rounded-full font-semibold transition" data-i18n="nav.portal">Portal</a>
       <button onclick="toggleMobileMenu()" class="md:hidden text-brand-bluedark p-2 -mr-1" aria-label="Open menu">
         <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16"/></svg>
       </button>
@@ -56,28 +56,28 @@
   </div>
   <!-- MOBILE MENU -->
   <div id="mobile-menu" class="hidden md:hidden absolute left-0 right-0 top-full border-t border-gray-100 bg-white px-4 py-3 space-y-1 shadow-lg z-40">
-    <a href="../" class="block px-3 py-2 rounded-lg text-gray-700 font-medium hover:bg-brand-bluelight">Home</a>
-    <a href="../about/" class="block px-3 py-2 rounded-lg text-gray-700 font-medium hover:bg-brand-bluelight">About</a>
-    <a href="../activities/" class="block px-3 py-2 rounded-lg text-gray-700 font-medium hover:bg-brand-bluelight">Activities</a>
-    <a href="../partners/" class="block px-3 py-2 rounded-lg text-brand-blue font-semibold hover:bg-brand-bluelight">Partners</a>
+    <a href="../" class="block px-3 py-2 rounded-lg text-gray-700 font-medium hover:bg-brand-bluelight" data-i18n="nav.home">Home</a>
+    <a href="../about/" class="block px-3 py-2 rounded-lg text-gray-700 font-medium hover:bg-brand-bluelight" data-i18n="nav.about">About</a>
+    <a href="../activities/" class="block px-3 py-2 rounded-lg text-gray-700 font-medium hover:bg-brand-bluelight" data-i18n="nav.activities">Activities</a>
+    <a href="../partners/" class="block px-3 py-2 rounded-lg text-brand-blue font-semibold hover:bg-brand-bluelight" data-i18n="nav.partners">Partners</a>
     <a href="../marketplace/" class="block px-3 py-2 rounded-lg text-center text-white btn-primary font-semibold" data-i18n="nav.shop">SHOP</a>
-    <button onclick="toggleLang()" class="w-full text-left px-3 py-2 rounded-lg text-gray-700 font-medium hover:bg-brand-bluelight">Bahasa / English</button>
+    <button onclick="toggleLang()" class="w-full text-left px-3 py-2 rounded-lg text-gray-700 font-medium hover:bg-brand-bluelight" data-i18n="nav.lang_toggle_label">Bahasa / English</button>
   </div>
 </nav>
 
 <section class="bg-brand-bluelight py-12">
   <div class="max-w-5xl mx-auto px-4 text-center">
-    <h1 class="text-3xl sm:text-4xl md:text-5xl font-extrabold text-brand-bluedark">Our Partners</h1>
-    <p class="text-gray-600 mt-3 max-w-2xl mx-auto">The organisations powering the Hydro Sprout Initiative.</p>
+    <h1 class="text-3xl sm:text-4xl md:text-5xl font-extrabold text-brand-bluedark" data-i18n="partners.page_title">Our Partners</h1>
+    <p class="text-gray-600 mt-3 max-w-2xl mx-auto" data-i18n="partners.page_subtitle">The organisations powering the Hydro Sprout Initiative.</p>
   </div>
 </section>
 <!-- SPONSORS & PARTNERS -->
 <section id="sponsors" class="py-16 bg-brand-bluedark text-white scroll-mt-16">
   <div class="max-w-6xl mx-auto px-4">
     <div class="text-center mb-12">
-      <span class="text-brand-yellow font-semibold text-sm uppercase tracking-widest">Powered By</span>
-      <h2 class="text-3xl md:text-4xl font-bold mt-2">Our Sponsors &amp; Partners</h2>
-      <p class="text-blue-100 max-w-2xl mx-auto mt-3">HSI is made possible by the generosity and commitment of these organisations working together for the Bintulu community.</p>
+      <span class="text-brand-yellow font-semibold text-sm uppercase tracking-widest" data-i18n="partners.section_tag">Powered By</span>
+      <h2 class="text-3xl md:text-4xl font-bold mt-2" data-i18n="partners.section_title">Our Sponsors &amp; Partners</h2>
+      <p class="text-blue-100 max-w-2xl mx-auto mt-3" data-i18n="partners.section_intro">HSI is made possible by the generosity and commitment of these organisations working together for the Bintulu community.</p>
     </div>
     <div class="grid md:grid-cols-3 gap-8">
       <!-- PTTEP -->
@@ -85,30 +85,30 @@
         <div class="h-28 flex items-center justify-center mb-5">
           <img src="../assets/sponsors/pttep.png" alt="PTTEP" class="max-h-28 w-auto" onerror="this.style.display='none'" />
         </div>
-        <span class="inline-block bg-brand-blue text-white text-xs font-bold px-3 py-1 rounded-full mb-3 mx-auto uppercase tracking-wide">Main Sponsor</span>
-        <h3 class="text-lg font-bold text-brand-bluedark mb-2">PTT Exploration &amp; Production (PTTEP)</h3>
-        <p class="text-sm text-gray-600">With a deep commitment to social responsibility and community empowerment, PTTEP provides the financial and strategic support that drives the programme.</p>
+        <span class="inline-block bg-brand-blue text-white text-xs font-bold px-3 py-1 rounded-full mb-3 mx-auto uppercase tracking-wide" data-i18n="partners.pttep_role">Main Sponsor</span>
+        <h3 class="text-lg font-bold text-brand-bluedark mb-2" data-i18n="partners.pttep_name">PTT Exploration &amp; Production (PTTEP)</h3>
+        <p class="text-sm text-gray-600" data-i18n="partners.pttep_body">With a deep commitment to social responsibility and community empowerment, PTTEP provides the financial and strategic support that drives the programme.</p>
       </div>
       <!-- BDA -->
       <div class="card-hover bg-white rounded-2xl p-8 text-center text-gray-700 flex flex-col">
         <div class="h-28 flex items-center justify-center mb-5">
           <img src="../assets/sponsors/bda.png" alt="Bintulu Development Authority" class="max-h-28 w-auto" onerror="this.style.display='none'" />
         </div>
-        <span class="inline-block bg-brand-green text-white text-xs font-bold px-3 py-1 rounded-full mb-3 mx-auto uppercase tracking-wide">Collaborator &amp; Land Contributor</span>
-        <h3 class="text-lg font-bold text-brand-bluedark mb-2">Bintulu Development Authority (BDA)</h3>
-        <p class="text-sm text-gray-600">BDA plays a vital role as collaborator and land contributor, making the necessary land available for the project to take root.</p>
+        <span class="inline-block bg-brand-green text-white text-xs font-bold px-3 py-1 rounded-full mb-3 mx-auto uppercase tracking-wide" data-i18n="partners.bda_role">Collaborator &amp; Land Contributor</span>
+        <h3 class="text-lg font-bold text-brand-bluedark mb-2" data-i18n="partners.bda_name">Bintulu Development Authority (BDA)</h3>
+        <p class="text-sm text-gray-600" data-i18n="partners.bda_body">BDA plays a vital role as collaborator and land contributor, making the necessary land available for the project to take root.</p>
       </div>
       <!-- Lions Club -->
       <div class="card-hover bg-white rounded-2xl p-8 text-center text-gray-700 flex flex-col">
         <div class="h-28 flex items-center justify-center mb-5">
           <img src="../assets/sponsors/lions.png" alt="Lions Club of Bintulu Kidurong" class="max-h-28 w-auto" onerror="this.style.display='none'" />
         </div>
-        <span class="inline-block bg-brand-yellow text-brand-bluedark text-xs font-bold px-3 py-1 rounded-full mb-3 mx-auto uppercase tracking-wide">Financial Steward &amp; Implementer</span>
-        <h3 class="text-lg font-bold text-brand-bluedark mb-2">Lions Club of Bintulu Kidurong</h3>
-        <p class="text-sm text-gray-600">Steward of the funds and resources, ensuring they are allocated effectively and aligned with the goals and objectives of the programme.</p>
+        <span class="inline-block bg-brand-yellow text-brand-bluedark text-xs font-bold px-3 py-1 rounded-full mb-3 mx-auto uppercase tracking-wide" data-i18n="partners.lions_role">Financial Steward &amp; Implementer</span>
+        <h3 class="text-lg font-bold text-brand-bluedark mb-2" data-i18n="partners.lions_name">Lions Club of Bintulu Kidurong</h3>
+        <p class="text-sm text-gray-600" data-i18n="partners.lions_body">Steward of the funds and resources, ensuring they are allocated effectively and aligned with the goals and objectives of the programme.</p>
       </div>
     </div>
-    <p class="text-center text-blue-100 text-sm mt-8">In partnership with <strong class="text-white">University Putra Malaysia (UPM)</strong> — project coordinator and technical expertise.</p>
+    <p class="text-center text-blue-100 text-sm mt-8" data-i18n="partners.upm_note">In partnership with <strong class="text-white">University Putra Malaysia (UPM)</strong> — project coordinator and technical expertise.</p>
   </div>
 </section>
 
@@ -122,11 +122,11 @@
       <img src="../assets/sponsors/bda.png" alt="BDA" class="h-12 w-auto" onerror="this.style.display='none'" />
       <img src="../assets/sponsors/lions.png" alt="Lions Club of Bintulu Kidurong" class="h-12 w-auto" onerror="this.style.display='none'" />
     </div>
-    <p class="text-xs text-blue-200">Supported by PTTEP · Bintulu Development Authority · Lions Club of Bintulu Kidurong · University Putra Malaysia</p>
+    <p class="text-xs text-blue-200" data-i18n="footer.supported_by">Supported by PTTEP · Bintulu Development Authority · Lions Club of Bintulu Kidurong · University Putra Malaysia</p>
     <p class="text-xs text-blue-300 mt-4" data-i18n="footer.copyright">&copy; 2025 HSI Program. All rights reserved.</p>
   </div>
 </footer>
 
-<script src="app.js?v=51" defer></script>
+<script src="app.js?v=52" defer></script>
 </body>
 </html>

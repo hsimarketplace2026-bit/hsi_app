@@ -17,7 +17,7 @@
   </script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="../translations.js"></script>
-  <script src="../nav-auth.js?v=51" defer></script>
+  <script src="../nav-auth.js?v=52" defer></script>
   <style>
     .nav-bg { background: linear-gradient(90deg, #11537f 0%, #1b75bc 100%); }
     .hero-gradient { background: linear-gradient(135deg, #11537f 0%, #1b75bc 45%, #56b947 100%); }
@@ -36,10 +36,10 @@
         <img src="../assets/hsi-logo.png" alt="HSI Marketplace" class="hidden sm:block h-10 w-auto" onerror="this.style.display='none'" />
         <span class="text-brand-bluedark">HSI Marketplace</span>
       </a>
-      <a href="../" class="hidden md:inline text-gray-600 hover:text-brand-blue text-sm font-medium transition">Home</a>
-      <a href="../about/" class="hidden md:inline text-brand-blue font-semibold text-sm font-medium transition">About</a>
-      <a href="../activities/" class="hidden md:inline text-gray-600 hover:text-brand-blue text-sm font-medium transition">Activities</a>
-      <a href="../partners/" class="hidden md:inline text-gray-600 hover:text-brand-blue text-sm font-medium transition">Partners</a>
+      <a href="../" class="hidden md:inline text-gray-600 hover:text-brand-blue text-sm font-medium transition" data-i18n="nav.home">Home</a>
+      <a href="../about/" class="hidden md:inline text-brand-blue font-semibold text-sm font-medium transition" data-i18n="nav.about">About</a>
+      <a href="../activities/" class="hidden md:inline text-gray-600 hover:text-brand-blue text-sm font-medium transition" data-i18n="nav.activities">Activities</a>
+      <a href="../partners/" class="hidden md:inline text-gray-600 hover:text-brand-blue text-sm font-medium transition" data-i18n="nav.partners">Partners</a>
       <a href="../marketplace/" class="hidden md:inline btn-primary text-white text-sm px-4 py-1.5 rounded-full font-semibold tracking-wide transition" data-i18n="nav.shop">Shop</a>
     </div>
     <div class="flex items-center justify-center sm:justify-end gap-2 sm:gap-3 shrink-0 flex-wrap">
@@ -48,8 +48,8 @@
         <svg class="w-5 h-5" viewBox="0 0 24 24" fill="currentColor"><path d="M2.25 2.25a.75.75 0 000 1.5h1.386c.17 0 .318.114.362.278l2.558 9.592a3.752 3.752 0 00-2.806 3.63c0 .414.336.75.75.75h15.75a.75.75 0 000-1.5H5.378A2.25 2.25 0 017.5 15h11.218a.75.75 0 00.674-.421 60.358 60.358 0 002.96-7.228.75.75 0 00-.525-.965A60.864 60.864 0 005.68 4.509l-.232-.867A1.875 1.875 0 003.636 2.25H2.25zM3.75 20.25a1.5 1.5 0 113 0 1.5 1.5 0 01-3 0zM16.5 20.25a1.5 1.5 0 113 0 1.5 1.5 0 01-3 0z"/></svg>
         <span id="cart-badge" class="hidden absolute -top-1 -right-1 bg-red-500 text-white text-xs font-bold w-5 h-5 rounded-full flex items-center justify-center">0</span>
       </a>
-      <a id="nav-auth-btn" href="../" class="btn-primary text-white text-sm px-3 sm:px-4 py-1.5 rounded-full font-medium transition">Login / Register</a>
-      <a id="nav-portal-btn" href="#" class="hidden bg-brand-blue hover:bg-brand-bluedark text-white text-sm px-3 sm:px-4 py-1.5 rounded-full font-semibold transition">Portal</a>
+      <a id="nav-auth-btn" href="../" class="btn-primary text-white text-sm px-3 sm:px-4 py-1.5 rounded-full font-medium transition" data-i18n="nav.login_register">Login / Register</a>
+      <a id="nav-portal-btn" href="#" class="hidden bg-brand-blue hover:bg-brand-bluedark text-white text-sm px-3 sm:px-4 py-1.5 rounded-full font-semibold transition" data-i18n="nav.portal">Portal</a>
       <button onclick="toggleMobileMenu()" class="md:hidden text-brand-bluedark p-2 -mr-1" aria-label="Open menu">
         <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16"/></svg>
       </button>
@@ -57,36 +57,36 @@
   </div>
   <!-- MOBILE MENU -->
   <div id="mobile-menu" class="hidden md:hidden absolute left-0 right-0 top-full border-t border-gray-100 bg-white px-4 py-3 space-y-1 shadow-lg z-40">
-    <a href="../" class="block px-3 py-2 rounded-lg text-gray-700 font-medium hover:bg-brand-bluelight">Home</a>
-    <a href="../about/" class="block px-3 py-2 rounded-lg text-brand-blue font-semibold hover:bg-brand-bluelight">About</a>
-    <a href="../activities/" class="block px-3 py-2 rounded-lg text-gray-700 font-medium hover:bg-brand-bluelight">Activities</a>
-    <a href="../partners/" class="block px-3 py-2 rounded-lg text-gray-700 font-medium hover:bg-brand-bluelight">Partners</a>
+    <a href="../" class="block px-3 py-2 rounded-lg text-gray-700 font-medium hover:bg-brand-bluelight" data-i18n="nav.home">Home</a>
+    <a href="../about/" class="block px-3 py-2 rounded-lg text-brand-blue font-semibold hover:bg-brand-bluelight" data-i18n="nav.about">About</a>
+    <a href="../activities/" class="block px-3 py-2 rounded-lg text-gray-700 font-medium hover:bg-brand-bluelight" data-i18n="nav.activities">Activities</a>
+    <a href="../partners/" class="block px-3 py-2 rounded-lg text-gray-700 font-medium hover:bg-brand-bluelight" data-i18n="nav.partners">Partners</a>
     <a href="../marketplace/" class="block px-3 py-2 rounded-lg text-center text-white btn-primary font-semibold" data-i18n="nav.shop">SHOP</a>
-    <button onclick="toggleLang()" class="w-full text-left px-3 py-2 rounded-lg text-gray-700 font-medium hover:bg-brand-bluelight">Bahasa / English</button>
+    <button onclick="toggleLang()" class="w-full text-left px-3 py-2 rounded-lg text-gray-700 font-medium hover:bg-brand-bluelight" data-i18n="nav.lang_toggle_label">Bahasa / English</button>
   </div>
 </nav>
 
 <section class="bg-brand-bluelight py-12">
   <div class="max-w-5xl mx-auto px-4 text-center">
-    <h1 class="text-3xl sm:text-4xl md:text-5xl font-extrabold text-brand-bluedark">About HSI</h1>
-    <p class="text-gray-600 mt-3 max-w-2xl mx-auto">Sprouting sustainable farming and the seeds of entrepreneurship.</p>
+    <h1 class="text-3xl sm:text-4xl md:text-5xl font-extrabold text-brand-bluedark" data-i18n="about.page_title">About HSI</h1>
+    <p class="text-gray-600 mt-3 max-w-2xl mx-auto" data-i18n="about.page_subtitle">Sprouting sustainable farming and the seeds of entrepreneurship.</p>
   </div>
 </section>
 <!-- ABOUT / PROJECT INTRODUCTION -->
 <section id="about" class="py-16 bg-white scroll-mt-16">
   <div class="max-w-5xl mx-auto px-4">
     <div class="text-center mb-10">
-      <span class="text-brand-green font-semibold text-sm uppercase tracking-widest">About the Programme</span>
-      <h2 class="text-3xl md:text-4xl font-bold text-brand-bluedark mt-2">The Hydro Sprout Initiative (HSI)</h2>
+      <span class="text-brand-green font-semibold text-sm uppercase tracking-widest" data-i18n="about.intro_tag">About the Programme</span>
+      <h2 class="text-3xl md:text-4xl font-bold text-brand-bluedark mt-2" data-i18n="about.intro_title">The Hydro Sprout Initiative (HSI)</h2>
     </div>
     <div class="space-y-5 text-gray-600 leading-relaxed text-lg">
-      <p>The <strong class="text-brand-bluedark">Hydro Sprout Initiative (HSI)</strong> is a groundbreaking hydroponic community development program aimed at fostering sustainable agriculture, improving food security, and empowering local communities through modern and sustainable farming practices.</p>
-      <p>This innovative project is driven by a multi-stakeholder partnership, with <strong>PTTEP</strong> as the main sponsor, the <strong>Bintulu Development Authority (BDA)</strong> as the land contributor and collaborator, <strong>University Putra Malaysia</strong> providing technical expertise and as the project coordinator, and the <strong>Lions Club of Bintulu Kidurong</strong> acting as the financial steward and implementer.</p>
-      <p>By leveraging hydroponic technology, the program aims to address local food supply challenges, create entrepreneurship opportunities, and uplift low-income communities in Bintulu — ultimately contributing to the socio-economic well-being of the community.</p>
+      <p data-i18n="about.intro_p1">The <strong class="text-brand-bluedark">Hydro Sprout Initiative (HSI)</strong> is a groundbreaking hydroponic community development program aimed at fostering sustainable agriculture, improving food security, and empowering local communities through modern and sustainable farming practices.</p>
+      <p data-i18n="about.intro_p2">This innovative project is driven by a multi-stakeholder partnership, with <strong>PTTEP</strong> as the main sponsor, the <strong>Bintulu Development Authority (BDA)</strong> as the land contributor and collaborator, <strong>University Putra Malaysia</strong> providing technical expertise and as the project coordinator, and the <strong>Lions Club of Bintulu Kidurong</strong> acting as the financial steward and implementer.</p>
+      <p data-i18n="about.intro_p3">By leveraging hydroponic technology, the program aims to address local food supply challenges, create entrepreneurship opportunities, and uplift low-income communities in Bintulu — ultimately contributing to the socio-economic well-being of the community.</p>
     </div>
     <div class="mt-10 bg-gradient-to-r from-brand-bluelight to-brand-greenlight rounded-2xl p-8 text-center">
-      <p class="text-brand-green font-semibold text-xs uppercase tracking-widest mb-2">Our Motto</p>
-      <p class="text-2xl md:text-3xl font-bold text-brand-bluedark italic">“Sprouting Sustainable Farming and the Seeds of Entrepreneurship”</p>
+      <p class="text-brand-green font-semibold text-xs uppercase tracking-widest mb-2" data-i18n="about.motto_label">Our Motto</p>
+      <p class="text-2xl md:text-3xl font-bold text-brand-bluedark italic" data-i18n="about.motto_text">“Sprouting Sustainable Farming and the Seeds of Entrepreneurship”</p>
     </div>
   </div>
 </section>
@@ -95,24 +95,24 @@
 <section class="py-16 bg-brand-bluelight">
   <div class="max-w-6xl mx-auto px-4">
     <div class="text-center mb-10">
-      <span class="text-brand-blue font-semibold text-sm uppercase tracking-widest">What We Aim For</span>
-      <h2 class="text-3xl font-bold text-brand-bluedark mt-2">Our Objectives</h2>
+      <span class="text-brand-blue font-semibold text-sm uppercase tracking-widest" data-i18n="about.objectives_tag">What We Aim For</span>
+      <h2 class="text-3xl font-bold text-brand-bluedark mt-2" data-i18n="about.objectives_title">Our Objectives</h2>
     </div>
     <div class="grid md:grid-cols-3 gap-8">
       <div class="card-hover bg-white rounded-2xl p-8 border-t-4 border-brand-blue shadow-sm">
         <div class="w-12 h-12 rounded-xl bg-brand-bluelight text-brand-blue flex items-center justify-center mb-4"><svg class="w-7 h-7" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 19.128a9.38 9.38 0 002.625.372 9.337 9.337 0 004.121-.952 4.125 4.125 0 00-7.533-2.493M15 19.128v-.003c0-1.113-.285-2.16-.786-3.07M15 19.128v.106A12.318 12.318 0 018.624 21c-2.331 0-4.512-.645-6.374-1.766l-.001-.109a6.375 6.375 0 0111.964-3.07M12 6.375a3.375 3.375 0 11-6.75 0 3.375 3.375 0 016.75 0zm8.25 2.25a2.625 2.625 0 11-5.25 0 2.625 2.625 0 015.25 0z"/></svg></div>
-        <h3 class="text-xl font-bold text-brand-bluedark mb-2">Empower the Local Community</h3>
-        <p class="text-gray-600">Train participants in advanced farming techniques such as hydroponics, improving agricultural skills and knowledge across the community.</p>
+        <h3 class="text-xl font-bold text-brand-bluedark mb-2" data-i18n="about.obj_empower_title">Empower the Local Community</h3>
+        <p class="text-gray-600" data-i18n="about.obj_empower_body">Train participants in advanced farming techniques such as hydroponics, improving agricultural skills and knowledge across the community.</p>
       </div>
       <div class="card-hover bg-white rounded-2xl p-8 border-t-4 border-brand-green shadow-sm">
         <div class="w-12 h-12 rounded-xl bg-brand-greenlight text-brand-greendark flex items-center justify-center mb-4"><svg class="w-7 h-7" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 18L9 11.25l4.306 4.307a11.95 11.95 0 015.814-5.519l2.74-1.22m0 0l-5.94-2.28m5.94 2.28l-2.28 5.941"/></svg></div>
-        <h3 class="text-xl font-bold text-brand-bluedark mb-2">Uplift Low-Income Livelihoods</h3>
-        <p class="text-gray-600">Provide opportunities for participants to generate income by selling their hydroponically-grown crops.</p>
+        <h3 class="text-xl font-bold text-brand-bluedark mb-2" data-i18n="about.obj_uplift_title">Uplift Low-Income Livelihoods</h3>
+        <p class="text-gray-600" data-i18n="about.obj_uplift_body">Provide opportunities for participants to generate income by selling their hydroponically-grown crops.</p>
       </div>
       <div class="card-hover bg-white rounded-2xl p-8 border-t-4 border-brand-yellow shadow-sm">
         <div class="w-12 h-12 rounded-xl bg-[#f8f6d8] text-[#9a8a08] flex items-center justify-center mb-4"><svg class="w-7 h-7" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15.59 14.37a6 6 0 01-5.84 7.38v-4.8m5.84-2.58a14.98 14.98 0 006.16-12.12A14.98 14.98 0 009.631 8.41m5.96 5.96a14.926 14.926 0 01-5.841 2.58m-.119-8.54a6 6 0 00-7.381 5.84h4.8m2.581-5.84a14.927 14.927 0 00-2.58 5.84m2.699 2.7c-.103.021-.207.041-.311.06a15.09 15.09 0 01-2.448-2.448 14.9 14.9 0 01.06-.312m-2.24 2.39a4.493 4.493 0 00-1.757 4.306 4.493 4.493 0 004.306-1.758M16.5 9a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0z"/></svg></div>
-        <h3 class="text-xl font-bold text-brand-bluedark mb-2">Foster Entrepreneurship</h3>
-        <p class="text-gray-600">Encourage entrepreneurship through technical training, mentorship, and business and marketing skill development.</p>
+        <h3 class="text-xl font-bold text-brand-bluedark mb-2" data-i18n="about.obj_entrepreneur_title">Foster Entrepreneurship</h3>
+        <p class="text-gray-600" data-i18n="about.obj_entrepreneur_body">Encourage entrepreneurship through technical training, mentorship, and business and marketing skill development.</p>
       </div>
     </div>
   </div>
@@ -122,10 +122,10 @@
 <section class="py-16 bg-white">
   <div class="max-w-5xl mx-auto px-4">
     <div class="text-center mb-8">
-      <span class="text-brand-green font-semibold text-sm uppercase tracking-widest">The Technology</span>
-      <h2 class="text-3xl font-bold text-brand-bluedark mt-2">What is Hydroponics?</h2>
+      <span class="text-brand-green font-semibold text-sm uppercase tracking-widest" data-i18n="about.hydro_tag">The Technology</span>
+      <h2 class="text-3xl font-bold text-brand-bluedark mt-2" data-i18n="about.hydro_title">What is Hydroponics?</h2>
     </div>
-    <p class="text-gray-600 leading-relaxed text-lg text-center max-w-3xl mx-auto">
+    <p class="text-gray-600 leading-relaxed text-lg text-center max-w-3xl mx-auto" data-i18n="about.hydro_body">
       Hydroponic farming is an innovative method of growing plants without soil, using nutrient-rich water solutions to deliver essential nutrients directly to plant roots. By providing a controlled growing environment, hydroponic systems enable faster plant growth, higher yields, and year-round cultivation regardless of weather. Compared to conventional agriculture, hydroponics can use up to <strong class="text-brand-blue">90% less water</strong>, requires less land, and minimises the need for pesticides — making it a sustainable, resource-efficient approach to food production, especially well suited to urban areas where land is limited and food security matters.
     </p>
   </div>
@@ -177,36 +177,36 @@
 <section class="py-16 bg-brand-bluelight">
   <div class="max-w-6xl mx-auto px-4">
     <div class="text-center mb-10">
-      <span class="text-brand-blue font-semibold text-sm uppercase tracking-widest">Looking Ahead</span>
-      <h2 class="text-3xl font-bold text-brand-bluedark mt-2">Long-Term Impact</h2>
+      <span class="text-brand-blue font-semibold text-sm uppercase tracking-widest" data-i18n="about.impact_tag">Looking Ahead</span>
+      <h2 class="text-3xl font-bold text-brand-bluedark mt-2" data-i18n="about.impact_title">Long-Term Impact</h2>
     </div>
     <div class="grid sm:grid-cols-2 lg:grid-cols-3 gap-6">
       <div class="bg-white rounded-2xl p-6 card-hover border-l-4 border-brand-green">
-        <h3 class="font-bold text-brand-bluedark mb-1">Entrepreneurial Ecosystem</h3>
-        <p class="text-gray-600 text-sm">Successful hydroponic businesses can expand, diversify crops, and become suppliers, consultants or trainers — growing a localised economy.</p>
+        <h3 class="font-bold text-brand-bluedark mb-1" data-i18n="about.impact_ecosystem_title">Entrepreneurial Ecosystem</h3>
+        <p class="text-gray-600 text-sm" data-i18n="about.impact_ecosystem_body">Successful hydroponic businesses can expand, diversify crops, and become suppliers, consultants or trainers — growing a localised economy.</p>
       </div>
       <div class="bg-white rounded-2xl p-6 card-hover border-l-4 border-brand-blue">
-        <h3 class="font-bold text-brand-bluedark mb-1">Food Security</h3>
-        <p class="text-gray-600 text-sm">A network of local farms shortens supply chains, builds resilience, and shields the community from global food price volatility.</p>
+        <h3 class="font-bold text-brand-bluedark mb-1" data-i18n="about.impact_food_security_title">Food Security</h3>
+        <p class="text-gray-600 text-sm" data-i18n="about.impact_food_security_body">A network of local farms shortens supply chains, builds resilience, and shields the community from global food price volatility.</p>
       </div>
       <div class="bg-white rounded-2xl p-6 card-hover border-l-4 border-brand-green">
-        <h3 class="font-bold text-brand-bluedark mb-1">Job Creation</h3>
-        <p class="text-gray-600 text-sm">New ventures create jobs in production, packaging, sales, marketing, logistics and retail — rippling out to other local industries.</p>
+        <h3 class="font-bold text-brand-bluedark mb-1" data-i18n="about.impact_jobs_title">Job Creation</h3>
+        <p class="text-gray-600 text-sm" data-i18n="about.impact_jobs_body">New ventures create jobs in production, packaging, sales, marketing, logistics and retail — rippling out to other local industries.</p>
       </div>
       <div class="bg-white rounded-2xl p-6 card-hover border-l-4 border-brand-blue">
-        <h3 class="font-bold text-brand-bluedark mb-1">Knowledge Transfer</h3>
-        <p class="text-gray-600 text-sm">Graduates mentoring new participants creates a continuous cycle of learning, leadership and stronger social bonds.</p>
+        <h3 class="font-bold text-brand-bluedark mb-1" data-i18n="about.impact_knowledge_title">Knowledge Transfer</h3>
+        <p class="text-gray-600 text-sm" data-i18n="about.impact_knowledge_body">Graduates mentoring new participants creates a continuous cycle of learning, leadership and stronger social bonds.</p>
       </div>
       <div class="bg-white rounded-2xl p-6 card-hover border-l-4 border-brand-green">
-        <h3 class="font-bold text-brand-bluedark mb-1">Urban Greening</h3>
-        <p class="text-gray-600 text-sm">Rooftops, vacant lots and indoor spaces can be transformed into productive farms, making cities greener and land use more efficient.</p>
+        <h3 class="font-bold text-brand-bluedark mb-1" data-i18n="about.impact_urban_title">Urban Greening</h3>
+        <p class="text-gray-600 text-sm" data-i18n="about.impact_urban_body">Rooftops, vacant lots and indoor spaces can be transformed into productive farms, making cities greener and land use more efficient.</p>
       </div>
       <div class="bg-white rounded-2xl p-6 card-hover border-l-4 border-brand-blue">
-        <h3 class="font-bold text-brand-bluedark mb-1">Lower Carbon Footprint</h3>
-        <p class="text-gray-600 text-sm">Up to 90% less water and locally grown food reduce resource use and cut transport emissions — supporting global environmental goals.</p>
+        <h3 class="font-bold text-brand-bluedark mb-1" data-i18n="about.impact_carbon_title">Lower Carbon Footprint</h3>
+        <p class="text-gray-600 text-sm" data-i18n="about.impact_carbon_body">Up to 90% less water and locally grown food reduce resource use and cut transport emissions — supporting global environmental goals.</p>
       </div>
     </div>
-    <p class="text-center text-gray-600 max-w-3xl mx-auto mt-8 text-sm">Once established, HSI can serve as a <strong class="text-brand-bluedark">scalable model</strong> for other communities locally and globally — adapting hydroponic entrepreneurship to address food security, economic empowerment and sustainability everywhere.</p>
+    <p class="text-center text-gray-600 max-w-3xl mx-auto mt-8 text-sm" data-i18n="about.impact_closing">Once established, HSI can serve as a <strong class="text-brand-bluedark">scalable model</strong> for other communities locally and globally — adapting hydroponic entrepreneurship to address food security, economic empowerment and sustainability everywhere.</p>
   </div>
 </section>
 
@@ -267,11 +267,11 @@
       <img src="../assets/sponsors/bda.png" alt="BDA" class="h-12 w-auto" onerror="this.style.display='none'" />
       <img src="../assets/sponsors/lions.png" alt="Lions Club of Bintulu Kidurong" class="h-12 w-auto" onerror="this.style.display='none'" />
     </div>
-    <p class="text-xs text-blue-200">Supported by PTTEP · Bintulu Development Authority · Lions Club of Bintulu Kidurong · University Putra Malaysia</p>
+    <p class="text-xs text-blue-200" data-i18n="footer.supported_by">Supported by PTTEP · Bintulu Development Authority · Lions Club of Bintulu Kidurong · University Putra Malaysia</p>
     <p class="text-xs text-blue-300 mt-4" data-i18n="footer.copyright">&copy; 2025 HSI Program. All rights reserved.</p>
   </div>
 </footer>
 
-<script src="app.js?v=51" defer></script>
+<script src="app.js?v=52" defer></script>
 </body>
 </html>

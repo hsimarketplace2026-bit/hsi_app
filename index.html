@@ -67,11 +67,11 @@
     <img src="assets/hsi-logo.png" alt="Hydro Sprout Initiative" class="w-10 h-10 object-contain" onerror="this.style.display='none'" />
     <div>
       <p class="font-semibold text-sm leading-tight text-brand-bluedark">HSI Marketplace</p>
-      <p id="install-subtitle" class="text-gray-500 text-xs">Install app for quick access</p>
+      <p id="install-subtitle" class="text-gray-500 text-xs" data-i18n="home.install_subtitle">Install app for quick access</p>
     </div>
   </div>
   <div class="flex items-center gap-2">
-    <button id="install-btn" onclick="handleInstall()" class="bg-brand-green hover:bg-brand-greendark text-white text-sm font-semibold px-4 py-2 rounded-full transition">Install</button>
+    <button id="install-btn" onclick="handleInstall()" class="bg-brand-green hover:bg-brand-greendark text-white text-sm font-semibold px-4 py-2 rounded-full transition" data-i18n="home.install_btn">Install</button>
     <button onclick="document.getElementById('pwa-install-banner').classList.add('hidden')" class="text-gray-400 hover:text-gray-600 text-2xl leading-none px-2">&times;</button>
   </div>
 </div>
@@ -83,40 +83,40 @@
     <button onclick="document.getElementById('install-modal').classList.add('hidden')" class="absolute top-3 right-4 text-gray-400 text-2xl">&times;</button>
     <div class="text-center mb-5">
       <img src="assets/hsi-logo.png" alt="Hydro Sprout Initiative" class="w-16 h-16 object-contain rounded-2xl mx-auto mb-3 shadow bg-white p-1.5" onerror="this.style.display='none'" />
-      <h3 class="text-lg font-bold text-gray-900">Add to Home Screen</h3>
-      <p class="text-sm text-gray-500 mt-1">Install HSI Marketplace as an app</p>
+      <h3 class="text-lg font-bold text-gray-900" data-i18n="home.install_modal_title">Add to Home Screen</h3>
+      <p class="text-sm text-gray-500 mt-1" data-i18n="home.install_modal_subtitle">Install HSI Marketplace as an app</p>
     </div>
     <!-- iOS steps -->
     <ol id="ios-steps" class="hidden space-y-3 text-sm text-gray-700">
       <li class="flex items-start gap-3">
         <span class="bg-brand-bluelight text-brand-bluedark font-bold rounded-full w-6 h-6 flex items-center justify-center shrink-0 mt-0.5">1</span>
-        <span>Tap the <strong>Share</strong> button (the box with an arrow) at the bottom of Safari</span>
+        <span data-i18n="home.install_ios_step1">Tap the <strong>Share</strong> button (the box with an arrow) at the bottom of Safari</span>
       </li>
       <li class="flex items-start gap-3">
         <span class="bg-brand-bluelight text-brand-bluedark font-bold rounded-full w-6 h-6 flex items-center justify-center shrink-0 mt-0.5">2</span>
-        <span>Scroll down and tap <strong>"Add to Home Screen"</strong></span>
+        <span data-i18n="home.install_ios_step2">Scroll down and tap <strong>"Add to Home Screen"</strong></span>
       </li>
       <li class="flex items-start gap-3">
         <span class="bg-brand-bluelight text-brand-bluedark font-bold rounded-full w-6 h-6 flex items-center justify-center shrink-0 mt-0.5">3</span>
-        <span>Tap <strong>"Add"</strong> in the top right corner</span>
+        <span data-i18n="home.install_ios_step3">Tap <strong>"Add"</strong> in the top right corner</span>
       </li>
     </ol>
     <!-- Android steps -->
     <ol id="android-steps" class="hidden space-y-3 text-sm text-gray-700">
       <li class="flex items-start gap-3">
         <span class="bg-brand-bluelight text-brand-bluedark font-bold rounded-full w-6 h-6 flex items-center justify-center shrink-0 mt-0.5">1</span>
-        <span>Tap the <strong>three-dot menu</strong> ⋮ at the top right of Chrome</span>
+        <span data-i18n="home.install_android_step1">Tap the <strong>three-dot menu</strong> ⋮ at the top right of Chrome</span>
       </li>
       <li class="flex items-start gap-3">
         <span class="bg-brand-bluelight text-brand-bluedark font-bold rounded-full w-6 h-6 flex items-center justify-center shrink-0 mt-0.5">2</span>
-        <span>Tap <strong>"Add to Home screen"</strong> or <strong>"Install app"</strong></span>
+        <span data-i18n="home.install_android_step2">Tap <strong>"Add to Home screen"</strong> or <strong>"Install app"</strong></span>
       </li>
       <li class="flex items-start gap-3">
         <span class="bg-brand-bluelight text-brand-bluedark font-bold rounded-full w-6 h-6 flex items-center justify-center shrink-0 mt-0.5">3</span>
-        <span>Tap <strong>"Add"</strong> to confirm</span>
+        <span data-i18n="home.install_android_step3">Tap <strong>"Add"</strong> to confirm</span>
       </li>
     </ol>
-    <div class="mt-5 bg-brand-greenlight rounded-xl p-3 text-xs text-brand-greendark text-center">
+    <div class="mt-5 bg-brand-greenlight rounded-xl p-3 text-xs text-brand-greendark text-center" data-i18n="home.install_icon_note">
       The HSI Marketplace icon will appear on your home screen
     </div>
   </div>
@@ -130,10 +130,10 @@
         <img src="assets/hsi-logo.png" alt="HSI Marketplace" class="hidden sm:block h-10 w-auto" onerror="this.style.display='none'" />
         <span class="text-brand-bluedark">HSI Marketplace</span>
       </a>
-      <a href="./" class="hidden md:inline text-brand-blue font-semibold text-sm font-medium transition">Home</a>
-      <a href="about/" class="hidden md:inline text-gray-600 hover:text-brand-blue text-sm font-medium transition">About</a>
-      <a href="activities/" class="hidden md:inline text-gray-600 hover:text-brand-blue text-sm font-medium transition">Activities</a>
-      <a href="partners/" class="hidden md:inline text-gray-600 hover:text-brand-blue text-sm font-medium transition">Partners</a>
+      <a href="./" class="hidden md:inline text-brand-blue font-semibold text-sm font-medium transition" data-i18n="nav.home">Home</a>
+      <a href="about/" class="hidden md:inline text-gray-600 hover:text-brand-blue text-sm font-medium transition" data-i18n="nav.about">About</a>
+      <a href="activities/" class="hidden md:inline text-gray-600 hover:text-brand-blue text-sm font-medium transition" data-i18n="nav.activities">Activities</a>
+      <a href="partners/" class="hidden md:inline text-gray-600 hover:text-brand-blue text-sm font-medium transition" data-i18n="nav.partners">Partners</a>
       <a href="marketplace/" class="hidden md:inline btn-primary text-white text-sm px-4 py-1.5 rounded-full font-semibold tracking-wide transition" data-i18n="nav.shop">Shop</a>
     </div>
     <div class="flex items-center justify-center sm:justify-end gap-2 sm:gap-3 shrink-0 flex-wrap">
@@ -176,34 +176,34 @@
   </div>
   <!-- MOBILE MENU -->
   <div id="mobile-menu" class="hidden md:hidden absolute left-0 right-0 top-full border-t border-gray-100 bg-white px-4 py-3 space-y-1 shadow-lg z-40">
-    <a href="./" class="block px-3 py-2 rounded-lg text-brand-blue font-semibold hover:bg-brand-bluelight">Home</a>
-    <a href="about/" class="block px-3 py-2 rounded-lg text-gray-700 font-medium hover:bg-brand-bluelight">About</a>
-    <a href="activities/" class="block px-3 py-2 rounded-lg text-gray-700 font-medium hover:bg-brand-bluelight">Activities</a>
-    <a href="partners/" class="block px-3 py-2 rounded-lg text-gray-700 font-medium hover:bg-brand-bluelight">Partners</a>
+    <a href="./" class="block px-3 py-2 rounded-lg text-brand-blue font-semibold hover:bg-brand-bluelight" data-i18n="nav.home">Home</a>
+    <a href="about/" class="block px-3 py-2 rounded-lg text-gray-700 font-medium hover:bg-brand-bluelight" data-i18n="nav.about">About</a>
+    <a href="activities/" class="block px-3 py-2 rounded-lg text-gray-700 font-medium hover:bg-brand-bluelight" data-i18n="nav.activities">Activities</a>
+    <a href="partners/" class="block px-3 py-2 rounded-lg text-gray-700 font-medium hover:bg-brand-bluelight" data-i18n="nav.partners">Partners</a>
     <a href="marketplace/" class="block px-3 py-2 rounded-lg text-center text-white btn-primary font-semibold" data-i18n="nav.shop">Shop</a>
-    <button onclick="toggleLang()" class="w-full text-left px-3 py-2 rounded-lg text-gray-700 font-medium hover:bg-brand-bluelight">Bahasa / English</button>
+    <button onclick="toggleLang()" class="w-full text-left px-3 py-2 rounded-lg text-gray-700 font-medium hover:bg-brand-bluelight" data-i18n="nav.lang_toggle_label">Bahasa / English</button>
   </div>
 </nav>
-<script src="app.js?v=51" defer></script>
+<script src="app.js?v=52" defer></script>
 
 <!-- CART DRAWER -->
 <div id="cart-overlay" class="hidden fixed inset-0 bg-black bg-opacity-30 z-40" onclick="toggleCart()"></div>
 <div id="cart-sidebar" class="fixed top-0 right-0 h-full w-full max-w-sm bg-white z-50 shadow-2xl transform translate-x-full transition-transform overflow-y-auto">
   <div class="p-5">
     <div class="flex items-center justify-between mb-5">
-      <h3 class="text-xl font-bold text-brand-bluedark">Your Cart</h3>
+      <h3 class="text-xl font-bold text-brand-bluedark" data-i18n="mkt.your_cart">Your Cart</h3>
       <button onclick="toggleCart()" class="text-gray-400 hover:text-gray-600 text-2xl">&times;</button>
     </div>
     <div id="cart-items-list">
-      <p class="text-gray-400 text-sm text-center py-10">Your cart is empty.</p>
+      <p class="text-gray-400 text-sm text-center py-10" data-i18n="mkt.cart_empty">Your cart is empty.</p>
     </div>
     <div id="cart-footer" class="hidden border-t border-brand-bluelight pt-4 mt-4">
       <div class="flex justify-between font-bold text-brand-bluedark mb-4">
-        <span>Total</span>
+        <span data-i18n="mkt.total">Total</span>
         <span id="cart-total">RM 0.00</span>
       </div>
-      <a href="marketplace/" class="block w-full border-2 border-brand-green text-brand-greendark hover:bg-brand-greenlight font-semibold py-2.5 rounded-xl text-center transition mb-2">Continue Shopping</a>
-      <a href="buyer/" class="block w-full btn-primary text-white font-semibold py-3 rounded-xl text-center transition">Go to Checkout</a>
+      <a href="marketplace/" class="block w-full border-2 border-brand-green text-brand-greendark hover:bg-brand-greenlight font-semibold py-2.5 rounded-xl text-center transition mb-2" data-i18n="home.continue_shopping">Continue Shopping</a>
+      <a href="buyer/" class="block w-full btn-primary text-white font-semibold py-3 rounded-xl text-center transition" data-i18n="mkt.checkout">Go to Checkout</a>
     </div>
   </div>
 </div>
@@ -214,7 +214,7 @@
     <img src="assets/hsi-logo.png" alt="Hydro Sprout Initiative" class="h-40 sm:h-56 md:h-72 lg:h-80 w-auto mx-auto mb-8" onerror="this.style.display='none'" />
     <h1 class="text-4xl md:text-6xl font-extrabold mb-4 leading-tight text-brand-bluedark" data-i18n="hero.title">Fresh Hydroponic Produce<br class="hidden md:block" /> From Your Community</h1>
     <p class="text-gray-600 text-lg md:text-xl mb-3 max-w-2xl mx-auto" data-i18n="hero.subtitle">Connect directly with HSI community farmers. Get the freshest greens — grown clean, delivered fresh.</p>
-    <p class="text-brand-blue italic text-base md:text-lg mb-8 max-w-2xl mx-auto">“Sprouting Sustainable Farming and the Seeds of Entrepreneurship”</p>
+    <p class="text-brand-blue italic text-base md:text-lg mb-8 max-w-2xl mx-auto" data-i18n="home.hero_motto">“Sprouting Sustainable Farming and the Seeds of Entrepreneurship”</p>
     <div class="flex flex-col sm:flex-row gap-3 justify-center">
       <a href="marketplace/" class="btn-primary text-white font-semibold px-8 py-3 rounded-full text-lg shadow-lg transition" data-i18n="hero.browse_btn">Browse Marketplace</a>
       <button onclick="openAuth('register')" class="bg-brand-blue hover:bg-brand-bluedark text-white font-semibold px-8 py-3 rounded-full text-lg shadow-lg transition" data-i18n="hero.join_btn">Join as Seller / Buyer</button>
@@ -232,7 +232,7 @@
       <img src="assets/sponsors/bda.png" alt="BDA" class="h-12 w-auto" onerror="this.style.display='none'" />
       <img src="assets/sponsors/lions.png" alt="Lions Club of Bintulu Kidurong" class="h-12 w-auto" onerror="this.style.display='none'" />
     </div>
-    <p class="text-xs text-blue-200">Supported by PTTEP · Bintulu Development Authority · Lions Club of Bintulu Kidurong · University Putra Malaysia</p>
+    <p class="text-xs text-blue-200" data-i18n="footer.supported_by">Supported by PTTEP · Bintulu Development Authority · Lions Club of Bintulu Kidurong · University Putra Malaysia</p>
     <p class="text-xs text-blue-300 mt-4" data-i18n="footer.copyright">&copy; 2025 HSI Program. All rights reserved.</p>
   </div>
 </footer>
@@ -254,23 +254,23 @@
         <div id="login-error" class="hidden bg-red-50 border border-red-300 text-red-700 text-sm rounded-lg px-4 py-3"></div>
         <div id="login-info" class="hidden bg-green-50 border border-green-300 text-green-700 text-sm rounded-lg px-4 py-3"></div>
         <div>
-          <label class="block text-sm font-medium text-gray-700 mb-1">Email</label>
+          <label class="block text-sm font-medium text-gray-700 mb-1" data-i18n="auth.email">Email</label>
           <input type="email" id="login-email" required placeholder="you@example.com" autocomplete="email"
             class="w-full border border-gray-300 rounded-lg px-4 py-2.5 focus:outline-none focus:border-brand-blue text-sm" />
         </div>
         <div>
-          <label class="block text-sm font-medium text-gray-700 mb-1">Password</label>
+          <label class="block text-sm font-medium text-gray-700 mb-1" data-i18n="auth.password">Password</label>
           <input type="password" id="login-password" placeholder="••••••••" autocomplete="current-password"
             onkeydown="if(event.key==='Enter') doLogin()"
             class="w-full border border-gray-300 rounded-lg px-4 py-2.5 focus:outline-none focus:border-brand-blue text-sm" />
         </div>
-        <button type="button" id="login-btn" onclick="doLogin()" class="w-full btn-primary text-white font-semibold py-3 rounded-lg transition text-sm">Login</button>
+        <button type="button" id="login-btn" onclick="doLogin()" class="w-full btn-primary text-white font-semibold py-3 rounded-lg transition text-sm" data-i18n="auth.login_btn">Login</button>
         <div class="text-center pt-1">
-          <button type="button" onclick="doForgotPassword()" class="text-sm text-brand-blue hover:text-brand-bluedark font-medium hover:underline">Forgot password?</button>
+          <button type="button" onclick="doForgotPassword()" class="text-sm text-brand-blue hover:text-brand-bluedark font-medium hover:underline" data-i18n="auth.forgot_password">Forgot password?</button>
         </div>
         <div class="text-center text-sm text-gray-500">
-          Don't have an account?
-          <button type="button" onclick="switchTab('register')" class="text-brand-blue font-semibold hover:underline ml-1">Sign up</button>
+          <span data-i18n="auth.no_account">Don't have an account?</span>
+          <button type="button" onclick="switchTab('register')" class="text-brand-blue font-semibold hover:underline ml-1" data-i18n="auth.sign_up">Sign up</button>
         </div>
       </div>
     </form>
@@ -279,58 +279,58 @@
     <form id="register-form" class="hidden" onsubmit="doRegister(event)">
       <div class="space-y-4">
         <div>
-          <label class="block text-sm font-medium text-gray-700 mb-1">Full Name</label>
+          <label class="block text-sm font-medium text-gray-700 mb-1" data-i18n="auth.full_name">Full Name</label>
           <input type="text" id="reg-name" required placeholder="Juan dela Cruz"
             class="w-full border border-gray-300 rounded-lg px-4 py-2.5 focus:outline-none focus:border-brand-blue text-sm" />
         </div>
         <div>
-          <label class="block text-sm font-medium text-gray-700 mb-1">Email</label>
+          <label class="block text-sm font-medium text-gray-700 mb-1" data-i18n="auth.email">Email</label>
           <input type="email" id="reg-email" required placeholder="you@example.com" autocomplete="email"
             class="w-full border border-gray-300 rounded-lg px-4 py-2.5 focus:outline-none focus:border-brand-blue text-sm" />
         </div>
         <div>
-          <label class="block text-sm font-medium text-gray-700 mb-1">Password</label>
+          <label class="block text-sm font-medium text-gray-700 mb-1" data-i18n="auth.password">Password</label>
           <input type="password" id="reg-password" required placeholder="Min. 6 characters" minlength="6" autocomplete="new-password"
             class="w-full border border-gray-300 rounded-lg px-4 py-2.5 focus:outline-none focus:border-brand-blue text-sm" />
         </div>
         <div>
-          <label class="block text-sm font-medium text-gray-700 mb-1">Phone</label>
+          <label class="block text-sm font-medium text-gray-700 mb-1" data-i18n="auth.phone">Phone</label>
           <input type="tel" id="reg-phone" placeholder="+63 912 345 6789"
             class="w-full border border-gray-300 rounded-lg px-4 py-2.5 focus:outline-none focus:border-brand-blue text-sm" />
         </div>
         <!-- Role -->
         <div>
-          <label class="block text-sm font-medium text-gray-700 mb-2">I am a…</label>
+          <label class="block text-sm font-medium text-gray-700 mb-2" data-i18n="auth.role_prompt">I am a…</label>
           <div class="flex gap-4">
             <label class="flex items-center gap-2 cursor-pointer">
               <input type="radio" name="role" value="buyer" checked onchange="toggleSellerFields()" class="accent-brand-green" />
-              <span class="text-sm">Buyer</span>
+              <span class="text-sm" data-i18n="auth.role_buyer">Buyer</span>
             </label>
             <label class="flex items-center gap-2 cursor-pointer">
               <input type="radio" name="role" value="seller" onchange="toggleSellerFields()" class="accent-brand-green" />
-              <span class="text-sm">Seller / Farmer</span>
+              <span class="text-sm" data-i18n="auth.role_seller">Seller / Farmer</span>
             </label>
           </div>
         </div>
         <!-- Seller fields -->
         <div id="seller-fields" class="hidden space-y-3 border-l-4 border-brand-green pl-4">
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">Farm Name</label>
+            <label class="block text-sm font-medium text-gray-700 mb-1" data-i18n="auth.farm_name">Farm Name</label>
             <input type="text" id="reg-farm-name" placeholder="Green Acres Farm"
               class="w-full border border-gray-300 rounded-lg px-4 py-2.5 focus:outline-none focus:border-brand-blue text-sm" />
           </div>
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">Farm Location</label>
+            <label class="block text-sm font-medium text-gray-700 mb-1" data-i18n="auth.farm_location">Farm Location</label>
             <input type="text" id="reg-farm-location" placeholder="Barangay, City, Province"
               class="w-full border border-gray-300 rounded-lg px-4 py-2.5 focus:outline-none focus:border-brand-blue text-sm" />
           </div>
-          <p class="text-xs text-amber-600 bg-amber-50 rounded p-2">Seller accounts require admin approval before you can list products.</p>
+          <p class="text-xs text-amber-600 bg-amber-50 rounded p-2" data-i18n="auth.seller_warning">Seller accounts require admin approval before you can list products.</p>
         </div>
-        <button type="submit" id="reg-btn" class="w-full btn-primary text-white font-semibold py-3 rounded-lg transition text-sm">Create Account</button>
+        <button type="submit" id="reg-btn" class="w-full btn-primary text-white font-semibold py-3 rounded-lg transition text-sm" data-i18n="auth.create_account">Create Account</button>
         <div id="reg-error" class="hidden bg-red-50 border border-red-300 text-red-700 text-sm rounded-lg px-4 py-3"></div>
         <div class="text-center text-sm text-gray-500 pt-1">
-          Already have an account?
-          <button type="button" onclick="switchTab('login')" class="text-brand-blue font-semibold hover:underline ml-1">Log in</button>
+          <span data-i18n="auth.have_account">Already have an account?</span>
+          <button type="button" onclick="switchTab('login')" class="text-brand-blue font-semibold hover:underline ml-1" data-i18n="auth.log_in">Log in</button>
         </div>
       </div>
     </form>
@@ -343,11 +343,11 @@
             d="M3 8l7.89 5.26a2 2 0 002.22 0L21 8M5 19h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v10a2 2 0 002 2z"/>
         </svg>
       </div>
-      <h3 class="text-lg font-bold text-gray-900 mb-2">Check your email</h3>
-      <p class="text-gray-600 text-sm mb-1">We sent a confirmation link to:</p>
+      <h3 class="text-lg font-bold text-gray-900 mb-2" data-i18n="auth.check_email_title">Check your email</h3>
+      <p class="text-gray-600 text-sm mb-1" data-i18n="auth.check_email_subtitle">We sent a confirmation link to:</p>
       <p id="confirm-email-display" class="font-semibold text-brand-blue text-sm mb-4"></p>
-      <p class="text-gray-500 text-xs">Click the link in the email to activate your account, then come back here to log in.</p>
-      <button onclick="switchTab('login')" class="mt-5 w-full border border-brand-green text-brand-greendark font-semibold py-2.5 rounded-lg text-sm hover:bg-brand-greenlight transition">
+      <p class="text-gray-500 text-xs" data-i18n="auth.check_email_hint">Click the link in the email to activate your account, then come back here to log in.</p>
+      <button onclick="switchTab('login')" class="mt-5 w-full border border-brand-green text-brand-greendark font-semibold py-2.5 rounded-lg text-sm hover:bg-brand-greenlight transition" data-i18n="auth.back_to_login">
         Back to Login
       </button>
     </div>
@@ -355,15 +355,15 @@
     <!-- SET NEW PASSWORD (password recovery) -->
     <form id="set-password-view" class="hidden" onsubmit="updatePassword(event)">
       <div class="space-y-4">
-        <h3 class="text-lg font-bold text-gray-900">Set a new password</h3>
-        <p class="text-sm text-gray-500">Enter a new password for your account.</p>
+        <h3 class="text-lg font-bold text-gray-900" data-i18n="auth.set_new_password">Set a new password</h3>
+        <p class="text-sm text-gray-500" data-i18n="auth.set_new_password_hint">Enter a new password for your account.</p>
         <div id="setpw-error" class="hidden bg-red-50 border border-red-300 text-red-700 text-sm rounded-lg px-4 py-3"></div>
         <div>
-          <label class="block text-sm font-medium text-gray-700 mb-1">New Password</label>
+          <label class="block text-sm font-medium text-gray-700 mb-1" data-i18n="auth.new_password">New Password</label>
           <input type="password" id="setpw-password" required minlength="6" placeholder="Min. 6 characters"
             class="w-full border border-gray-300 rounded-lg px-4 py-2.5 focus:outline-none focus:border-brand-blue text-sm" />
         </div>
-        <button type="submit" id="setpw-btn" class="w-full btn-primary text-white font-semibold py-3 rounded-lg transition text-sm">Update Password</button>
+        <button type="submit" id="setpw-btn" class="w-full btn-primary text-white font-semibold py-3 rounded-lg transition text-sm" data-i18n="auth.update_password">Update Password</button>
       </div>
     </form>
   </div>
