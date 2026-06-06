@@ -97,6 +97,11 @@
     const profileOnly = tab === 'profile';
     document.getElementById('page-title')?.classList.toggle('hidden', profileOnly);
     document.getElementById('tabs-bar')?.classList.toggle('hidden', profileOnly);
+    // Keep URL in sync so browser refresh stays on the same tab.
+    const url = profileOnly
+      ? window.location.pathname + '?tab=profile'
+      : window.location.pathname;
+    history.replaceState({}, '', url);
     if (tab === 'cart') loadCart();
     if (tab === 'orders') loadOrders();
     if (tab === 'profile') { loadProfile(); loadBilling(); }
@@ -127,10 +132,10 @@
     const params = new URLSearchParams(window.location.search);
     const openCart = params.get('cart') === 'open';
     const initialTab = params.get('tab');
-    history.replaceState({}, '', window.location.pathname);
     if (openCart) {
       document.body.classList.add('checkout-mode');
       document.getElementById('cart-close-btn').classList.remove('hidden');
+      history.replaceState({}, '', window.location.pathname);
     }
     let startTab = 'orders';
     if (openCart) startTab = 'cart';

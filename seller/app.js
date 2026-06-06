@@ -84,6 +84,11 @@
     const profileOnly = tab === 'profile';
     document.getElementById('seller-page-title')?.classList.toggle('hidden', profileOnly);
     document.getElementById('seller-tabs-bar')?.classList.toggle('hidden', profileOnly);
+    // Keep URL in sync so browser refresh stays on the same tab.
+    const url = profileOnly
+      ? window.location.pathname + '?tab=profile'
+      : window.location.pathname;
+    history.replaceState({}, '', url);
     if (tab === 'orders') loadOrders();
     if (tab === 'analytics') loadAnalytics();
     if (tab === 'profile') loadProfile();
@@ -94,7 +99,6 @@
     const initialTab = params.get('tab');
     if (initialTab === 'profile') {
       switchTab('profile');
-      history.replaceState({}, '', window.location.pathname);
     } else {
       loadProducts();
     }

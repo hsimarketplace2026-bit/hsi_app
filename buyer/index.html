@@ -51,7 +51,7 @@
 <div id="toast-container"></div>
 
 <!-- AUTH GUARD -->
-<script src="app.js?v=64" defer></script>
+<script src="app.js?v=65" defer></script>
 
 <!-- NAV -->
 <nav id="site-nav" class="bg-white text-gray-800 sticky top-0 z-40 shadow-md border-b border-gray-100">
@@ -199,42 +199,42 @@
   <!-- PROFILE TAB -->
   <div id="panel-profile" class="hidden space-y-5">
     <div class="bg-white rounded-xl p-6 shadow border border-gray-100">
-      <h3 class="text-lg font-bold text-brand-bluedark mb-4">Edit Profile</h3>
+      <h3 class="text-lg font-bold text-brand-bluedark mb-4" data-i18n="buyer.profile.edit_profile_title">Edit Profile</h3>
       <form onsubmit="saveProfile(event)" class="space-y-4">
         <div>
-          <label class="block text-sm font-medium text-gray-700 mb-1">Full Name</label>
+          <label class="block text-sm font-medium text-gray-700 mb-1" data-i18n="buyer.profile.full_name_label">Full Name</label>
           <input type="text" id="profile-name" class="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-brand-blue" />
         </div>
         <div>
-          <label class="block text-sm font-medium text-gray-700 mb-1">Phone</label>
+          <label class="block text-sm font-medium text-gray-700 mb-1" data-i18n="buyer.profile.phone_label">Phone</label>
           <input type="tel" id="profile-phone" class="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-brand-blue" />
         </div>
         <div>
-          <label class="block text-sm font-medium text-gray-700 mb-1">Email</label>
+          <label class="block text-sm font-medium text-gray-700 mb-1" data-i18n="buyer.profile.email_label">Email</label>
           <input type="email" id="profile-email" disabled class="w-full border border-gray-200 bg-gray-50 rounded-lg px-4 py-2.5 text-sm text-gray-500" />
         </div>
-        <button type="submit" class="btn-primary text-white font-semibold px-6 py-2.5 rounded-lg transition">Save Changes</button>
+        <button type="submit" class="btn-primary text-white font-semibold px-6 py-2.5 rounded-lg transition" data-i18n="buyer.profile.save_changes_btn">Save Changes</button>
       </form>
     </div>
 
     <!-- Billing addresses -->
     <div class="bg-white rounded-xl p-6 shadow border border-gray-100">
       <div class="flex items-center justify-between mb-4">
-        <h3 class="text-lg font-bold text-brand-bluedark">Billing Addresses</h3>
-        <button onclick="openBillingModal()" class="btn-primary text-white text-sm px-4 py-2 rounded-full transition">+ Add</button>
+        <h3 class="text-lg font-bold text-brand-bluedark" data-i18n="buyer.profile.billing_addresses_title">Billing Addresses</h3>
+        <button onclick="openBillingModal()" class="btn-primary text-white text-sm px-4 py-2 rounded-full transition" data-i18n="buyer.profile.add_btn">+ Add</button>
       </div>
       <div id="billing-list" class="space-y-3"><p class="text-gray-400 text-sm">Loading…</p></div>
     </div>
 
     <!-- Change password -->
     <div class="bg-white rounded-xl p-6 shadow border border-gray-100">
-      <h3 class="text-lg font-bold text-brand-bluedark mb-4">Change Password</h3>
+      <h3 class="text-lg font-bold text-brand-bluedark mb-4" data-i18n="buyer.profile.change_password_title">Change Password</h3>
       <form onsubmit="changePassword(event)" class="space-y-3">
-        <input type="password" id="new-password" minlength="6" placeholder="New password (min 6 chars)" class="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-brand-blue" />
-        <button type="submit" class="btn-primary text-white font-semibold px-6 py-2.5 rounded-lg transition text-sm">Update Password</button>
+        <input type="password" id="new-password" minlength="6" placeholder="New password (min 6 chars)" data-i18n-placeholder="buyer.profile.new_password_placeholder" class="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-brand-blue" />
+        <button type="submit" class="btn-primary text-white font-semibold px-6 py-2.5 rounded-lg transition text-sm" data-i18n="buyer.profile.update_password_btn">Update Password</button>
       </form>
       <hr class="my-5 border-gray-100" />
-      <button onclick="doLogout()" class="w-full bg-red-50 text-red-600 hover:bg-red-100 font-medium py-2.5 rounded-lg transition text-sm">Logout</button>
+      <button onclick="doLogout()" class="w-full bg-red-50 text-red-600 hover:bg-red-100 font-medium py-2.5 rounded-lg transition text-sm" data-i18n="nav.logout">Logout</button>
     </div>
   </div>
 </div>

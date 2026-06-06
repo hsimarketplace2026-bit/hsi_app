@@ -43,7 +43,7 @@
 
 <div id="toast-container"></div>
 
-<script src="app.js?v=64" defer></script>
+<script src="app.js?v=65" defer></script>
 
 <nav class="bg-white text-gray-800 sticky top-0 z-40 shadow-md border-b border-gray-100">
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-2 sm:py-3 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
@@ -144,8 +144,8 @@
   <!-- PROFILE TAB -->
   <div id="panel-profile" class="hidden">
     <div class="bg-white rounded-xl p-6 shadow border border-gray-100">
-      <h3 class="text-lg font-bold text-brand-bluedark mb-1">Farmer Profile</h3>
-      <p class="text-xs text-gray-500 mb-5">This information is shown to buyers in the marketplace — tell your story!</p>
+      <h3 class="text-lg font-bold text-brand-bluedark mb-1" data-i18n="seller.profile.farmer_profile_title">Farmer Profile</h3>
+      <p class="text-xs text-gray-500 mb-5" data-i18n="seller.profile.farmer_profile_subtitle">This information is shown to buyers in the marketplace — tell your story!</p>
 
       <!-- Photo preview -->
       <div class="flex items-center gap-4 mb-6">
@@ -154,34 +154,34 @@
           <img id="profile-photo-preview" src="" alt="Photo" class="hidden w-full h-full object-cover" />
         </div>
         <div>
-          <label class="block text-sm font-medium text-gray-700 mb-1">Profile Photo</label>
+          <label class="block text-sm font-medium text-gray-700 mb-1" data-i18n="seller.profile.profile_photo_label">Profile Photo</label>
           <input type="file" id="profile-photo" accept="image/*" onchange="previewPhoto(this)"
             class="text-sm text-gray-600 file:mr-3 file:py-1.5 file:px-3 file:rounded-full file:border-0 file:bg-brand-bluelight file:text-brand-bluedark file:font-medium hover:file:bg-green-200" />
-          <p class="text-xs text-gray-400 mt-1">JPG or PNG, shown on your products</p>
+          <p class="text-xs text-gray-400 mt-1" data-i18n="seller.profile.profile_photo_help">JPG or PNG, shown on your products</p>
         </div>
       </div>
 
       <form onsubmit="saveProfile(event)" class="space-y-4">
         <div class="grid sm:grid-cols-2 gap-4">
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">Full Name</label>
+            <label class="block text-sm font-medium text-gray-700 mb-1" data-i18n="seller.profile.full_name_label">Full Name</label>
             <input type="text" id="profile-name" class="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-brand-blue" />
           </div>
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">Phone</label>
+            <label class="block text-sm font-medium text-gray-700 mb-1" data-i18n="seller.profile.phone_label">Phone</label>
             <input type="tel" id="profile-phone" class="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-brand-blue" />
           </div>
         </div>
         <div class="grid sm:grid-cols-2 gap-4">
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">Age</label>
-            <input type="number" id="profile-age" min="16" max="99" placeholder="e.g. 35"
+            <label class="block text-sm font-medium text-gray-700 mb-1" data-i18n="seller.profile.age_label">Age</label>
+            <input type="number" id="profile-age" min="16" max="99" placeholder="e.g. 35" data-i18n-placeholder="seller.profile.age_placeholder"
               class="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-brand-blue" />
           </div>
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">Ethnicity</label>
+            <label class="block text-sm font-medium text-gray-700 mb-1" data-i18n="seller.profile.ethnicity_label">Ethnicity</label>
             <select id="profile-ethnicity" class="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-brand-blue">
-              <option value="">Prefer not to say</option>
+              <option value="" data-i18n="seller.profile.ethnicity_prefer_not">Prefer not to say</option>
               <option value="Malay">Malay</option>
               <option value="Chinese">Chinese</option>
               <option value="Indian">Indian</option>
@@ -196,43 +196,43 @@
         </div>
         <div class="grid sm:grid-cols-2 gap-4">
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">Farm Name</label>
-            <input type="text" id="profile-farm-name" placeholder="e.g. Green Valley Hydroponics"
+            <label class="block text-sm font-medium text-gray-700 mb-1" data-i18n="seller.profile.farm_name_label">Farm Name</label>
+            <input type="text" id="profile-farm-name" placeholder="e.g. Green Valley Hydroponics" data-i18n-placeholder="seller.profile.farm_name_placeholder"
               class="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-brand-blue" />
           </div>
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">Farm Location</label>
-            <input type="text" id="profile-farm-location" placeholder="e.g. Kuching, Sarawak"
+            <label class="block text-sm font-medium text-gray-700 mb-1" data-i18n="seller.profile.farm_location_label">Farm Location</label>
+            <input type="text" id="profile-farm-location" placeholder="e.g. Kuching, Sarawak" data-i18n-placeholder="seller.profile.farm_location_placeholder"
               class="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-brand-blue" />
           </div>
         </div>
         <div class="grid sm:grid-cols-2 gap-4">
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">Farm Size</label>
-            <input type="text" id="profile-farm-size" placeholder="e.g. 500 sq ft, 0.5 acre"
+            <label class="block text-sm font-medium text-gray-700 mb-1" data-i18n="seller.profile.farm_size_label">Farm Size</label>
+            <input type="text" id="profile-farm-size" placeholder="e.g. 500 sq ft, 0.5 acre" data-i18n-placeholder="seller.profile.farm_size_placeholder"
               class="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-brand-blue" />
           </div>
           <div>
-            <label class="block text-sm font-medium text-gray-700 mb-1">Farming Since (Year)</label>
-            <input type="number" id="profile-farming-since" min="1980" max="2026" placeholder="e.g. 2020"
+            <label class="block text-sm font-medium text-gray-700 mb-1" data-i18n="seller.profile.farming_since_label">Farming Since (Year)</label>
+            <input type="number" id="profile-farming-since" min="1980" max="2026" placeholder="e.g. 2020" data-i18n-placeholder="seller.profile.farming_since_placeholder"
               class="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-brand-blue" />
           </div>
         </div>
         <div>
-          <label class="block text-sm font-medium text-gray-700 mb-1">Certifications / Awards</label>
-          <input type="text" id="profile-certifications" placeholder="e.g. HSI Certified Farmer, Skim Agro"
+          <label class="block text-sm font-medium text-gray-700 mb-1" data-i18n="seller.profile.certifications_label">Certifications / Awards</label>
+          <input type="text" id="profile-certifications" placeholder="e.g. HSI Certified Farmer, Skim Agro" data-i18n-placeholder="seller.profile.certifications_placeholder"
             class="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-brand-blue" />
         </div>
         <div>
-          <label class="block text-sm font-medium text-gray-700 mb-1">My Farming Story</label>
-          <textarea id="profile-story" rows="4" placeholder="Share your journey — why you started, what drives you, your farming values…"
+          <label class="block text-sm font-medium text-gray-700 mb-1" data-i18n="seller.profile.story_label">My Farming Story</label>
+          <textarea id="profile-story" rows="4" placeholder="Share your journey — why you started, what drives you, your farming values…" data-i18n-placeholder="seller.profile.story_placeholder"
             class="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-brand-blue resize-none"></textarea>
         </div>
 
         <!-- PAYMENT DETAILS -->
         <div class="border-t border-gray-100 pt-5 mt-2">
-          <h4 class="text-base font-bold text-brand-bluedark mb-1">Payment Details</h4>
-          <p class="text-xs text-gray-500 mb-4">Buyers pay you directly. Upload your bank/DuitNow QR and set your WhatsApp so buyers can send payment slips.</p>
+          <h4 class="text-base font-bold text-brand-bluedark mb-1" data-i18n="seller.profile.payment_details_title">Payment Details</h4>
+          <p class="text-xs text-gray-500 mb-4" data-i18n="seller.profile.payment_details_subtitle">Buyers pay you directly. Upload your bank/DuitNow QR and set your WhatsApp so buyers can send payment slips.</p>
 
           <div class="flex items-start gap-4 mb-4">
             <div id="qr-wrap" class="w-28 h-28 rounded-lg bg-brand-bluelight border border-gray-200 overflow-hidden flex items-center justify-center shrink-0">
@@ -240,49 +240,49 @@
               <img id="qr-preview" src="" alt="QR" class="hidden w-full h-full object-contain" />
             </div>
             <div class="flex-1">
-              <label class="block text-sm font-medium text-gray-700 mb-1">Bank / DuitNow QR Code</label>
+              <label class="block text-sm font-medium text-gray-700 mb-1" data-i18n="seller.profile.qr_label">Bank / DuitNow QR Code</label>
               <input type="file" id="profile-qr" accept="image/*" onchange="previewQr(this)"
                 class="text-sm text-gray-600 file:mr-3 file:py-1.5 file:px-3 file:rounded-full file:border-0 file:bg-brand-bluelight file:text-brand-bluedark file:font-medium hover:file:bg-green-200" />
-              <p class="text-xs text-gray-400 mt-1">Buyers scan this to pay you</p>
+              <p class="text-xs text-gray-400 mt-1" data-i18n="seller.profile.qr_help">Buyers scan this to pay you</p>
             </div>
           </div>
 
           <div class="mb-4">
-            <label class="block text-sm font-medium text-gray-700 mb-1">WhatsApp Number (for payment slips)</label>
-            <input type="tel" id="profile-whatsapp" placeholder="e.g. 60123456789 (with country code)"
+            <label class="block text-sm font-medium text-gray-700 mb-1" data-i18n="seller.profile.whatsapp_label">WhatsApp Number (for payment slips)</label>
+            <input type="tel" id="profile-whatsapp" placeholder="e.g. 60123456789 (with country code)" data-i18n-placeholder="seller.profile.whatsapp_placeholder"
               class="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-brand-blue" />
-            <p class="text-xs text-gray-400 mt-1">Include country code, no spaces or +. Buyers tap a button to send you their slip.</p>
+            <p class="text-xs text-gray-400 mt-1" data-i18n="seller.profile.whatsapp_help">Include country code, no spaces or +. Buyers tap a button to send you their slip.</p>
           </div>
 
           <div class="grid sm:grid-cols-2 gap-4">
             <div>
-              <label class="block text-sm font-medium text-gray-700 mb-1">Bank Name</label>
-              <input type="text" id="profile-bank-name" placeholder="e.g. Maybank"
+              <label class="block text-sm font-medium text-gray-700 mb-1" data-i18n="seller.profile.bank_name_label">Bank Name</label>
+              <input type="text" id="profile-bank-name" placeholder="e.g. Maybank" data-i18n-placeholder="seller.profile.bank_name_placeholder"
                 class="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-brand-blue" />
             </div>
             <div>
-              <label class="block text-sm font-medium text-gray-700 mb-1">Account Holder Name</label>
-              <input type="text" id="profile-bank-account-name" placeholder="As per bank account"
+              <label class="block text-sm font-medium text-gray-700 mb-1" data-i18n="seller.profile.account_holder_label">Account Holder Name</label>
+              <input type="text" id="profile-bank-account-name" placeholder="As per bank account" data-i18n-placeholder="seller.profile.account_holder_placeholder"
                 class="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-brand-blue" />
             </div>
           </div>
           <div class="mt-4">
-            <label class="block text-sm font-medium text-gray-700 mb-1">Account Number</label>
-            <input type="text" id="profile-bank-account-no" placeholder="e.g. 1234 5678 9012"
+            <label class="block text-sm font-medium text-gray-700 mb-1" data-i18n="seller.profile.account_number_label">Account Number</label>
+            <input type="text" id="profile-bank-account-no" placeholder="e.g. 1234 5678 9012" data-i18n-placeholder="seller.profile.account_number_placeholder"
               class="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-brand-blue" />
           </div>
           <div class="mt-4">
-            <label class="block text-sm font-medium text-gray-700 mb-1">Delivery Fee (RM)</label>
-            <input type="number" id="profile-delivery-fee" min="0" step="0.50" placeholder="e.g. 5.00"
+            <label class="block text-sm font-medium text-gray-700 mb-1" data-i18n="seller.profile.delivery_fee_label">Delivery Fee (RM)</label>
+            <input type="number" id="profile-delivery-fee" min="0" step="0.50" placeholder="e.g. 5.00" data-i18n-placeholder="seller.profile.delivery_fee_placeholder"
               class="w-full border border-gray-300 rounded-lg px-4 py-2.5 text-sm focus:outline-none focus:border-brand-blue" />
-            <p class="text-xs text-gray-400 mt-1">Added to order total when buyer chooses delivery. Set 0 for free delivery.</p>
+            <p class="text-xs text-gray-400 mt-1" data-i18n="seller.profile.delivery_fee_help">Added to order total when buyer chooses delivery. Set 0 for free delivery.</p>
           </div>
         </div>
 
-        <button type="submit" class="btn-primary text-white font-semibold px-6 py-2.5 rounded-lg transition">Save Profile</button>
+        <button type="submit" class="btn-primary text-white font-semibold px-6 py-2.5 rounded-lg transition" data-i18n="seller.profile.save_profile_btn">Save Profile</button>
       </form>
       <hr class="my-6 border-gray-100" />
-      <button onclick="doLogout()" class="w-full bg-red-50 text-red-600 hover:bg-red-100 font-medium py-2.5 rounded-lg transition text-sm">Logout</button>
+      <button onclick="doLogout()" class="w-full bg-red-50 text-red-600 hover:bg-red-100 font-medium py-2.5 rounded-lg transition text-sm" data-i18n="nav.logout">Logout</button>
     </div>
   </div>
 </div>
