@@ -19,6 +19,7 @@
     }}}}
   </script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="../translations.js"></script>
   <style>
     :root { --accent-green: #46a338; --accent-green-hover: #3c8a30; }
     .btn-primary { background-color: var(--accent-green); }
@@ -49,7 +50,7 @@
 
 <div id="toast-container"></div>
 
-<script src="app.js?v=52" defer></script>
+<script src="app.js?v=53" defer></script>
 
 <nav class="bg-white text-gray-800 sticky top-0 z-40 shadow-md border-b border-gray-100">
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex items-center justify-between">
@@ -57,8 +58,9 @@
       <img src="../assets/hsi-logo.png" alt="HSI Marketplace" class="hidden sm:block h-10 w-auto" onerror="this.style.display='none'" />
       <span class="text-brand-bluedark text-sm sm:text-base">HSI Marketplace <span class="text-brand-blue">Admin</span></span>
     </a>
-    <div class="flex items-center gap-3">
+    <div class="flex items-center gap-2 sm:gap-3">
       <span id="admin-name" class="text-gray-600 text-sm font-medium hidden sm:inline"></span>
+      <button id="lang-toggle" onclick="toggleLang()" class="text-gray-600 hover:text-brand-blue border border-gray-300 hover:border-brand-blue text-xs px-2.5 py-1 rounded-full font-semibold transition">BM</button>
       <button onclick="doLogout()" class="text-red-600 border border-red-300 hover:bg-red-50 text-sm px-3 py-1.5 rounded-full transition">Logout</button>
     </div>
   </div>
