@@ -56,8 +56,8 @@
     const lang = (typeof getLang === 'function') ? getLang() : 'en';
     const en = document.getElementById('lang-check-en');
     const bm = document.getElementById('lang-check-bm');
-    if (en) en.textContent = lang === 'en' ? '✓' : '';
-    if (bm) bm.textContent = lang === 'bm' ? '✓' : '';
+    if (en) en.textContent = lang === 'en' ? '' : '';
+    if (bm) bm.textContent = lang === 'bm' ? '' : '';
   }
   document.addEventListener('click', (e) => {
     const menu = document.getElementById('nav-user-menu');
@@ -271,7 +271,7 @@
     if (error) { msg.className='text-xs mt-1 text-red-600'; msg.textContent = 'Could not validate coupon.'; return; }
     if (!data.valid) { appliedCoupon=null; msg.className='text-xs mt-1 text-red-600'; msg.textContent = data.reason; recalcTotals(); return; }
     appliedCoupon = { code: data.code, discount: parseFloat(data.discount) };
-    msg.className='text-xs mt-1 text-green-600'; msg.textContent = `✓ ${data.name} applied — ${rm(data.discount)} off`;
+    msg.className='text-xs mt-1 text-green-600'; msg.textContent = ` ${data.name} applied — ${rm(data.discount)} off`;
     recalcTotals();
   }
 
@@ -426,13 +426,13 @@
                   <a href="${s.bank_qr_url}" target="_blank">
                     <img src="${s.bank_qr_url}" alt="Pay QR" class="w-28 h-28 object-contain rounded-lg border border-green-200 bg-white" />
                   </a>
-                  <button onclick="downloadQr('${s.bank_qr_url}')" class="text-xs text-green-700 hover:underline">⬇ Download QR</button>
+                  <button onclick="downloadQr('${s.bank_qr_url}')" class="text-xs text-green-700 hover:underline"> Download QR</button>
                 </div>` : ''}
               <div class="text-xs text-gray-600 space-y-1">
                 ${hasBank ? `
                   ${s.bank_name?`<p><span class="text-gray-400">Bank:</span> <span class="font-medium text-gray-800">${s.bank_name}</span></p>`:''}
                   ${s.bank_account_name?`<p><span class="text-gray-400">Name:</span> <span class="font-medium text-gray-800">${s.bank_account_name}</span></p>`:''}
-                  ${s.bank_account_no?`<div class="flex items-center gap-1"><span class="text-gray-400">Acc:</span> <span class="font-medium text-gray-800">${s.bank_account_no}</span><button onclick="copyText('${s.bank_account_no}')" class="text-green-600 hover:text-green-800 ml-1" title="Copy">📋</button></div>`:''}
+                  ${s.bank_account_no?`<div class="flex items-center gap-1"><span class="text-gray-400">Acc:</span> <span class="font-medium text-gray-800">${s.bank_account_no}</span><button onclick="copyText('${s.bank_account_no}')" class="text-green-600 hover:text-green-800 ml-1" title="Copy"></button></div>`:''}
                 ` : (s.bank_qr_url ? '<p>Scan the QR code to pay.</p>' : '<p class="text-amber-600">Seller has not set up payment details yet. Please contact them.</p>')}
               </div>
             </div>
@@ -455,9 +455,9 @@
           </div>
           <div class="flex gap-2 mb-2 flex-wrap">
             ${o.fulfillment_type === 'delivery'
-              ? `<span class="text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full">🚚 Delivery${o.delivery_fee > 0 ? ` +RM ${parseFloat(o.delivery_fee).toFixed(2)}` : ''}</span>`
-              : `<span class="text-xs bg-gray-100 text-gray-600 px-2 py-0.5 rounded-full">🏡 Pickup</span>`}
-            ${o.delivery_address ? `<span class="text-xs text-gray-500">📍 ${o.delivery_address}</span>` : ''}
+              ? `<span class="text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full"> Delivery${o.delivery_fee > 0 ? ` +RM ${parseFloat(o.delivery_fee).toFixed(2)}` : ''}</span>`
+              : `<span class="text-xs bg-gray-100 text-gray-600 px-2 py-0.5 rounded-full"> Pickup</span>`}
+            ${o.delivery_address ? `<span class="text-xs text-gray-500"> ${o.delivery_address}</span>` : ''}
           </div>
           <div class="space-y-1 mb-3">
             ${(o.order_items || []).map(i => `
@@ -467,9 +467,9 @@
               </div>`).join('')}
           </div>
           ${o.discount_amount>0?`<p class="text-xs text-green-600 mb-1">Discount: -${rm(o.discount_amount)}</p>`:''}
-          ${isRejected?`<div class="bg-red-50 border border-red-200 rounded-lg px-3 py-2 mb-3 text-sm text-red-700 font-medium">⛔ Verification unsuccessful. Please upload your payment slip again.${latestPayment.notes?`<br><span class="text-xs font-normal">Reason: ${latestPayment.notes}</span>`:''}</div>`:''}
-          ${o.status==='payment_uploaded'?`<div class="bg-blue-50 border border-blue-100 rounded-lg px-3 py-2 mb-3 text-sm text-blue-700">💳 Payment slip uploaded. Pending seller verification.</div>`:''}
-          ${o.status==='processing'?`<div class="bg-green-50 border border-green-200 rounded-lg px-3 py-2 mb-3 text-sm text-green-800 font-medium">✅ Order confirmed! Your order is being processed/delivered.</div>`:''}
+          ${isRejected?`<div class="bg-red-50 border border-red-200 rounded-lg px-3 py-2 mb-3 text-sm text-red-700 font-medium"> Verification unsuccessful. Please upload your payment slip again.${latestPayment.notes?`<br><span class="text-xs font-normal">Reason: ${latestPayment.notes}</span>`:''}</div>`:''}
+          ${o.status==='payment_uploaded'?`<div class="bg-blue-50 border border-blue-100 rounded-lg px-3 py-2 mb-3 text-sm text-blue-700"> Payment slip uploaded. Pending seller verification.</div>`:''}
+          ${o.status==='processing'?`<div class="bg-green-50 border border-green-200 rounded-lg px-3 py-2 mb-3 text-sm text-green-800 font-medium"> Order confirmed! Your order is being processed/delivered.</div>`:''}
           ${o.rating?`<p class="text-xs text-amber-500 mb-1">${'★'.repeat(o.rating)}${'☆'.repeat(5-o.rating)}</p>`:''}
           <div class="flex items-center justify-between border-t border-green-50 pt-3 flex-wrap gap-2">
             <span class="font-bold text-green-700">${rm(o.total_amount)}</span>
@@ -636,7 +636,7 @@
       document.getElementById('rw-next').textContent = `${nxt.min_points - lifetime} pts to ${nxt.name}`;
     } else {
       document.getElementById('rw-progress').style.width = '100%';
-      document.getElementById('rw-next').textContent = 'Top tier reached 🎉';
+      document.getElementById('rw-next').textContent = 'Top tier reached ';
     }
     // coupons
     const today = new Date().toISOString().slice(0,10);
@@ -655,7 +655,7 @@
     const { data: ledger } = await sb.from('mkt_points_ledger').select('*').eq('user_id', currentUser.id).order('created_at',{ascending:false}).limit(30);
     document.getElementById('rw-history').innerHTML = (ledger&&ledger.length) ? ledger.map(l => `
       <div class="flex items-center justify-between p-3 text-sm">
-        <div><p class="font-medium text-gray-700">${l.type==='Earned'?'🌱':l.type==='Redeemed'?'🏷️':'⚙️'} ${l.note||l.type}</p>
+        <div><p class="font-medium text-gray-700">${l.type==='Earned'?'':l.type==='Redeemed'?'':''} ${l.note||l.type}</p>
         <p class="text-xs text-gray-400">${new Date(l.created_at).toLocaleDateString()}</p></div>
         <span class="font-bold ${l.change>0?'text-green-600':'text-red-500'}">${l.change>0?'+':''}${l.change}</span>
       </div>`).join('') : '<p class="text-gray-400 text-sm p-4">No points activity yet. Earn points on your next order!</p>';

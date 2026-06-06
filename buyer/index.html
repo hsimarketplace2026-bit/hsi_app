@@ -53,8 +53,8 @@
 
 <!-- NAV -->
 <nav id="site-nav" class="bg-white text-gray-800 sticky top-0 z-40 shadow-md border-b border-gray-100">
-  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex items-center justify-between">
-    <div class="flex items-center gap-4">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-2 sm:py-3 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+    <div class="flex items-center justify-center sm:justify-start gap-4">
       <a href="../" class="flex items-center gap-2 font-bold text-lg tracking-wide shrink-0">
         <img src="../assets/hsi-logo.png" alt="HSI Marketplace" class="hidden sm:block h-10 w-auto" onerror="this.style.display='none'" />
         <span class="text-brand-bluedark">HSI Marketplace</span>
@@ -67,7 +67,7 @@
         <a href="../marketplace/" class="btn-primary text-white text-sm px-4 py-1.5 rounded-full font-semibold transition">SHOP</a>
       </div>
     </div>
-    <div class="flex items-center gap-2 sm:gap-3">
+    <div class="flex items-center justify-center sm:justify-end gap-2 sm:gap-3">
       <button onclick="toggleCart()" class="relative btn-primary p-2 rounded-full text-white" aria-label="Cart" title="Cart">
         <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-1.5 6h13M10 19a1 1 0 100 2 1 1 0 000-2zm7 0a1 1 0 100 2 1 1 0 000-2z"/></svg>
         <span id="cart-badge" class="hidden absolute -top-1 -right-1 bg-red-500 text-white text-xs font-bold w-5 h-5 rounded-full flex items-center justify-center">0</span>
@@ -108,15 +108,15 @@
 
   <!-- TABS -->
   <div id="tabs-bar" class="flex border border-green-200 rounded-xl overflow-hidden mb-6">
-    <button onclick="switchTab('cart')" id="tab-cart" class="tab-btn flex-1 py-2.5 text-sm font-semibold bg-white text-green-700 transition">🛒 Cart</button>
-    <button onclick="switchTab('orders')" id="tab-orders" class="tab-btn active flex-1 py-2.5 text-sm font-semibold transition">📦 Orders</button>
-    <button onclick="switchTab('profile')" id="tab-profile" class="tab-btn flex-1 py-2.5 text-sm font-semibold bg-white text-green-700 transition">👤 Profile</button>
+    <button onclick="switchTab('cart')" id="tab-cart" class="tab-btn flex-1 py-2.5 text-sm font-semibold bg-white text-green-700 transition"> Cart</button>
+    <button onclick="switchTab('orders')" id="tab-orders" class="tab-btn active flex-1 py-2.5 text-sm font-semibold transition"> Orders</button>
+    <button onclick="switchTab('profile')" id="tab-profile" class="tab-btn flex-1 py-2.5 text-sm font-semibold bg-white text-green-700 transition"> Profile</button>
   </div>
 
   <!-- CART TAB -->
   <div id="panel-cart" class="hidden">
     <div class="flex items-center justify-between mb-5">
-      <h2 class="text-2xl font-bold text-green-900">🛒 Your Cart</h2>
+      <h2 class="text-2xl font-bold text-green-900"> Your Cart</h2>
       <a id="cart-close-btn" href="../marketplace/" class="hidden text-gray-400 hover:text-gray-700 text-3xl leading-none font-light">&times;</a>
     </div>
     <div id="cart-list" class="space-y-3 mb-4">
@@ -146,11 +146,11 @@
         <div class="grid grid-cols-2 gap-2">
           <label class="flex items-center gap-2 cursor-pointer border rounded-lg p-3 border-green-500 bg-green-50" id="lbl-pickup">
             <input type="radio" name="fulfillment" value="pickup" checked onchange="setFulfillment('pickup')" class="accent-green-600" />
-            <span class="text-sm font-medium">🏡 Pickup</span>
+            <span class="text-sm font-medium"> Pickup</span>
           </label>
           <label class="flex items-center gap-2 cursor-pointer border rounded-lg p-3 border-gray-200" id="lbl-delivery">
             <input type="radio" name="fulfillment" value="delivery" onchange="setFulfillment('delivery')" class="accent-green-600" />
-            <span class="text-sm font-medium">🚚 Delivery</span>
+            <span class="text-sm font-medium"> Delivery</span>
           </label>
         </div>
         <div id="delivery-address-wrap" class="hidden mt-2">
@@ -164,7 +164,7 @@
       </div>
       <!-- Payment method -->
       <div class="bg-green-50 border border-green-100 rounded-lg p-3">
-        <p class="text-sm font-medium text-green-800 mb-1">🏦 Pay the seller directly</p>
+        <p class="text-sm font-medium text-green-800 mb-1"> Pay the seller directly</p>
         <p class="text-xs text-gray-600">After placing your order, scan the seller's QR code to pay, then tap <span class="font-semibold">Send Slip on WhatsApp</span> from your Orders tab.</p>
       </div>
       <!-- Totals -->
@@ -185,19 +185,19 @@
     <div class="grid grid-cols-4 gap-1.5 mb-4">
       <button onclick="setOrderView('pending')" id="ordview-pending"
         class="py-2 px-1 text-xs font-semibold rounded-lg bg-green-600 text-white transition text-center">
-        💰 To Pay<span id="badge-pending" class="ml-1 hidden bg-white text-green-700 text-xs font-bold rounded-full px-1.5 py-0.5"></span>
+         To Pay<span id="badge-pending" class="ml-1 hidden bg-white text-green-700 text-xs font-bold rounded-full px-1.5 py-0.5"></span>
       </button>
       <button onclick="setOrderView('payment_uploaded')" id="ordview-payment_uploaded"
         class="py-2 px-1 text-xs font-semibold rounded-lg bg-white border border-green-200 text-green-700 transition text-center">
-        💳 Paid<span id="badge-payment_uploaded" class="ml-1 hidden bg-teal-100 text-teal-700 text-xs font-bold rounded-full px-1.5 py-0.5"></span>
+         Paid<span id="badge-payment_uploaded" class="ml-1 hidden bg-teal-100 text-teal-700 text-xs font-bold rounded-full px-1.5 py-0.5"></span>
       </button>
       <button onclick="setOrderView('processing')" id="ordview-processing"
         class="py-2 px-1 text-xs font-semibold rounded-lg bg-white border border-green-200 text-green-700 transition text-center">
-        🚚 In Delivery<span id="badge-processing" class="ml-1 hidden bg-sky-100 text-sky-700 text-xs font-bold rounded-full px-1.5 py-0.5"></span>
+         In Delivery<span id="badge-processing" class="ml-1 hidden bg-sky-100 text-sky-700 text-xs font-bold rounded-full px-1.5 py-0.5"></span>
       </button>
       <button onclick="setOrderView('completed')" id="ordview-completed"
         class="py-2 px-1 text-xs font-semibold rounded-lg bg-white border border-green-200 text-green-700 transition text-center">
-        ✅ Completed
+         Completed
       </button>
     </div>
     <div id="orders-list" class="space-y-4">

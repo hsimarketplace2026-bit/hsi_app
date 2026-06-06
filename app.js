@@ -344,8 +344,8 @@ function toggleMobileMenu(){var m=document.getElementById('mobile-menu');if(m)m.
     const lang = getLang();
     const en = document.getElementById('lang-check-en');
     const bm = document.getElementById('lang-check-bm');
-    if (en) en.textContent = lang === 'en' ? '✓' : '';
-    if (bm) bm.textContent = lang === 'bm' ? '✓' : '';
+    if (en) en.textContent = lang === 'en' ? '' : '';
+    if (bm) bm.textContent = lang === 'bm' ? '' : '';
   }
   // Close the dropdown when clicking outside of it
   document.addEventListener('click', (e) => {

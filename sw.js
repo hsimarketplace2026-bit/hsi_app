@@ -1,8 +1,9 @@
-const CACHE = 'hsi-marketplace-v42';
+const CACHE = 'hsi-marketplace-v43';
 const PRECACHE = [
   './', './about/', './activities/', './partners/', './marketplace/',
   './manifest.json', './icon-192.png', './icon-512.png', './translations.js',
-  './app.js', './about/app.js', './activities/app.js', './partners/app.js', './marketplace/app.js'
+  './app.js', './nav-auth.js',
+  './about/app.js', './activities/app.js', './partners/app.js', './marketplace/app.js'
 ];
 
 self.addEventListener('install', e => {

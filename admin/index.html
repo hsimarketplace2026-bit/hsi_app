@@ -118,7 +118,7 @@
           <input type="date" id="rep-to" class="border border-gray-300 rounded-lg px-3 py-2 text-sm" />
         </div>
         <button onclick="loadReports()" class="btn-primary text-white text-sm px-5 py-2 rounded-lg transition">Apply</button>
-        <button onclick="exportReportCSV()" class="bg-white border border-green-300 text-green-700 text-sm px-5 py-2 rounded-lg hover:bg-green-50 transition">⬇ Export CSV</button>
+        <button onclick="exportReportCSV()" class="bg-white border border-green-300 text-green-700 text-sm px-5 py-2 rounded-lg hover:bg-green-50 transition"> Export CSV</button>
         <div class="flex gap-1.5 ml-auto">
           <button onclick="setReportRange(7)"  class="text-xs px-3 py-1.5 rounded-full border border-gray-200 bg-white text-green-700 hover:bg-green-50 transition">7d</button>
           <button onclick="setReportRange(30)" class="text-xs px-3 py-1.5 rounded-full border border-gray-200 bg-white text-green-700 hover:bg-green-50 transition">30d</button>
@@ -228,7 +228,7 @@
   <!-- SETTINGS -->
   <div id="panel-settings" class="hidden space-y-6">
     <div class="bg-green-50 text-green-800 text-sm rounded-xl p-4 border border-gray-100">
-      <p class="font-semibold mb-1">💳 Payments are handled by each seller</p>
+      <p class="font-semibold mb-1"> Payments are handled by each seller</p>
       <p class="text-xs text-gray-600">Buyers pay each seller directly. Sellers set up their own bank account and DuitNow QR code in their <strong>Seller Dashboard → Profile → Payment Details</strong>; buyers scan the QR / transfer and upload their payment slip.</p>
     </div>
     <div class="bg-white rounded-xl p-6 shadow border border-gray-100">
@@ -311,7 +311,7 @@
       <input type="hidden" id="coupon-id" />
       <div class="flex gap-2">
         <input id="coupon-code" required placeholder="CODE" class="flex-1 border border-gray-300 rounded-lg px-3 py-2 uppercase font-bold focus:outline-none focus:border-green-500" />
-        <button type="button" onclick="randomCode()" class="bg-green-100 text-green-700 px-3 rounded-lg">🎲</button>
+        <button type="button" onclick="randomCode()" class="bg-green-100 text-green-700 px-3 rounded-lg text-sm font-semibold">Random</button>
       </div>
       <input id="coupon-name" placeholder="Internal name / description" class="w-full border border-gray-300 rounded-lg px-3 py-2 focus:outline-none focus:border-green-500" />
       <div class="grid grid-cols-2 gap-2">

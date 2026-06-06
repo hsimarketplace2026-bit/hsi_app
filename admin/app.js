@@ -198,13 +198,13 @@
       const list = bySeller[s.id] || [];
       const sid = s.id;
       const name = (s.farm_name || s.full_name || 'Seller').replace(/'/g, '’');
-      const tabs = [['products','🌿 Products'],['details','👤 Seller Details'],['payment','💳 Payment'],['orders','📦 Orders']];
+      const tabs = [['products',' Products'],['details',' Seller Details'],['payment',' Payment'],['orders',' Orders']];
       return `
       <div class="bg-white rounded-xl shadow border border-gray-100 overflow-hidden">
         <!-- ROW (click to expand) -->
         <div class="p-3 flex items-center gap-3 cursor-pointer hover:bg-green-50/50 transition" onclick="toggleSellerRow('${sid}')">
           <div class="w-11 h-11 rounded-full bg-green-100 overflow-hidden shrink-0 flex items-center justify-center">
-            ${s.photo_url ? `<img src="${s.photo_url}" alt="" class="w-full h-full object-cover" />` : '<span class="text-xl">🧑‍🌾</span>'}
+            ${s.photo_url ? `<img src="${s.photo_url}" alt="" class="w-full h-full object-cover" />` : '<span class="text-xl"></span>'}
           </div>
           <div class="flex-1 min-w-0">
             <p class="font-semibold text-sm flex items-center gap-2 flex-wrap">${s.full_name || 'Unnamed'} ${statusBadge(s.status)}</p>
@@ -259,12 +259,12 @@
     ].filter(r => r[1] !== null && r[1] !== undefined && r[1] !== '');
     return `
       <div class="flex justify-end gap-2 mb-3">
-        <button onclick="openEditSeller('${s.id}')" class="bg-green-50 text-green-700 text-xs font-semibold px-3 py-1.5 rounded-full">✏️ Edit Details</button>
-        <button onclick="deleteSeller('${s.id}')" class="bg-red-50 text-red-600 text-xs font-semibold px-3 py-1.5 rounded-full">🗑️ Delete Seller</button>
+        <button onclick="openEditSeller('${s.id}')" class="bg-green-50 text-green-700 text-xs font-semibold px-3 py-1.5 rounded-full"> Edit Details</button>
+        <button onclick="deleteSeller('${s.id}')" class="bg-red-50 text-red-600 text-xs font-semibold px-3 py-1.5 rounded-full"> Delete Seller</button>
       </div>
       <div class="flex items-start gap-4 mb-3 flex-wrap">
         <div class="w-20 h-20 rounded-xl bg-green-100 overflow-hidden shrink-0 flex items-center justify-center">
-          ${s.photo_url ? `<img src="${s.photo_url}" class="w-full h-full object-cover" />` : '<span class="text-3xl">🧑‍🌾</span>'}
+          ${s.photo_url ? `<img src="${s.photo_url}" class="w-full h-full object-cover" />` : '<span class="text-3xl"></span>'}
         </div>
         <div class="flex-1 min-w-[220px] grid sm:grid-cols-2 gap-x-4 text-sm">
           ${rows.map(r => `<div class="flex justify-between gap-2 border-b border-green-50 py-1"><span class="text-gray-400">${r[0]}</span><span class="font-medium text-gray-800 text-right break-words">${r[1]}</span></div>`).join('')}
@@ -273,7 +273,7 @@
       ${s.story ? `<div class="bg-white border border-gray-100 rounded-lg p-3 text-sm text-gray-600 italic">“${s.story}”</div>` : ''}`;
   }
   function renderSellerPayment(s) {
-    const editBtn = `<div class="flex justify-end mb-3"><button onclick="openEditPay('${s.id}')" class="bg-green-50 text-green-700 text-xs font-semibold px-3 py-1.5 rounded-full">✏️ Edit Payment</button></div>`;
+    const editBtn = `<div class="flex justify-end mb-3"><button onclick="openEditPay('${s.id}')" class="bg-green-50 text-green-700 text-xs font-semibold px-3 py-1.5 rounded-full"> Edit Payment</button></div>`;
     if (!s.bank_name && !s.bank_account_no && !s.bank_account_name && !s.bank_qr_url && !s.whatsapp)
       return editBtn + '<p class="text-xs text-amber-600">This seller has not set up payment details yet.</p>';
     return editBtn + `
@@ -316,7 +316,7 @@
             <select onchange="setOrderStatus('${o.id}','${id}',this.value)" class="text-xs border border-gray-300 rounded-lg px-2 py-1 bg-white">
               ${['pending','payment_uploaded','payment_verified','processing','completed','cancelled'].map(st=>`<option value="${st}" ${o.status===st?'selected':''}>${st.replace(/_/g,' ')}</option>`).join('')}
             </select>
-            <button onclick="deleteSellerOrder('${o.id}','${id}')" title="Delete" class="bg-red-50 text-red-600 text-xs px-2 py-1 rounded-full transition">🗑️</button>
+            <button onclick="deleteSellerOrder('${o.id}','${id}')" title="Delete" class="bg-red-50 text-red-600 text-xs px-2 py-1 rounded-full transition"></button>
           </div>
         </div>
       </div>`).join('');
@@ -399,13 +399,13 @@
         <div class="grid sm:grid-cols-2 gap-2">
           ${groups[c].map(p => `
             <div class="flex items-center gap-2 bg-white rounded-lg border border-gray-100 p-2">
-              ${p.image_url ? `<img src="${p.image_url}" class="w-10 h-10 rounded object-cover flex-shrink-0" onerror="this.style.display='none'" />` : '<div class="w-10 h-10 rounded bg-green-100 flex items-center justify-center text-sm flex-shrink-0">🥬</div>'}
+              ${p.image_url ? `<img src="${p.image_url}" class="w-10 h-10 rounded object-cover flex-shrink-0" onerror="this.style.display='none'" />` : '<div class="w-10 h-10 rounded bg-green-100 flex items-center justify-center text-sm flex-shrink-0"></div>'}
               <div class="flex-1 min-w-0">
                 <p class="text-xs font-semibold truncate">${p.name}</p>
                 <p class="text-[11px] text-gray-500">${rm(p.price)}/${p.unit} · ${p.quantity} ${p.unit}${p.status==='inactive' ? ' · <span class="text-red-500 font-semibold">Unpublished</span>' : '<span class="text-green-600"> · Published</span>'}</p>
               </div>
-              <button onclick="openEditProduct('${p.id}')" title="Edit" class="text-green-600 hover:bg-green-50 rounded p-1 shrink-0">✏️</button>
-              <button onclick="deleteProduct('${p.id}')" title="Delete" class="text-red-500 hover:bg-red-50 rounded p-1 shrink-0">🗑️</button>
+              <button onclick="openEditProduct('${p.id}')" title="Edit" class="text-green-600 hover:bg-green-50 rounded p-1 shrink-0"></button>
+              <button onclick="deleteProduct('${p.id}')" title="Delete" class="text-red-500 hover:bg-red-50 rounded p-1 shrink-0"></button>
             </div>`).join('')}
         </div>
       </div>`).join('');
@@ -713,7 +713,7 @@
     if (!list.length) { el.innerHTML = '<p class="text-gray-400 text-sm text-center py-8">No customers.</p>'; return; }
     el.innerHTML = list.map(c => `
       <button onclick="openCustomerModal('${c.id}')" class="w-full text-left bg-white rounded-xl p-4 shadow border border-gray-100 hover:border-green-300 transition flex items-center gap-3">
-        <div class="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center text-lg shrink-0">👤</div>
+        <div class="w-10 h-10 rounded-full bg-green-100 flex items-center justify-center text-lg shrink-0"></div>
         <div class="flex-1 min-w-0">
           <p class="font-semibold text-sm">${c.full_name || 'Unnamed'}</p>
           <p class="text-xs text-gray-500">${c.email || ''}${c.phone ? ' · '+c.phone : ''}</p>
@@ -848,7 +848,7 @@
     el.innerHTML = data.map(p => `
       <div class="bg-white rounded-xl p-4 shadow border border-gray-100 flex items-center gap-3 flex-wrap">
         <div class="flex-1 min-w-0">
-          <p class="font-bold text-sm">${p.banner_emoji||'🏷️'} ${p.title}</p>
+          <p class="font-bold text-sm">${p.banner_emoji||''} ${p.title}</p>
           <p class="text-xs text-gray-500">${p.discount_type==='percentage'? p.discount_value+'% off':rm(p.discount_value)+' off'} · ${p.target==='category'? (p.target_categories||[]).join(', '):'all products'}${p.end_date?' · ends '+p.end_date:''}</p>
         </div>
         <span class="text-xs px-2 py-1 rounded-full ${p.status==='live'?'bg-green-100 text-green-700':'bg-gray-100 text-gray-500'}">${p.status}</span>

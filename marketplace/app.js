@@ -99,7 +99,7 @@
       <div class="card-hover bg-white rounded-xl overflow-hidden shadow border border-green-100 cursor-pointer relative" onclick="openModal('${p.id}')">
         ${promoMap[p.id] ? '<span class="absolute top-2 left-2 z-10 bg-red-500 text-white text-xs font-bold px-2 py-0.5 rounded-full">SALE</span>' : ''}
         <div class="h-36 bg-green-100 overflow-hidden">
-          ${p.image_url ? `<img src="${p.image_url}" alt="${p.name}" class="w-full h-full object-cover" />` : '<div class="w-full h-full flex items-center justify-center text-4xl">🌿</div>'}
+          ${p.image_url ? `<img src="${p.image_url}" alt="${p.name}" class="w-full h-full object-cover" />` : '<div class="w-full h-full flex items-center justify-center text-4xl"></div>'}
         </div>
         <div class="p-3">
           <p class="font-semibold text-sm text-gray-800 truncate">${p.name}</p>
@@ -234,7 +234,7 @@
     ratingEl.classList.toggle('cursor-pointer', hasRatings);
     ratingEl.onclick = hasRatings ? () => openReviewsModal(s.id, s.rating_avg, s.rating_count) : null;
     const locEl = document.getElementById('farmer-location');
-    locEl.textContent = s.farm_location ? `📍 ${s.farm_location}` : '';
+    locEl.textContent = s.farm_location ? ` ${s.farm_location}` : '';
     locEl.classList.toggle('hidden', !s.farm_location);
 
     // photo
@@ -262,7 +262,7 @@
     const certs = s.certifications ? s.certifications.split(',').map(x => x.trim()).filter(Boolean) : [];
     document.getElementById('farmer-certs-wrap').classList.toggle('hidden', certs.length === 0);
     document.getElementById('farmer-certs').innerHTML = certs.map(c =>
-      `<span class="bg-green-100 text-green-700 text-xs px-2.5 py-1 rounded-full font-medium">🏅 ${c}</span>`).join('');
+      `<span class="bg-green-100 text-green-700 text-xs px-2.5 py-1 rounded-full font-medium"> ${c}</span>`).join('');
 
     // story
     const storyWrap = document.getElementById('farmer-story-wrap');
@@ -359,8 +359,8 @@
   function updateLangChecks() {
     const l = (window.getLang ? getLang() : 'en');
     const en = document.getElementById('lang-check-en'), bm = document.getElementById('lang-check-bm');
-    if (en) en.textContent = l === 'en' ? '✓' : '';
-    if (bm) bm.textContent = l === 'bm' ? '✓' : '';
+    if (en) en.textContent = l === 'en' ? '' : '';
+    if (bm) bm.textContent = l === 'bm' ? '' : '';
   }
   function chooseLang(l) {
     if (window.setLang) setLang(l);
@@ -382,9 +382,18 @@
     if (session) {
       document.getElementById('nav-auth-btn').classList.add('hidden');
       document.getElementById('nav-user-menu').classList.remove('hidden');
-      const { data: p } = await sb.from('shared_profiles').select('full_name').eq('id', session.user.id).single();
+      const { data: p } = await sb.from('shared_profiles').select('full_name, role, status').eq('id', session.user.id).single();
       const first = ((p && p.full_name) || session.user.email || '').trim().split(' ')[0];
       document.getElementById('nav-user-greeting').textContent = first ? ('Hi, ' + first) : 'Hi';
+
+      const portal = document.getElementById('nav-portal-btn');
+      if (portal) {
+        const role = p && p.role;
+        if (role === 'admin') { portal.textContent = 'Admin Portal'; portal.href = '../admin/'; }
+        else if (role === 'seller' && p.status === 'active') { portal.textContent = 'Seller Portal'; portal.href = '../seller/'; }
+        else { portal.textContent = 'Buyer Portal'; portal.href = '../buyer/'; }
+        portal.classList.remove('hidden');
+      }
       loadCart();
     }
   }

@@ -15,7 +15,9 @@
       green: { 50:'#f1f9ee',100:'#dcf0d3',200:'#bce3aa',300:'#95d27c',400:'#74c455',500:'#56b947',600:'#46a338',700:'#3c8a30',800:'#336f29',900:'#285a22' }
     }}}}
   </script>
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
   <script src="../translations.js"></script>
+  <script src="../nav-auth.js" defer></script>
   <style>
     .nav-bg { background: linear-gradient(90deg, #11537f 0%, #1b75bc 100%); }
     .btn-primary { background-color: #46a338; }
@@ -27,21 +29,26 @@
 <body class="bg-white text-gray-800 font-sans overflow-x-hidden">
 <!-- NAV -->
 <nav class="bg-white text-gray-800 sticky top-0 z-40 shadow-md border-b border-gray-100">
-  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex items-center justify-between gap-2">
-    <div class="flex items-center gap-4 min-w-0">
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-2 sm:py-3 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2">
+    <div class="flex items-center justify-center sm:justify-start gap-4 min-w-0">
       <a href="../" class="flex items-center gap-2 font-bold text-lg tracking-wide shrink-0">
-        <img src="../assets/hsi-logo.png" alt="HSI Marketplace" class="h-9 sm:h-10 w-auto" onerror="this.style.display='none'" />
-        <span class="text-brand-bluedark hidden sm:inline">HSI Marketplace</span>
+        <img src="../assets/hsi-logo.png" alt="HSI Marketplace" class="hidden sm:block h-10 w-auto" onerror="this.style.display='none'" />
+        <span class="text-brand-bluedark">HSI Marketplace</span>
       </a>
       <a href="../" class="hidden md:inline text-gray-600 hover:text-brand-blue text-sm font-medium transition">Home</a>
       <a href="../about/" class="hidden md:inline text-gray-600 hover:text-brand-blue text-sm font-medium transition">About</a>
       <a href="../activities/" class="hidden md:inline text-brand-blue font-semibold text-sm font-medium transition">Activities</a>
       <a href="../partners/" class="hidden md:inline text-gray-600 hover:text-brand-blue text-sm font-medium transition">Partners</a>
-      <a href="../marketplace/" class="hidden md:inline btn-primary text-white text-sm px-4 py-1.5 rounded-full font-semibold tracking-wide transition" data-i18n="nav.shop">SHOP</a>
+      <a href="../marketplace/" class="hidden md:inline btn-primary text-white text-sm px-4 py-1.5 rounded-full font-semibold tracking-wide transition" data-i18n="nav.shop">Shop</a>
     </div>
-    <div class="flex items-center gap-2 sm:gap-3 shrink-0">
-      <button id="lang-toggle" onclick="toggleLang()" class="hidden sm:inline-block text-gray-600 hover:text-brand-blue border border-gray-300 hover:border-brand-blue text-xs px-2.5 py-1 rounded-full font-semibold transition">BM</button>
-      <a href="../" class="btn-primary text-white text-sm px-3 sm:px-4 py-1.5 rounded-full font-medium transition">Login / Register</a>
+    <div class="flex items-center justify-center sm:justify-end gap-2 sm:gap-3 shrink-0 flex-wrap">
+      <button id="lang-toggle" onclick="toggleLang()" class="text-gray-600 hover:text-brand-blue border border-gray-300 hover:border-brand-blue text-xs px-2.5 py-1 rounded-full font-semibold transition">BM</button>
+      <a id="nav-cart-btn" href="../buyer/?cart=open" class="hidden relative btn-primary p-2 rounded-full text-white" aria-label="Cart" title="Cart">
+        <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-1.5 6h13M10 19a1 1 0 100 2 1 1 0 000-2zm7 0a1 1 0 100 2 1 1 0 000-2z"/></svg>
+        <span id="cart-badge" class="hidden absolute -top-1 -right-1 bg-red-500 text-white text-xs font-bold w-5 h-5 rounded-full flex items-center justify-center">0</span>
+      </a>
+      <a id="nav-auth-btn" href="../" class="btn-primary text-white text-sm px-3 sm:px-4 py-1.5 rounded-full font-medium transition">Login / Register</a>
+      <a id="nav-portal-btn" href="#" class="hidden bg-brand-blue hover:bg-brand-bluedark text-white text-sm px-3 sm:px-4 py-1.5 rounded-full font-semibold transition">Portal</a>
       <button onclick="toggleMobileMenu()" class="md:hidden text-brand-bluedark p-2 -mr-1" aria-label="Open menu">
         <svg class="w-6 h-6" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M4 6h16M4 12h16M4 18h16"/></svg>
       </button>

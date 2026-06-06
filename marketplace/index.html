@@ -42,26 +42,29 @@
 
 <!-- NAV -->
 <nav class="bg-white text-gray-800 sticky top-0 z-40 shadow-md border-b border-gray-100">
-  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex items-center gap-3">
-    <a href="../" class="flex items-center gap-2 font-bold text-lg tracking-wide shrink-0">
-      <img src="../assets/hsi-logo.png" alt="HSI Marketplace" class="hidden sm:block h-10 w-auto" onerror="this.style.display='none'" />
-      <span class="text-brand-bluedark">HSI Marketplace</span>
-    </a>
-    <div class="hidden md:flex items-center gap-3 shrink-0">
-      <a href="../" class="text-gray-600 hover:text-brand-blue text-sm font-medium transition">Home</a>
-      <a href="../about/" class="text-gray-600 hover:text-brand-blue text-sm font-medium transition">About</a>
-      <a href="../activities/" class="text-gray-600 hover:text-brand-blue text-sm font-medium transition">Activities</a>
-      <a href="../partners/" class="text-gray-600 hover:text-brand-blue text-sm font-medium transition">Partners</a>
-      <span class="text-brand-blue text-sm font-semibold border-b-2 border-brand-blue pb-0.5">Shop</span>
+  <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-2 sm:py-3 flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-3">
+    <div class="flex items-center justify-center sm:justify-start gap-3 shrink-0">
+      <a href="../" class="flex items-center gap-2 font-bold text-lg tracking-wide shrink-0">
+        <img src="../assets/hsi-logo.png" alt="HSI Marketplace" class="hidden sm:block h-10 w-auto" onerror="this.style.display='none'" />
+        <span class="text-brand-bluedark">HSI Marketplace</span>
+      </a>
+      <div class="hidden md:flex items-center gap-3 shrink-0">
+        <a href="../" class="text-gray-600 hover:text-brand-blue text-sm font-medium transition">Home</a>
+        <a href="../about/" class="text-gray-600 hover:text-brand-blue text-sm font-medium transition">About</a>
+        <a href="../activities/" class="text-gray-600 hover:text-brand-blue text-sm font-medium transition">Activities</a>
+        <a href="../partners/" class="text-gray-600 hover:text-brand-blue text-sm font-medium transition">Partners</a>
+        <span class="text-brand-blue text-sm font-semibold border-b-2 border-brand-blue pb-0.5">Shop</span>
+      </div>
     </div>
     <input id="search-input" type="search" placeholder="Search produce…" data-i18n-placeholder="nav.search" oninput="filterProducts()"
-      class="flex-1 min-w-0 bg-gray-100 placeholder-gray-400 text-gray-800 rounded-full px-4 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand-blue" />
-    <div class="flex items-center gap-2 shrink-0">
+      class="order-3 sm:order-none flex-1 min-w-0 bg-gray-100 placeholder-gray-400 text-gray-800 rounded-full px-4 py-1.5 text-sm focus:outline-none focus:ring-2 focus:ring-brand-blue" />
+    <div class="flex items-center justify-center sm:justify-end gap-2 shrink-0">
       <button onclick="toggleCart()" class="relative btn-primary p-2 rounded-full text-white">
         <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 3h2l.4 2M7 13h10l4-8H5.4M7 13L5.4 5M7 13l-1.5 6h13M10 19a1 1 0 100 2 1 1 0 000-2zm7 0a1 1 0 100 2 1 1 0 000-2z"/></svg>
         <span id="cart-badge" class="hidden absolute -top-1 -right-1 bg-red-500 text-white text-xs font-bold w-5 h-5 rounded-full flex items-center justify-center">0</span>
       </button>
       <button id="nav-auth-btn" onclick="window.location.href='../'" class="text-brand-blue border border-brand-blue hover:bg-brand-bluelight text-sm px-3 py-1.5 rounded-full transition" data-i18n="nav.login">Login</button>
+      <a id="nav-portal-btn" href="../buyer/" class="hidden bg-brand-blue hover:bg-brand-bluedark text-white text-sm px-3 sm:px-4 py-1.5 rounded-full font-semibold transition">Portal</a>
       <!-- USER MENU (shown when logged in) -->
       <div id="nav-user-menu" class="hidden relative">
         <button id="nav-user-btn" onclick="toggleUserMenu()" class="btn-primary text-white text-sm px-3 py-1.5 rounded-full font-medium transition flex items-center gap-1.5">
@@ -131,7 +134,7 @@
         <p class="text-xs font-semibold text-green-700 uppercase tracking-wide mb-3">About the Farmer</p>
         <div class="flex items-start gap-3">
           <button type="button" onclick="openFarmerModal()" title="View farmer profile" class="w-14 h-14 rounded-full bg-green-200 overflow-hidden shrink-0 flex items-center justify-center ring-2 ring-transparent hover:ring-green-400 transition cursor-pointer">
-            <span id="modal-seller-placeholder" class="text-2xl">🧑‍🌾</span>
+            <span id="modal-seller-placeholder" class="text-2xl"></span>
             <img id="modal-seller-photo" src="" alt="" class="hidden w-full h-full object-cover" />
           </button>
           <div class="flex-1 min-w-0">
@@ -156,7 +159,7 @@
     <!-- Header -->
     <div class="bg-gradient-to-br from-green-800 to-green-600 px-6 pt-8 pb-12 text-center">
       <div class="w-28 h-28 mx-auto rounded-full bg-green-200 overflow-hidden flex items-center justify-center ring-4 ring-white/40 shadow-lg">
-        <span id="farmer-placeholder" class="text-5xl">🧑‍🌾</span>
+        <span id="farmer-placeholder" class="text-5xl"></span>
         <img id="farmer-photo" src="" alt="" class="hidden w-full h-full object-cover" />
       </div>
     </div>

@@ -69,7 +69,7 @@
     el.innerHTML = products.map(p => `
       <div class="bg-white rounded-xl overflow-hidden shadow border border-green-100">
         <div class="h-32 bg-green-100 overflow-hidden">
-          ${p.image_url ? `<img src="${p.image_url}" alt="${p.name}" class="w-full h-full object-cover" />` : '<div class="w-full h-full flex items-center justify-center text-4xl">🌿</div>'}
+          ${p.image_url ? `<img src="${p.image_url}" alt="${p.name}" class="w-full h-full object-cover" />` : '<div class="w-full h-full flex items-center justify-center text-4xl"></div>'}
         </div>
         <div class="p-4">
           <div class="flex items-start justify-between mb-1">
@@ -251,13 +251,13 @@
           </div>
           <div class="flex gap-2 mb-2 flex-wrap">
             ${o.fulfillment_type === 'delivery'
-              ? `<span class="text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full font-medium">🚚 Delivery${o.delivery_fee > 0 ? ` +RM ${parseFloat(o.delivery_fee).toFixed(2)}` : ''}</span>`
-              : `<span class="text-xs bg-gray-100 text-gray-600 px-2 py-0.5 rounded-full font-medium">🏡 Pickup</span>`}
+              ? `<span class="text-xs bg-blue-100 text-blue-700 px-2 py-0.5 rounded-full font-medium"> Delivery${o.delivery_fee > 0 ? ` +RM ${parseFloat(o.delivery_fee).toFixed(2)}` : ''}</span>`
+              : `<span class="text-xs bg-gray-100 text-gray-600 px-2 py-0.5 rounded-full font-medium"> Pickup</span>`}
           </div>
-          ${o.delivery_address ? `<p class="text-xs text-gray-500 mb-1">📍 ${o.delivery_address}</p>` : ''}
+          ${o.delivery_address ? `<p class="text-xs text-gray-500 mb-1"> ${o.delivery_address}</p>` : ''}
           ${o.delivery_notes ? `<p class="text-xs text-gray-500 italic mb-2">Note: ${o.delivery_notes}</p>` : ''}
 
-          ${o.status === 'pending' ? `<p class="text-xs text-amber-600 mb-3">⏳ Waiting for buyer to upload payment slip.</p>` : ''}
+          ${o.status === 'pending' ? `<p class="text-xs text-amber-600 mb-3"> Waiting for buyer to upload payment slip.</p>` : ''}
 
           ${o.status === 'payment_uploaded' ? `
             <div class="mb-3 p-3 bg-gray-50 rounded-xl border border-gray-100">
@@ -266,14 +266,14 @@
                 ${payment?.proof_url ? `
                   <a href="${payment.proof_url}" target="_blank" class="shrink-0">
                     <img src="${payment.proof_url}" alt="slip" class="h-24 w-24 rounded-lg object-cover border border-gray-200" />
-                  </a>` : `<p class="text-xs text-amber-600">⚠ Slip image unavailable.</p>`}
+                  </a>` : `<p class="text-xs text-amber-600"> Slip image unavailable.</p>`}
                 <div class="flex-1">
                   <label class="text-xs font-medium text-gray-700 block mb-1">Verify Payment Slip:</label>
                   <select onchange="handlePaymentAction(this,'${payment?.id || ''}','${o.id}')"
                     class="w-full border border-gray-300 rounded-lg px-3 py-2 text-sm focus:outline-none focus:border-green-500 bg-white">
                     <option value="">— Select action —</option>
-                    <option value="verified">✅ Verified</option>
-                    <option value="rejected">❌ Rejected</option>
+                    <option value="verified"> Verified</option>
+                    <option value="rejected"> Rejected</option>
                   </select>
                 </div>
               </div>
@@ -294,7 +294,7 @@
               ${o.status === 'processing' ? `
                 <button onclick="confirmDelivery('${o.id}')"
                   class="bg-green-700 hover:bg-green-800 text-white text-sm font-semibold px-5 py-2 rounded-full transition">
-                  ✅ Delivery Completed
+                   Delivery Completed
                 </button>` : ''}
             </div>
           </div>
