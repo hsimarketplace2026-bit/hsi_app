@@ -6,6 +6,7 @@
 
   const EVENTS = ['mousemove', 'mousedown', 'keydown', 'touchstart', 'scroll', 'click'];
   let timer = null;
+  let watching = false;
   let client = null;
 
   function rootHref() {
@@ -14,8 +15,7 @@
   }
 
   async function doLogout() {
-    if (!client) return;
-    await client.auth.signOut();
+    try { if (client) await client.auth.signOut(); } catch (_) {}
     window.location.href = rootHref();
   }
 
@@ -25,11 +25,14 @@
   }
 
   function startWatching() {
+    if (watching) return;
+    watching = true;
     EVENTS.forEach(ev => document.addEventListener(ev, resetTimer, { passive: true }));
     resetTimer();
   }
 
   function stopWatching() {
+    watching = false;
     EVENTS.forEach(ev => document.removeEventListener(ev, resetTimer));
     clearTimeout(timer);
     timer = null;
@@ -39,11 +42,16 @@
     if (typeof supabase === 'undefined' || typeof supabase.createClient !== 'function') return;
     client = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
+    // Check existing session immediately
     const { data: { session } } = await client.auth.getSession();
     if (session) startWatching();
 
-    client.auth.onAuthStateChange((event) => {
-      if (event === 'SIGNED_IN') startWatching();
+    // Also respond to auth state changes (covers INITIAL_SESSION when token
+    // was mid-refresh on page load, and handles login/logout on the same page)
+    client.auth.onAuthStateChange((event, session) => {
+      if (session && (event === 'SIGNED_IN' || event === 'INITIAL_SESSION' || event === 'TOKEN_REFRESHED')) {
+        startWatching();
+      }
       if (event === 'SIGNED_OUT') stopWatching();
     });
   }

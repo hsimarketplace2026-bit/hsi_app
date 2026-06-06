@@ -104,6 +104,15 @@
   }
 
   async function initSellerApp() {
+    // Idle logout — 15 min of no user interaction
+    (function () {
+      const MS = 15 * 60 * 1000;
+      const EVS = ['mousemove','mousedown','keydown','touchstart','scroll','click'];
+      let t;
+      function reset() { clearTimeout(t); t = setTimeout(async () => { try { await sb.auth.signOut(); } catch (_) {} window.location.href = '../'; }, MS); }
+      EVS.forEach(ev => document.addEventListener(ev, reset, { passive: true }));
+      reset();
+    })();
     const params = new URLSearchParams(window.location.search);
     const initialTab = params.get('tab');
     if (initialTab === 'profile') {
