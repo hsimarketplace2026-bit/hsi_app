@@ -76,6 +76,7 @@
     ['products','orders','analytics','profile'].forEach(t => {
       document.getElementById(`panel-${t}`).classList.toggle('hidden', t !== tab);
       const btn = document.getElementById(`tab-${t}`);
+      if (!btn) return;
       btn.classList.toggle('active', t === tab);
       btn.classList.toggle('bg-white', t !== tab);
       btn.classList.toggle('text-brand-bluedark', t !== tab);
