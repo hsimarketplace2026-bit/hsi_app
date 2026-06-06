@@ -355,6 +355,16 @@
     else window.location.href = '../buyer/';
   }
 
+  async function goToProfile() {
+    const { data: { session } } = await sb.auth.getSession();
+    if (!session) return (window.location.href = '../');
+    const { data: p } = await sb.from('shared_profiles').select('role,status').eq('id', session.user.id).single();
+    if (!p) return (window.location.href = '../buyer/?tab=profile');
+    if (p.role === 'admin') window.location.href = '../admin/';
+    else if (p.role === 'seller' && p.status === 'active') window.location.href = '../seller/?tab=profile';
+    else window.location.href = '../buyer/?tab=profile';
+  }
+
   function toggleUserMenu() { document.getElementById('user-dropdown').classList.toggle('hidden'); }
   function updateLangChecks() {
     const l = (window.getLang ? getLang() : 'en');
