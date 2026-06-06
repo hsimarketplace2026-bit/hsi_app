@@ -236,6 +236,7 @@
       'buyer.profile.phone_label': 'Phone',
       'buyer.profile.email_label': 'Email',
       'buyer.profile.save_changes_btn': 'Save Changes',
+      'buyer.profile.cancel_btn': 'Cancel',
       'buyer.profile.billing_addresses_title': 'Billing Addresses',
       'buyer.profile.add_btn': '+ Add',
       'buyer.profile.change_password_title': 'Change Password',
@@ -282,6 +283,7 @@
       'seller.profile.delivery_fee_placeholder': 'e.g. 5.00',
       'seller.profile.delivery_fee_help': 'Added to order total when buyer chooses delivery. Set 0 for free delivery.',
       'seller.profile.save_profile_btn': 'Save Profile',
+      'seller.profile.cancel_btn': 'Cancel',
     },
     bm: {
       // Nav
@@ -518,6 +520,7 @@
       'buyer.profile.phone_label': 'Telefon',
       'buyer.profile.email_label': 'E-mel',
       'buyer.profile.save_changes_btn': 'Simpan Perubahan',
+      'buyer.profile.cancel_btn': 'Batal',
       'buyer.profile.billing_addresses_title': 'Alamat Penghantaran',
       'buyer.profile.add_btn': '+ Tambah',
       'buyer.profile.change_password_title': 'Tukar Kata Laluan',
@@ -564,6 +567,7 @@
       'seller.profile.delivery_fee_placeholder': 'cth. 5.00',
       'seller.profile.delivery_fee_help': 'Ditambah pada jumlah pesanan apabila pembeli memilih penghantaran. Tetapkan 0 untuk penghantaran percuma.',
       'seller.profile.save_profile_btn': 'Simpan Profil',
+      'seller.profile.cancel_btn': 'Batal',
     }
   };
 

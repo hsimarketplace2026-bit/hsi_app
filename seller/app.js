@@ -587,7 +587,24 @@
       document.getElementById('qr-preview').classList.remove('hidden');
       document.getElementById('qr-placeholder').classList.add('hidden');
     }
+    setProfileEditing(false); // lock fields; user taps the pencil to edit
   }
+  // Lock/unlock the farmer profile form. Fields stay read-only until the user
+  // clicks the edit (pencil) icon; Save/Cancel appear only while editing.
+  function setProfileEditing(on) {
+    const form = document.getElementById('profile-form');
+    if (!form) return;
+    form.querySelectorAll('input, select, textarea').forEach(el => { el.disabled = !on; });
+    // Photo file input sits above the form — lock it too.
+    const photo = document.getElementById('profile-photo');
+    if (photo) photo.disabled = !on;
+    const actions = document.getElementById('profile-actions');
+    const edit = document.getElementById('profile-edit-btn');
+    if (actions) actions.classList.toggle('hidden', !on);
+    if (edit) edit.classList.toggle('hidden', on);
+  }
+  function toggleProfileEdit() { setProfileEditing(true); }
+  function cancelProfileEdit() { loadProfile(); } // reloads saved values and re-locks
 
   async function saveProfile(e) {
     e.preventDefault();
@@ -641,6 +658,7 @@
       showToast('Profile updated!');
       currentUserName = (payload.full_name || payload.farm_name || currentUserName || '').trim();
       updateGreeting();
+      setProfileEditing(false); // re-lock after a successful save
     }
   }
 

@@ -157,8 +157,15 @@
   <!-- PROFILE TAB -->
   <div id="panel-profile" class="hidden">
     <div class="bg-white rounded-xl p-6 shadow border border-gray-100">
-      <h3 class="text-lg font-bold text-brand-bluedark mb-1" data-i18n="seller.profile.farmer_profile_title">Farmer Profile</h3>
-      <p class="text-xs text-gray-500 mb-5" data-i18n="seller.profile.farmer_profile_subtitle">This information is shown to buyers in the marketplace — tell your story!</p>
+      <div class="flex items-start justify-between">
+        <div>
+          <h3 class="text-lg font-bold text-brand-bluedark mb-1" data-i18n="seller.profile.farmer_profile_title">Farmer Profile</h3>
+          <p class="text-xs text-gray-500 mb-5" data-i18n="seller.profile.farmer_profile_subtitle">This information is shown to buyers in the marketplace — tell your story!</p>
+        </div>
+        <button type="button" id="profile-edit-btn" onclick="toggleProfileEdit()" class="text-brand-blue hover:text-brand-bluedark p-1.5 rounded-lg hover:bg-brand-bluelight transition shrink-0" aria-label="Edit profile" title="Edit">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" stroke-width="1.8" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M16.862 4.487l1.687-1.688a1.875 1.875 0 112.652 2.652L10.582 16.07a4.5 4.5 0 01-1.897 1.13L6 18l.8-2.685a4.5 4.5 0 011.13-1.897L16.862 4.487zm0 0L19.5 7.125"/></svg>
+        </button>
+      </div>
 
       <!-- Photo preview -->
       <div class="flex items-center gap-4 mb-6">
@@ -174,7 +181,7 @@
         </div>
       </div>
 
-      <form onsubmit="saveProfile(event)" class="space-y-4">
+      <form id="profile-form" onsubmit="saveProfile(event)" class="space-y-4">
         <div class="grid sm:grid-cols-2 gap-4">
           <div>
             <label class="block text-sm font-medium text-gray-700 mb-1" data-i18n="seller.profile.full_name_label">Full Name</label>
@@ -292,7 +299,10 @@
           </div>
         </div>
 
-        <button type="submit" class="btn-primary text-white font-semibold px-6 py-2.5 rounded-lg transition" data-i18n="seller.profile.save_profile_btn">Save Profile</button>
+        <div id="profile-actions" class="hidden flex gap-2">
+          <button type="submit" id="profile-save-btn" class="btn-primary text-white font-semibold px-6 py-2.5 rounded-lg transition" data-i18n="seller.profile.save_profile_btn">Save Profile</button>
+          <button type="button" id="profile-cancel-btn" onclick="cancelProfileEdit()" class="px-6 py-2.5 rounded-lg border border-gray-300 text-gray-600 font-medium hover:bg-gray-50 transition" data-i18n="seller.profile.cancel_btn">Cancel</button>
+        </div>
       </form>
       <hr class="my-6 border-gray-100" />
       <button onclick="doLogout()" class="w-full bg-red-50 text-red-600 hover:bg-red-100 font-medium py-2.5 rounded-lg transition text-sm" data-i18n="nav.logout">Logout</button>

@@ -722,14 +722,34 @@
     document.getElementById('profile-name').value = p.full_name || '';
     document.getElementById('profile-phone').value = p.phone || '';
     document.getElementById('profile-email').value = p.email || currentUser.email;
+    setProfileEditing(false); // lock fields; user taps the pencil to edit
   }
+  // Lock/unlock the profile form. Fields are read-only until the user clicks
+  // the edit (pencil) icon; Save/Cancel appear only while editing.
+  function setProfileEditing(on) {
+    const form = document.getElementById('profile-form');
+    if (!form) return;
+    form.querySelectorAll('input, select, textarea').forEach(el => {
+      if (el.id === 'profile-email') { el.disabled = true; return; } // email never editable
+      el.disabled = !on;
+    });
+    const actions = document.getElementById('profile-actions');
+    const edit = document.getElementById('profile-edit-btn');
+    if (actions) actions.classList.toggle('hidden', !on);
+    if (edit) edit.classList.toggle('hidden', on);
+  }
+  function toggleProfileEdit() { setProfileEditing(true); }
+  function cancelProfileEdit() { loadProfile(); } // reloads saved values and re-locks
   async function saveProfile(e) {
     e.preventDefault();
     const { error } = await sb.from('shared_profiles').update({
       full_name: document.getElementById('profile-name').value.trim(),
       phone: document.getElementById('profile-phone').value.trim()
     }).eq('id', currentUser.id);
-    if (error) showToast('Save failed', 'error'); else { showToast('Profile updated!'); currentUser.full_name = document.getElementById('profile-name').value.trim(); }
+    if (error) { showToast('Save failed', 'error'); return; }
+    showToast('Profile updated!');
+    currentUser.full_name = document.getElementById('profile-name').value.trim();
+    setProfileEditing(false); // re-lock after a successful save
   }
   async function changePassword(e) {
     e.preventDefault();
