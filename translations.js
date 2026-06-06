@@ -291,7 +291,7 @@
       'nav.login_register': 'Log Masuk / Daftar',
       'nav.portal': 'Portal',
       'nav.dashboard': 'Papan Pemuka',
-      'nav.greeting': 'Hai',
+      'nav.greeting': 'Hi',
       'nav.my_account': 'Akaun Saya',
       'nav.my_profile': 'Profil Saya',
       'nav.language': 'Bahasa',
