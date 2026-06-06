@@ -35,7 +35,7 @@
     <div class="flex items-center gap-2 sm:gap-4 min-w-0">
       <a href="../" class="flex items-center gap-2 font-bold text-sm sm:text-lg tracking-wide shrink-0">
         <img src="../assets/hsi-logo.png" alt="HSI Marketplace" class="hidden sm:block h-10 w-auto" onerror="this.style.display='none'" />
-        <span class="text-brand-bluedark">HSI Marketplace</span>
+        <span class="text-brand-bluedark">HSI</span>
       </a>
       <a href="../" class="hidden md:inline text-gray-600 hover:text-brand-blue text-sm font-medium transition" data-i18n="nav.home">Home</a>
       <a href="../about/" class="hidden md:inline text-gray-600 hover:text-brand-blue text-sm font-medium transition" data-i18n="nav.about">About</a>
@@ -43,7 +43,6 @@
       <a href="../partners/" class="hidden md:inline text-brand-blue font-semibold text-sm transition" data-i18n="nav.partners">Partners</a>
     </div>
     <div class="flex items-center justify-end gap-1.5 sm:gap-3 shrink-0 sm:flex-wrap">
-      <button id="lang-toggle" onclick="toggleLang()" class="text-gray-600 hover:text-brand-blue border border-gray-300 hover:border-brand-blue text-[11px] sm:text-xs px-2 sm:px-2.5 py-1 rounded-full font-semibold transition">BM</button>
       <a id="nav-auth-btn" href="../" class="btn-primary text-white text-xs sm:text-sm px-2.5 sm:px-4 py-1.5 rounded-full font-medium transition" data-i18n="nav.login_register">Login / Register</a>
       <!-- PORTAL (shown when logged in — text depends on role: Buyer/Seller/Admin Portal) -->
       <a id="nav-portal-btn" href="#" onclick="goToDashboard(); return false;" class="hidden bg-brand-blue hover:bg-brand-bluedark text-white text-xs sm:text-sm px-2.5 sm:px-4 py-1.5 rounded-full font-semibold transition">Portal</a>
@@ -85,6 +84,7 @@
     <a href="../activities/" class="block px-3 py-2 rounded-lg text-gray-700 font-medium hover:bg-brand-bluelight" data-i18n="nav.activities">Activities</a>
     <a href="../partners/" class="block px-3 py-2 rounded-lg text-brand-blue font-semibold hover:bg-brand-bluelight" data-i18n="nav.partners">Partners</a>
     <a href="../contact/" id="mobile-contact-btn" class="block px-3 py-2 rounded-lg text-gray-700 font-medium hover:bg-brand-bluelight">Contact Us</a>
+    <button onclick="toggleLang()" class="block w-full text-left px-3 py-2 rounded-lg text-gray-700 font-medium hover:bg-brand-bluelight" data-i18n="nav.lang_toggle_label">Bahasa / English</button>
   </div>
 </nav>
 
