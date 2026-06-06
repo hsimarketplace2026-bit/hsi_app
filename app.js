@@ -280,6 +280,7 @@ function toggleMobileMenu(){var m=document.getElementById('mobile-menu');if(m)m.
     portalBtn.classList.remove('hidden');
     if (role === 'buyer' || !role) {
       document.getElementById('nav-cart-btn').classList.remove('hidden');
+      document.getElementById('nav-shop-btn').classList.remove('hidden');
       updateCartBadge();
     }
     // Sellers and admins cannot place orders — hide all SHOP links.

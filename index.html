@@ -141,6 +141,8 @@
       <button id="nav-auth-btn" onclick="openAuth()" class="btn-primary text-white text-sm px-3 sm:px-4 py-1.5 rounded-full font-medium transition" data-i18n="nav.login_register">Login / Register</button>
       <!-- PORTAL (shown when logged in — text depends on role: Buyer/Seller/Admin Portal) -->
       <a id="nav-portal-btn" href="#" onclick="goToDashboard(); return false;" class="hidden bg-brand-blue hover:bg-brand-bluedark text-white text-sm px-3 sm:px-4 py-1.5 rounded-full font-semibold transition">Portal</a>
+      <!-- SHOP (shown when logged in as buyer) -->
+      <a id="nav-shop-btn" href="marketplace/" class="hidden btn-primary text-white text-sm px-3 sm:px-4 py-1.5 rounded-full font-semibold transition" data-i18n="nav.shop">Shop</a>
       <!-- CART (shown when logged in) -->
       <button id="nav-cart-btn" onclick="toggleCart()" class="hidden relative btn-primary p-2 rounded-full text-white" aria-label="Cart" title="Cart">
         <svg class="w-5 h-5" viewBox="0 0 24 24" fill="currentColor"><path d="M2.25 2.25a.75.75 0 000 1.5h1.386c.17 0 .318.114.362.278l2.558 9.592a3.752 3.752 0 00-2.806 3.63c0 .414.336.75.75.75h15.75a.75.75 0 000-1.5H5.378A2.25 2.25 0 017.5 15h11.218a.75.75 0 00.674-.421 60.358 60.358 0 002.96-7.228.75.75 0 00-.525-.965A60.864 60.864 0 005.68 4.509l-.232-.867A1.875 1.875 0 003.636 2.25H2.25zM3.75 20.25a1.5 1.5 0 113 0 1.5 1.5 0 01-3 0zM16.5 20.25a1.5 1.5 0 113 0 1.5 1.5 0 01-3 0z"/></svg>
@@ -183,7 +185,7 @@
     <button onclick="toggleLang()" class="w-full text-left px-3 py-2 rounded-lg text-gray-700 font-medium hover:bg-brand-bluelight" data-i18n="nav.lang_toggle_label">Bahasa / English</button>
   </div>
 </nav>
-<script src="app.js?v=64" defer></script>
+<script src="app.js?v=65" defer></script>
 
 <!-- CART DRAWER -->
 <div id="cart-overlay" class="hidden fixed inset-0 bg-black bg-opacity-30 z-40" onclick="toggleCart()"></div>
