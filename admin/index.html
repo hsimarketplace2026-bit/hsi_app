@@ -21,6 +21,7 @@
     }}}}
   </script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="../session-guard.js" defer></script>
   <script src="../translations.js"></script>
   <style>
     :root { --accent-green: #46a338; --accent-green-hover: #3c8a30; }
@@ -61,7 +62,7 @@
   <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4 flex items-center justify-between">
     <a href="../" class="flex items-center gap-2 font-bold text-lg tracking-wide shrink-0">
       <img src="../assets/hsi-logo.png" alt="HSI Marketplace" class="hidden sm:block h-10 w-auto" onerror="this.style.display='none'" />
-      <span class="text-2xl sm:text-3xl font-black tracking-wide"><span class="bg-gradient-to-r from-brand-blue to-brand-green bg-clip-text text-transparent">HSI</span> <span class="text-brand-blue">Admin</span></span>
+      <span class="text-3xl font-black tracking-wide"><span class="bg-gradient-to-r from-brand-blue to-brand-green bg-clip-text text-transparent">HSI</span> <span class="text-brand-blue">Admin</span></span>
     </a>
     <div class="flex items-center gap-2 sm:gap-3">
       <span id="admin-name" class="text-gray-600 text-sm font-medium hidden sm:inline"></span>

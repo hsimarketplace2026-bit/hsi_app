@@ -21,6 +21,7 @@
     }}}}
   </script>
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+  <script src="../session-guard.js" defer></script>
   <script src="../translations.js"></script>
   <style>
     :root { --accent-green: #46a338; --accent-green-hover: #3c8a30; }
@@ -49,7 +50,7 @@
     <div class="flex items-center gap-2 sm:gap-4 min-w-0">
       <a href="../" class="flex items-center gap-2 font-bold text-sm sm:text-lg tracking-wide shrink-0">
         <img src="../assets/hsi-logo.png" alt="HSI Marketplace" class="hidden sm:block h-10 w-auto" onerror="this.style.display='none'" />
-        <span class="text-2xl sm:text-3xl font-black tracking-wide bg-gradient-to-r from-brand-blue to-brand-green bg-clip-text text-transparent">HSI</span>
+        <span class="text-3xl font-black tracking-wide bg-gradient-to-r from-brand-blue to-brand-green bg-clip-text text-transparent">HSI</span>
       </a>
       <a href="../" class="hidden md:inline text-gray-600 hover:text-brand-blue text-sm font-medium transition" data-i18n="nav.home">Home</a>
       <a href="../about/" class="hidden md:inline text-gray-600 hover:text-brand-blue text-sm font-medium transition" data-i18n="nav.about">About</a>
@@ -58,7 +59,7 @@
     </div>
     <div class="flex items-center justify-end gap-1.5 sm:gap-3 shrink-0 sm:flex-wrap">
       <!-- LOGIN (shown when logged out) -->
-      <button id="nav-auth-btn" onclick="window.location.href='../'" class="bg-gradient-to-r from-brand-blue to-brand-green hover:from-brand-bluedark hover:to-brand-greendark text-white text-xs sm:text-sm px-2.5 sm:px-4 py-1.5 rounded-full font-bold transition" data-i18n="nav.login_register">Login / Register</button>
+      <button id="nav-auth-btn" onclick="window.location.href='../'" class="bg-gradient-to-r from-brand-blue to-brand-green hover:from-brand-bluedark hover:to-brand-greendark text-white text-sm px-4 py-1.5 rounded-full font-bold transition" data-i18n="nav.login_register">Login / Register</button>
       <!-- PORTAL (shown when logged in — visible by default; marketplace/app.js hides for logged-out users) -->
       <a id="nav-portal-btn" href="../buyer/" class="bg-gradient-to-r from-brand-blue to-brand-bluedark hover:from-brand-bluedark hover:to-brand-blue text-white text-xs sm:text-sm px-2.5 sm:px-4 py-1.5 rounded-full font-semibold transition">Buyer Portal</a>
       <!-- SHOP -->
