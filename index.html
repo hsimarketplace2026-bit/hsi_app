@@ -378,43 +378,84 @@
 
 <!-- ══════════════ SHOP ══════════════ -->
 <div id="panel-shop" class="landing-panel">
+
+  <!-- FEATURED PRODUCTS -->
   <section class="py-24 md:py-28 bg-white">
     <div class="max-w-6xl mx-auto px-5">
-      <div class="text-center max-w-2xl mx-auto mb-14"><span class="eyebrow">Straight from the farm</span><h2 class="font-display text-3xl md:text-5xl font-medium text-ink mt-4 mb-5" data-i18n="section.fresh_week">Fresh This Week</h2><p class="text-[#5b6b73]">Hand-picked hydroponic produce from HSI community farmers. Browse the full marketplace to order.</p></div>
-      <div id="featured-products" class="flex gap-5 overflow-x-auto pb-4 snap-x no-scrollbar">
-        <div class="text-gray-400 text-sm py-6" data-i18n="section.loading_products">Loading fresh products…</div>
+      <div class="text-center max-w-2xl mx-auto mb-14">
+        <span class="eyebrow">Straight from the farm</span>
+        <h2 class="font-display text-3xl md:text-5xl font-medium text-ink mt-4 mb-5" data-i18n="section.fresh_week">Fresh This Week</h2>
+        <p class="text-[#5b6b73]">Hand-picked hydroponic produce from HSI community farmers. Browse the full marketplace to order.</p>
       </div>
-      <div class="text-center mt-10"><a href="marketplace/" class="inline-block btn-ink font-medium px-9 py-3.5 rounded-full text-base shadow-lg transition" data-i18n="hero.browse_btn">Browse Marketplace</a></div>
+      <div id="featured-products" class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-5">
+        <div class="col-span-full text-[#5b6b73] text-sm text-center py-10" data-i18n="section.loading_products">Loading fresh products…</div>
+      </div>
+      <div class="text-center mt-12">
+        <a href="marketplace/" class="inline-block btn-ink font-medium px-9 py-3.5 rounded-full text-base shadow-lg transition" data-i18n="hero.browse_btn">Browse Marketplace</a>
+      </div>
     </div>
   </section>
 
-  <section id="announcements-section" class="py-24 bg-[#f8fafb] hidden">
+  <!-- WHY SHOP WITH HSI -->
+  <section class="py-24 bg-[#f8fafb]">
     <div class="max-w-6xl mx-auto px-5">
-      <div class="text-center mb-12"><span class="eyebrow">Latest news</span><h2 class="font-display text-3xl md:text-4xl font-medium text-ink mt-2" data-i18n="section.announcements">Announcements</h2></div>
+      <div class="max-w-2xl mb-14">
+        <span class="eyebrow">Why shop with HSI</span>
+        <h2 class="font-display text-3xl md:text-4xl font-medium text-ink mt-3">Freshness you can trust</h2>
+        <p class="text-[#5b6b73] mt-4">Every product in our marketplace comes from HSI-certified community farmers, grown without pesticides in modern hydroponic systems.</p>
+      </div>
+      <div class="grid md:grid-cols-3 gap-6">
+        <div class="bg-white hairline rounded-2xl p-8 lift">
+          <div class="icon-box bg-green-50 text-[#3a9e30] mb-6"><svg class="ico" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 3.75c2.25 3 5.25 6.75 5.25 9.75a5.25 5.25 0 11-10.5 0c0-3 3-6.75 5.25-9.75z"/></svg></div>
+          <h3 class="font-display text-xl font-semibold text-ink mb-2">Pesticide-Free</h3>
+          <p class="text-[#5b6b73] text-sm leading-relaxed">Clean, controlled hydroponic conditions keep every crop naturally free of pesticides — safe for you and your family.</p>
+        </div>
+        <div class="bg-white hairline rounded-2xl p-8 lift">
+          <div class="icon-box bg-sky-50 text-[#13658f] mb-6"><svg class="ico" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M15 10.5a3 3 0 11-6 0 3 3 0 016 0z"/><path stroke-linecap="round" stroke-linejoin="round" d="M19.5 10.5c0 7.142-7.5 11.25-7.5 11.25S4.5 17.642 4.5 10.5a7.5 7.5 0 1115 0z"/></svg></div>
+          <h3 class="font-display text-xl font-semibold text-ink mb-2">Locally Grown</h3>
+          <p class="text-[#5b6b73] text-sm leading-relaxed">Grown right here in Bintulu by HSI community farmers — shorter supply chains mean fresher produce delivered sooner.</p>
+        </div>
+        <div class="bg-white hairline rounded-2xl p-8 lift">
+          <div class="icon-box bg-amber-50 text-amber-600 mb-6"><svg class="ico" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z"/></svg></div>
+          <h3 class="font-display text-xl font-semibold text-ink mb-2">Community Impact</h3>
+          <p class="text-[#5b6b73] text-sm leading-relaxed">Every purchase directly supports low-income families in the HSI programme — your grocery order makes a real difference.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ANNOUNCEMENTS (shown only when data exists) -->
+  <section id="announcements-section" class="py-24 bg-white hidden">
+    <div class="max-w-6xl mx-auto px-5">
+      <div class="max-w-2xl mb-12">
+        <span class="eyebrow">Latest news</span>
+        <h2 class="font-display text-3xl md:text-4xl font-medium text-ink mt-2" data-i18n="section.announcements">Announcements</h2>
+      </div>
       <div id="announcements-list" class="grid md:grid-cols-3 gap-6"></div>
     </div>
   </section>
 
-  <section class="hero-photo text-white py-28">
+  <!-- COMMUNITY CTA -->
+  <section class="bg-[#0b2b36] text-white py-24 md:py-28">
     <div class="max-w-4xl mx-auto px-5 text-center">
-      <div class="eyebrow !text-white/70 mb-5" data-i18n="community.tag">Get involved</div>
+      <div class="eyebrow !text-[#7fd089] mb-5" data-i18n="community.tag">Get involved</div>
       <h2 class="font-display text-3xl md:text-5xl font-medium mb-5" data-i18n="community.title">Be part of the HSI community</h2>
-      <p class="text-white/80 text-lg mb-14 max-w-2xl mx-auto font-light" data-i18n="community.body">Whether you grow, buy, or simply believe in fresh local food, there's a place for you in the Hydro Sprout Initiative.</p>
+      <p class="text-white/70 text-lg mb-14 max-w-2xl mx-auto font-light" data-i18n="community.body">Whether you grow, buy, or simply believe in fresh local food, there's a place for you in the Hydro Sprout Initiative.</p>
       <div class="grid sm:grid-cols-3 gap-5 mb-14 text-left">
-        <div class="bg-white/5 backdrop-blur rounded-2xl p-7 border border-white/15">
-          <svg class="ico text-white mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 21a9 9 0 100-18 9 9 0 000 18zm0 0V9m0 0c0-1.657 1.79-3 4-3m-4 3C12 7.343 10.21 6 8 6"/></svg>
+        <div class="rounded-2xl p-7 border border-white/15 bg-white/5">
+          <svg class="ico text-[#56be45] mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M12 21a9 9 0 100-18 9 9 0 000 18zm0 0V9m0 0c0-1.657 1.79-3 4-3m-4 3C12 7.343 10.21 6 8 6"/></svg>
           <h3 class="font-display text-lg font-medium mb-1.5" data-i18n="community.farmer_title">Grow &amp; Sell</h3>
-          <p class="text-white/70 text-sm font-light" data-i18n="community.farmer_body">Register as a community farmer to list your produce and reach buyers directly.</p>
+          <p class="text-white/65 text-sm font-light" data-i18n="community.farmer_body">Register as a community farmer to list your produce and reach buyers directly.</p>
         </div>
-        <div class="bg-white/5 backdrop-blur rounded-2xl p-7 border border-white/15">
-          <svg class="ico text-white mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 3h1.386c.51 0 .955.343 1.087.835l.383 1.437M7.5 14.25a3 3 0 00-3 3h15.75m-12.75-3h11.218c1.121-2.3 2.1-4.684 2.924-7.138a60.114 60.114 0 00-16.536-1.84M7.5 14.25L5.106 5.272M6 20.25a.75.75 0 11-1.5 0 .75.75 0 011.5 0zm12.75 0a.75.75 0 11-1.5 0 .75.75 0 011.5 0z"/></svg>
+        <div class="rounded-2xl p-7 border border-white/15 bg-white/5">
+          <svg class="ico text-[#1b8fc4] mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M2.25 3h1.386c.51 0 .955.343 1.087.835l.383 1.437M7.5 14.25a3 3 0 00-3 3h15.75m-12.75-3h11.218c1.121-2.3 2.1-4.684 2.924-7.138a60.114 60.114 0 00-16.536-1.84M7.5 14.25L5.106 5.272M6 20.25a.75.75 0 11-1.5 0 .75.75 0 011.5 0zm12.75 0a.75.75 0 11-1.5 0 .75.75 0 011.5 0z"/></svg>
           <h3 class="font-display text-lg font-medium mb-1.5" data-i18n="community.buyer_title">Shop Fresh</h3>
-          <p class="text-white/70 text-sm font-light" data-i18n="community.buyer_body">Create a buyer account to order fresh produce, track orders and earn loyalty points.</p>
+          <p class="text-white/65 text-sm font-light" data-i18n="community.buyer_body">Create a buyer account to order fresh produce, track orders and earn loyalty points.</p>
         </div>
-        <div class="bg-white/5 backdrop-blur rounded-2xl p-7 border border-white/15">
-          <svg class="ico text-white mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z"/></svg>
+        <div class="rounded-2xl p-7 border border-white/15 bg-white/5">
+          <svg class="ico text-amber-400 mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M21 8.25c0-2.485-2.099-4.5-4.688-4.5-1.935 0-3.597 1.126-4.312 2.733-.715-1.607-2.377-2.733-4.313-2.733C5.1 3.75 3 5.765 3 8.25c0 7.22 9 12 9 12s9-4.78 9-12z"/></svg>
           <h3 class="font-display text-lg font-medium mb-1.5" data-i18n="community.support_title">Support Local</h3>
-          <p class="text-white/70 text-sm font-light" data-i18n="community.support_body">Every purchase strengthens local farmers and a sustainable community food system.</p>
+          <p class="text-white/65 text-sm font-light" data-i18n="community.support_body">Every purchase strengthens local farmers and a sustainable community food system.</p>
         </div>
       </div>
       <div class="flex flex-col sm:flex-row gap-3 justify-center">
@@ -423,6 +464,7 @@
       </div>
     </div>
   </section>
+
 </div><!-- /panel-shop -->
 
 <!-- ══════════════ FOOTER ══════════════ -->
@@ -816,17 +858,17 @@
       .select('*, profiles:shared_profiles(full_name, farm_name)')
       .eq('status', 'active').order('created_at', { ascending: false }).limit(6);
     const container = document.getElementById('featured-products');
-    if (!products || products.length === 0) { container.innerHTML = '<p class="text-gray-400 text-sm py-6">No products yet. Check back soon!</p>'; return; }
-    const leaf = '<svg class="w-9 h-9 text-[#9fb4bc]" fill="none" stroke="currentColor" stroke-width="1.4" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 21c0-6.5 4.5-12.5 13-13.5C16 14 11.5 21 3 21zm0 0c2-4.5 5.5-7 10-8.5"/></svg>';
+    if (!products || products.length === 0) { container.innerHTML = '<p class="col-span-full text-[#5b6b73] text-sm text-center py-10">No products yet — check back soon!</p>'; return; }
+    const leaf = '<svg class="w-10 h-10 text-[#b0c4cc]" fill="none" stroke="currentColor" stroke-width="1.3" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" d="M3 21c0-6.5 4.5-12.5 13-13.5C16 14 11.5 21 3 21zm0 0c2-4.5 5.5-7 10-8.5"/></svg>';
     container.innerHTML = products.map(p => `
-      <a href="marketplace/" class="snap-start shrink-0 w-56 bg-white rounded-2xl overflow-hidden hairline lift zoom">
-        <div class="h-40 bg-[#f1f5f6] overflow-hidden flex items-center justify-center">
+      <a href="marketplace/" class="bg-white rounded-2xl overflow-hidden hairline lift flex flex-col group">
+        <div class="aspect-[4/3] bg-[#f1f5f6] overflow-hidden flex items-center justify-center zoom">
           ${p.image_url ? `<img src="${p.image_url}" alt="${p.name}" class="w-full h-full object-cover" />` : leaf}
         </div>
-        <div class="p-4">
-          <p class="font-medium text-sm text-ink truncate">${p.name}</p>
-          <p class="text-xs text-gray-500 truncate">${p.profiles?.farm_name || p.profiles?.full_name || 'HSI Farmer'}</p>
-          <p class="text-[#13658f] font-semibold text-base mt-1.5 font-display">RM ${parseFloat(p.price).toFixed(2)} <span class="text-xs font-normal text-gray-400">/ ${p.unit}</span></p>
+        <div class="p-5 flex flex-col flex-1">
+          <p class="font-display font-medium text-base text-ink truncate mb-1">${p.name}</p>
+          <p class="text-xs text-[#5b6b73] truncate mb-auto">${p.profiles?.farm_name || p.profiles?.full_name || 'HSI Farmer'}</p>
+          <p class="text-[#13658f] font-semibold text-lg mt-3 font-display">RM ${parseFloat(p.price).toFixed(2)}<span class="text-xs font-normal text-[#5b6b73] ml-1">/ ${p.unit}</span></p>
         </div>
       </a>`).join('');
   }
@@ -838,9 +880,12 @@
     if (!items || items.length === 0) return;
     document.getElementById('announcements-section').classList.remove('hidden');
     document.getElementById('announcements-list').innerHTML = items.map(a => `
-      <div class="bg-white rounded-2xl overflow-hidden hairline lift">
-        ${a.image_url ? `<img src="${a.image_url}" alt="${a.title}" class="w-full h-40 object-cover" />` : ''}
-        <div class="p-6"><h4 class="font-display font-semibold text-ink mb-1">${a.title}</h4><p class="text-[#5b6b73] text-sm">${a.body || ''}</p></div>
+      <div class="bg-white rounded-2xl overflow-hidden hairline lift flex flex-col">
+        ${a.image_url ? `<div class="zoom"><img src="${a.image_url}" alt="${a.title}" class="w-full h-44 object-cover" /></div>` : ''}
+        <div class="p-7 flex flex-col flex-1">
+          <h4 class="font-display font-semibold text-lg text-ink mb-2">${a.title}</h4>
+          <p class="text-[#5b6b73] text-sm leading-relaxed">${a.body || ''}</p>
+        </div>
       </div>`).join('');
   }
 
