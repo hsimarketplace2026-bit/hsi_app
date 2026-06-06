@@ -1,0 +1,16 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 200 200" width="192" height="192">
+<defs>
+<linearGradient id="g" x1="0" y1="0" x2="1" y2="1">
+<stop offset="0" stop-color="#4ade80"/><stop offset="1" stop-color="#16a34a"/>
+</linearGradient>
+<linearGradient id="g2" x1="0" y1="0" x2="0" y2="1">
+<stop offset="0" stop-color="#86efac"/><stop offset="1" stop-color="#22c55e"/>
+</linearGradient>
+</defs>
+<rect width="200" height="200" rx="38" fill="#14532d"/>
+
+<path d="M100,100 C100,74 112,52 138,48 C158,45 174,58 172,78 C171,90 163,98 152,99 C156,93 156,86 150,84 C145,90 145,95 140,98 C144,92 143,85 137,84 C132,90 133,95 128,99 C132,93 131,86 125,85 C120,91 119,97 116,100 C110,101 104,101 100,100 Z" fill="url(#g2)"/>
+<path d="M100,100 C100,74 112,52 138,48 C158,45 174,58 172,78 C171,90 163,98 152,99 C156,93 156,86 150,84 C145,90 145,95 140,98 C144,92 143,85 137,84 C132,90 133,95 128,99 C132,93 131,86 125,85 C120,91 119,97 116,100 C110,101 104,101 100,100 Z" fill="url(#g)" transform="rotate(180 100 100)"/>
+<circle cx="100" cy="100" r="4" fill="#14532d" opacity="0.3"/>
+
+</svg>
