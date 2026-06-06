@@ -48,6 +48,7 @@ document.addEventListener('click', function (e) {
     else if (role === 'seller' && profile.status === 'active') { label = 'Seller Portal'; target = 'seller/'; }
 
     portal.textContent = label;
+    portal.removeAttribute('data-i18n'); // prevent applyTranslations from overwriting role-specific label
     portal.href = rel(target);
     portal.classList.remove('hidden');
     if (auth) auth.classList.add('hidden');
