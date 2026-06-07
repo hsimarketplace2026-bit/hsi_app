@@ -184,7 +184,7 @@
   // ── Route after login ──────────────────────────────────────────────────
   function routeAfterLogin(profile) {
     var root = rootHref();
-    if (!profile) { window.location.href = root + 'buyer/'; return; }
+    if (!profile) { window.location.href = root + 'marketplace/'; return; }
     if (profile.role === 'admin') { window.location.href = root + 'admin/'; return; }
     if (profile.role === 'seller' && profile.status !== 'active') {
       alert('Your seller account is pending admin approval.');
@@ -192,7 +192,7 @@
       return;
     }
     if (profile.role === 'seller') { window.location.href = root + 'seller/'; return; }
-    window.location.href = root + 'buyer/';
+    window.location.href = root + 'marketplace/';
   }
 
   async function ensureProfile(user, meta) {

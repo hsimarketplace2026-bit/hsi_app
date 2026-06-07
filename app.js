@@ -99,12 +99,8 @@ function toggleMobileMenu(){var m=document.getElementById('mobile-menu');if(m)m.
       showToast('Your seller account is pending admin approval.', 'warning');
       return;
     }
-    // Buyers and active sellers: stay on the landing page; just reflect the
-    // logged-in state. Sellers can reach their dashboard from the Seller
-    // Portal pill in the header.
-    closeAuth();
-    initNav();
-    showToast('Welcome back!');
+    if (profile.role === 'seller') { window.location.href = 'seller/'; return; }
+    window.location.href = 'marketplace/';
   }
 
   function goToDashboard() {
