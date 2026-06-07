@@ -77,8 +77,6 @@
     currentCategory = cat;
     document.querySelectorAll('.category-pill').forEach(p => {
       p.classList.toggle('active', p.textContent.trim() === cat);
-      p.classList.toggle('bg-green-600', p.textContent.trim() === cat);
-      p.classList.toggle('bg-green-800', p.textContent.trim() !== cat);
     });
     renderProducts();
   }
