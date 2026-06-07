@@ -378,7 +378,7 @@
     if (window.applyTranslations) applyTranslations();
     document.getElementById('user-dropdown').classList.add('hidden');
   }
-  async function doLogout() { await sb.auth.signOut(); window.location.reload(); }
+  async function doLogout() { try { await sb.auth.signOut(); } catch (_) {} window.location.replace('../'); }
   document.addEventListener('click', e => {
     const menu = document.getElementById('nav-user-menu');
     if (menu && !menu.classList.contains('hidden') && !menu.contains(e.target)) {
