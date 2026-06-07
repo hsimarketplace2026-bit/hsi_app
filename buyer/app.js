@@ -843,7 +843,10 @@
     loadBilling();
   }
 
-  async function doLogout() { await sb.auth.signOut(); window.location.href = '../'; }
+  async function doLogout() {
+    try { await sb.auth.signOut(); } catch (_) {}
+    window.location.replace('../');
+  }
 
   if ('serviceWorker' in navigator) {
     navigator.serviceWorker.register('../sw.js').then(reg => {

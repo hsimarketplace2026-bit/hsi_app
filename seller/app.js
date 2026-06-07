@@ -680,8 +680,8 @@
   }
 
   async function doLogout() {
-    await sb.auth.signOut();
-    window.location.href = '../';
+    try { await sb.auth.signOut(); } catch (_) {}
+    window.location.replace('../');
   }
 
   if ('serviceWorker' in navigator) {
